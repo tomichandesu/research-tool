@@ -1,0 +1,16 @@
+{"id": 1, "topic": "Amazon SP-API", "url": "https://developer-docs.amazon.com/sp-api/", "summary": "Amazon SP-API provides product data, pricing, inventory management, and customer reviews. 2026年からAPI使用料金（年間$1,400 + 従量課金）が発生", "date": "2026-02-02"}
+{"id": 2, "topic": "Keepa API", "url": "https://keepaapi.readthedocs.io/", "summary": "価格履歴、販売ランク履歴、BSR推移データを提供。40億以上の商品を追跡。€19/月", "date": "2026-02-02"}
+{"id": 3, "topic": "Jungle Scout", "url": "https://projectfba.com/helium-10-vs-jungle-scout/", "summary": "500M+の商品データベース、販売推定、キーワードリサーチ。$49-$129/月", "date": "2026-02-02"}
+{"id": 4, "topic": "Helium 10", "url": "https://revenuegeeks.com/helium10-vs-keepa/", "summary": "30+ツール、Black Boxで4.5億商品検索、販売推定精度が高い。$29-$279/月", "date": "2026-02-02"}
+{"id": 5, "topic": "1688 API - TMAPI", "url": "https://tmapi.top/docs/ali/search/search-items-by-image-url/", "summary": "1688画像検索API、商品詳細取得、ショップ情報取得をサポート", "date": "2026-02-02"}
+{"id": 6, "topic": "1688 API - DajiAPI", "url": "https://dajiapi.cn/", "summary": "1688画像検索、キーワード検索、店舗検索、12言語対応", "date": "2026-02-02"}
+{"id": 7, "topic": "AliPrice", "url": "https://api.aliprice.com/", "summary": "1688/Taobao画像検索Chrome拡張、API提供", "date": "2026-02-02"}
+{"id": 8, "topic": "NETSEA-1688連携", "url": "https://ecnomikata.com/ecnews/44625/", "summary": "2024年9月、NETSEAと1688.comがAPI連携開始", "date": "2026-02-02"}
+{"id": 9, "topic": "BSR販売推定", "url": "https://easyparser.com/blog/amazon-bsr-monthly-sales-estimation/", "summary": "BSRから月間販売数を推定する対数補間法。カテゴリごとに係数が異なる。精度80-85%", "date": "2026-02-02"}
+{"id": 10, "topic": "FBA手数料", "url": "https://amzprep.com/amazon-fba-profit-margin-calculator/", "summary": "FBA手数料計算、国際配送コスト計算。中国→米国は$6-7/kg（DHL）", "date": "2026-02-02"}
+{"id": 11, "topic": "Amazon MCP Server", "url": "https://github.com/rigwild/mcp-server-amazon", "summary": "オープンソースAmazon MCPサーバー、商品検索・カート管理・注文履歴", "date": "2026-02-02"}
+{"id": 12, "topic": "Amazon MCP (Fewsats)", "url": "https://github.com/Fewsats/amazon-mcp", "summary": "L402プロトコルでの安全な購入機能付きAmazon MCP", "date": "2026-02-02"}
+{"id": 13, "topic": "MCPMarket", "url": "https://mcpmarket.com/", "summary": "MCPサーバーディレクトリ、Amazon Shopping/Marketplace Data MCPを掲載", "date": "2026-02-02"}
+{"id": 14, "topic": "SkillsMP", "url": "https://skillsmp.com/", "summary": "87,000+のClaude Codeスキルディレクトリ", "date": "2026-02-02"}
+{"id": 15, "topic": "Listing Quality Score", "url": "https://support.junglescout.com/hc/en-us/articles/360008617394-Listing-Quality-Score-LQS", "summary": "LQSアルゴリズムでリスティング品質を1-10で評価。画像数・解像度も評価対象", "date": "2026-02-02"}
+{"id": 16, "topic": "桜トレード1688ツール", "url": "https://sakuratrade.jp/research_1688/", "summary": "2025年2月、1688日本語リサーチツールをリリース。API経由で商品情報取得", "date": "2026-02-02"}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}ユーザー: {{ target.display_name }} - 管理{% endblock %}
+
+{% block content %}
+<h1>{{ target.display_name }}</h1>
+<a href="/admin/users" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+<div class="card mt-1">
+    <h2>ユーザー情報</h2>
+    <dl class="dl-horizontal">
+        <dt>メール</dt><dd>{{ target.email }}</dd>
+        <dt>権限</dt><dd>{{ target.role }}</dd>
+        <dt>状態</dt><dd>{{ 'アクティブ' if target.is_active else '無効' }}</dd>
+        <dt>サービス</dt>
+        <dd>
+            {% if target.service_type == 'ai_automate' %}AI自動物販
+            {% elif target.service_type == 'alumni' %}卒業生アフターフォロー
+            {% else %}未設定{% endif %}
+        </dd>
+        <dt>プラン</dt>
+        <dd>
+            <span class="badge {{ plan_display[target.plan_type].color }}">
+                {{ plan_display[target.plan_type].label }}
+            </span>
+            {% if target.plan_billing == 'annual' %}（年額）{% endif %}
+        </dd>
+        <dt>リサーチ数（月）</dt>
+        <dd>
+            {{ target.candidate_count_monthly }} / {{ target.candidate_limit_monthly }}
+        </dd>
+        <dt>登録日</dt><dd>{{ target.created_at|jst }}</dd>
+        <dt>最終ログイン</dt><dd>{{ target.last_login_at|jst if target.last_login_at else '-' }}</dd>
+    </dl>
+</div>
+
+<div class="card mt-1">
+    <h2>プラン設定</h2>
+    <div class="action-group">
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="update_plan">
+            <label>サービス:</label>
+            <select name="service_type" class="input-sm">
+                <option value="none" {{ 'selected' if target.service_type == 'none' }}>未設定</option>
+                <option value="ai_automate" {{ 'selected' if target.service_type == 'ai_automate' }}>AI自動物販</option>
+                <option value="alumni" {{ 'selected' if target.service_type == 'alumni' }}>卒業生アフターフォロー</option>
+            </select>
+            <label>プラン:</label>
+            <select name="plan_type" class="input-sm">
+                {% for key, info in plan_display.items() %}
+                <option value="{{ key }}" {{ 'selected' if target.plan_type == key }}>{{ info.label }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary btn-sm">プラン更新</button>
+        </form>
+
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="update_candidate_limit">
+            <label>リサーチ上限:</label>
+            <input type="number" name="candidate_limit_monthly" value="{{ target.candidate_limit_monthly }}" min="0" max="999999" class="input-sm">
+            <button class="btn btn-primary btn-sm">上限更新</button>
+        </form>
+
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="reset_usage">
+            <button class="btn btn-outline btn-sm">使用量リセット</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-1">
+    <h2>有効期限</h2>
+    <dl class="dl-horizontal">
+        <dt>プラン期限</dt>
+        <dd>
+            {% if target.plan_expires_at %}
+                {{ target.plan_expires_at|jst }}
+                {% set now_ts = now().timestamp() %}
+                {% set exp_ts = target.plan_expires_at.timestamp() %}
+                {% set remaining_days = ((exp_ts - now_ts) / 86400) | int %}
+                {% if remaining_days < 0 %}
+                    <span class="badge badge-failed">期限切れ（{{ remaining_days|abs }}日前）</span>
+                {% elif remaining_days <= 30 %}
+                    <span class="badge badge-pending">残り{{ remaining_days }}日</span>
+                {% else %}
+                    <span class="badge badge-completed">残り{{ remaining_days }}日</span>
+                {% endif %}
+            {% else %}
+                <span class="badge badge-completed">期限なし</span>
+            {% endif %}
+        </dd>
+    </dl>
+
+    <div class="action-group mt-1">
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="extend_plan">
+            <input type="hidden" name="months" value="6">
+            <button class="btn btn-primary btn-sm">+6ヶ月延長</button>
+        </form>
+
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="set_expiry">
+            <label>日付指定:</label>
+            <input type="date" name="plan_expires_at" value="{{ target.plan_expires_at.strftime('%Y-%m-%d') if target.plan_expires_at else '' }}" class="input-sm">
+            <button class="btn btn-outline btn-sm">期限設定</button>
+        </form>
+
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="set_expiry">
+            <input type="hidden" name="plan_expires_at" value="">
+            <button class="btn btn-outline btn-sm">期限クリア</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-1">
+    <h2>アカウント操作</h2>
+    <div class="action-group">
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="toggle_active">
+            <button class="btn {{ 'btn-danger' if target.is_active else 'btn-success' }}">
+                {{ '無効化' if target.is_active else '有効化' }}
+            </button>
+        </form>
+
+        <form method="post" action="/admin/users/{{ target.id }}" class="inline-form">
+            <input type="hidden" name="action" value="change_role">
+            <select name="role" class="input-sm">
+                <option value="member" {{ 'selected' if target.role == 'member' }}>メンバー</option>
+                <option value="admin" {{ 'selected' if target.role == 'admin' }}>管理者</option>
+            </select>
+            <button class="btn btn-outline btn-sm">権限変更</button>
+        </form>
+    </div>
+</div>
+
+{% if jobs %}
+<div class="card mt-1">
+    <h2>リサーチ履歴</h2>
+    <table class="table">
+        <thead>
+            <tr><th>ID</th><th>キーワード</th><th>ステータス</th><th>候補数</th><th>作成日時</th></tr>
+        </thead>
+        <tbody>
+        {% for j in jobs %}
+            <tr>
+                <td>{{ j.id }}</td>
+                <td>{{ j.keyword }}</td>
+                <td><span class="badge badge-{{ j.status }}">{{ j.status }}</span></td>
+                <td>
+                    {% if j.result_summary %}
+                    {% set s = j.result_summary | from_json %}
+                    {{ s.candidates_count if s else '-' }}
+                    {% else %}-{% endif %}
+                </td>
+                <td>{{ j.created_at|jst }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

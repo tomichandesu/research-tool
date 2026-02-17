@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "小動物 ケージ", "generated_at": "2026-02-09 04:16:45", "products": [{"amazon": {"asin": "B0FHJTH6JX", "title": "iimono117 ハムスター ケージ 大きい [ 幅57.5 奥行31.5 高さ38cm ] 大型サイズ 小動物ケージ 飼育ケージ 金網タイプ モルモット ゴールデンハムスター 小動物 脱走防止 ロック付き (ホワイト)", "price": 2980, "image_url": "https://m.media-amazon.com/images/I/61pUBmjgXvL._AC_SY450_.jpg", "bsr": 20001, "category": "ペット用品", "review_count": 25, "is_fba": false, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0FHJTH6JX", "rating": 3.1, "seller_name": "✅iimono117（インボイス発行事業者）\n （6869件の評価）", "variation_count": 4, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 53, "estimated_monthly_revenue": 157940, "candidates": [{"alibaba": {"price_cny": 25.7, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01B3Qbop245JqW33Z9I_!!2217667567339-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1014606819210.html", "shop_name": null, "shop_url": "https://shop6733943.1688.com/", "min_order": 1, "title": "鸟笼牡丹玄风和尚鹦鹉繁殖笼镀锌养殖笼组装带门加粗批发鸟用宠物"}, "orb_similarity": 0.0027, "hist_similarity": 0.9904, "combined_score": 0.5953, "profit": {"amazon_price": 2980, "cost_1688_jpy": 591, "shipping": 115, "customs": 70, "referral_fee": 447, "fba_fee": 0, "total_cost": 1286, "profit": 1694, "profit_rate": 0.5684563758389262, "is_profitable": true, "profit_rate_percentage": 56.8}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01RkLd3N1WjRbc1Gf3s_!!2220166302824-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1008575679834.html", "shop_name": null, "shop_url": "https://shop0282492.1688.com/", "min_order": 1, "title": "鹦鹉鸟笼新款虎皮牡丹绣眼珍珠鸟小型鸟笼子家用大号豪华别墅"}, "orb_similarity": 0.0081, "hist_similarity": 0.9836, "combined_score": 0.5934, "profit": {"amazon_price": 2980, "cost_1688_jpy": 345, "shipping": 115, "customs": 46, "referral_fee": 447, "fba_fee": 0, "total_cost": 1009, "profit": 1971, "profit_rate": 0.6614093959731544, "is_profitable": true, "profit_rate_percentage": 66.1}}, {"alibaba": {"price_cny": 17.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZQ5r3m2A0B24yr7k5_!!2190118140-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/926770696617.html", "shop_name": null, "shop_url": "https://shop0118140.1688.com/", "min_order": 1, "title": "ハムスターケージ 特大高級ヴィラ ゴールデンベア専用 47ベーシックケージ 60 格安大型ハウス用品セット"}, "orb_similarity": 0.0053, "hist_similarity": 0.9779, "combined_score": 0.5889, "profit": {"amazon_price": 2980, "cost_1688_jpy": 391, "shipping": 115, "customs": 50, "referral_fee": 447, "fba_fee": 0, "total_cost": 1060, "profit": 1920, "profit_rate": 0.6442953020134228, "is_profitable": true, "profit_rate_percentage": 64.4}}, {"alibaba": {"price_cny": 23.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ndoCIS1aiIvmsBeYv_!!2902813363-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/785432902446.html", "shop_name": null, "shop_url": "https://shop6352501.1688.com/", "min_order": 1, "title": "ハムスターケージ特大豪華別荘金糸熊専用47基礎ケージ60安い家用品セット"}, "orb_similarity": 0.0053, "hist_similarity": 0.9779, "combined_score": 0.5888, "profit": {"amazon_price": 2980, "cost_1688_jpy": 547, "shipping": 115, "customs": 66, "referral_fee": 447, "fba_fee": 0, "total_cost": 1237, "profit": 1743, "profit_rate": 0.5848993288590604, "is_profitable": true, "profit_rate_percentage": 58.5}}, {"alibaba": {"price_cny": 23.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kL1L3p20iTC1hCPWY_!!2212535576883-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/954417261368.html", "shop_name": null, "shop_url": "https://shop5576883.1688.com/", "min_order": 20, "title": "适配WINIX空气净化器C545 替换过滤器滤芯活性炭高效HEPA过滤网"}, "orb_similarity": 0.1471, "hist_similarity": 0.8644, "combined_score": 0.5775, "profit": {"amazon_price": 2980, "cost_1688_jpy": 529, "shipping": 115, "customs": 64, "referral_fee": 447, "fba_fee": 0, "total_cost": 1216, "profit": 1764, "profit_rate": 0.5919463087248322, "is_profitable": true, "profit_rate_percentage": 59.2}}, {"alibaba": {"price_cny": 43.86, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013YdqwL25Wd2jnBl6e_!!2220464657534-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/967607387696.html", "shop_name": null, "shop_url": "https://shop4657534.1688.com/", "min_order": 1, "title": "2024仓鼠笼子双层60大基础笼金丝熊窝大码仓鼠笼别墅四季通用"}, "orb_similarity": 0.0, "hist_similarity": 0.9523, "combined_score": 0.5714, "profit": {"amazon_price": 2980, "cost_1688_jpy": 1008, "shipping": 115, "customs": 112, "referral_fee": 447, "fba_fee": 0, "total_cost": 1758, "profit": 1222, "profit_rate": 0.41006711409395974, "is_profitable": true, "profit_rate_percentage": 41.0}}, {"alibaba": {"price_cny": 52.45, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN012eiT7m21k8G2LBiw5_!!2220431617022-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/990057405008.html", "shop_name": null, "shop_url": "https://shop1288115.1688.com/", "min_order": 1, "title": "仓鼠笼子双层大基础笼金丝熊窝大码仓鼠笼别墅四季通用"}, "orb_similarity": 0.0, "hist_similarity": 0.9523, "combined_score": 0.5714, "profit": {"amazon_price": 2980, "cost_1688_jpy": 1206, "shipping": 115, "customs": 132, "referral_fee": 447, "fba_fee": 0, "total_cost": 1982, "profit": 998, "profit_rate": 0.33489932885906043, "is_profitable": true, "profit_rate_percentage": 33.5}}, {"alibaba": {"price_cny": 35.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01c9Rj6I2AEN8CWsGco_!!2214571728171-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/738381176221.html", "shop_name": null, "shop_url": "https://shop7281718.1688.com/", "min_order": 1, "title": "ハムスターケージ二層60大基礎ケージ金糸熊巣大サイズハムスターケージ別荘四季通用"}, "orb_similarity": 0.008, "hist_similarity": 0.9292, "combined_score": 0.5607, "profit": {"amazon_price": 2980, "cost_1688_jpy": 805, "shipping": 115, "customs": 92, "referral_fee": 447, "fba_fee": 0, "total_cost": 1529, "profit": 1451, "profit_rate": 0.48691275167785236, "is_profitable": true, "profit_rate_percentage": 48.7}}, {"alibaba": {"price_cny": 32.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01F5htgh2A0ApugMhXQ_!!2190118140-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/731505751196.html", "shop_name": null, "shop_url": "https://shop0118140.1688.com/", "min_order": 2, "title": "新色大基ハムスターケージ二層60大基礎ケージ金糸熊巣大サイズハムスターケージ別荘四季通用"}, "orb_similarity": 0.0057, "hist_similarity": 0.9075, "combined_score": 0.5467, "profit": {"amazon_price": 2980, "cost_1688_jpy": 736, "shipping": 115, "customs": 85, "referral_fee": 447, "fba_fee": 0, "total_cost": 1451, "profit": 1529, "profit_rate": 0.5130872483221477, "is_profitable": true, "profit_rate_percentage": 51.3}}, {"alibaba": {"price_cny": 45.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01nr8MDd1aiIvfvGaXm_!!2902813363-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/801042554163.html", "shop_name": null, "shop_url": "https://shop6352501.1688.com/", "min_order": 1, "title": "ハムスターケージ金糸熊ケージ超豪華別荘専用60特大47用品大全小昌鼠ケージ"}, "orb_similarity": 0.0087, "hist_similarity": 0.7179, "combined_score": 0.4342, "profit": {"amazon_price": 2980, "cost_1688_jpy": 1053, "shipping": 115, "customs": 116, "referral_fee": 447, "fba_fee": 0, "total_cost": 1808, "profit": 1172, "profit_rate": 0.3932885906040268, "is_profitable": true, "profit_rate_percentage": 39.3}}]}, {"amazon": {"asin": "B0DRXBD9RJ", "title": "PETZHUBO 小動物ケージ 2段階 ケージサイズ:36(W)x27(L)x25(H)cm 広々タイプ トレーデザイン お手入れ簡単 通気性 組立簡単 チャイニーズ ロボロフスキー キャンベルハムスター ジャンガリアンハムスター ゴールデン", "price": 2390, "image_url": "https://m.media-amazon.com/images/I/61uRcON3JgL._AC_SY450_.jpg", "bsr": 17821, "category": "ペット用品", "review_count": 1, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0DRXBD9RJ", "rating": 1.0, "seller_name": "PETZHUBO", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 58, "estimated_monthly_revenue": 138620, "candidates": [{"alibaba": {"price_cny": 7.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01OpcQTD1nUe3CeBxzj_!!2200817645093-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/618251515737.html", "shop_name": null, "shop_url": "https://shop9385265.1688.com/", "min_order": 2, "title": "工場販売ハムスターのケージ用品セットがそろっています。"}, "orb_similarity": 0.0088, "hist_similarity": 0.9274, "combined_score": 0.56, "profit": {"amazon_price": 2390, "cost_1688_jpy": 172, "shipping": 115, "customs": 28, "referral_fee": 358, "fba_fee": 318, "total_cost": 1042, "profit": 1348, "profit_rate": 0.5640167364016736, "is_profitable": true, "profit_rate_percentage": 56.4}}, {"alibaba": {"price_cny": 7.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01B472tS1aK1reqNW8y_!!3951883310-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/731011474906.html", "shop_name": null, "shop_url": "https://shop1883310.1688.com/", "min_order": 2, "title": "ハムスター用品ハムスターケージ卸売小田園簡易ケージ金糸熊ケージ城手提げ外バンドケージ繁殖ケージ"}, "orb_similarity": 0.0085, "hist_similarity": 0.9272, "combined_score": 0.5597, "profit": {"amazon_price": 2390, "cost_1688_jpy": 165, "shipping": 115, "customs": 28, "referral_fee": 358, "fba_fee": 318, "total_cost": 1034, "profit": 1356, "profit_rate": 0.5673640167364017, "is_profitable": true, "profit_rate_percentage": 56.7}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01vunsRA1aK1rZ1LZJh_!!3951883310-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/607829959418.html", "shop_name": null, "shop_url": "https://shop1883310.1688.com/", "min_order": 6, "title": "包郵便メーカー卸売りハムスターケージ金糸熊ケージ二重ケージハムスター用品玩具小城ハムスターケージ"}, "orb_similarity": 0.0085, "hist_similarity": 0.9272, "combined_score": 0.5597, "profit": {"amazon_price": 2390, "cost_1688_jpy": 345, "shipping": 115, "customs": 46, "referral_fee": 358, "fba_fee": 318, "total_cost": 1238, "profit": 1152, "profit_rate": 0.4820083682008368, "is_profitable": true, "profit_rate_percentage": 48.2}}, {"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN0105pibB1e8obUPSywz_!!2214622043827-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/729276862357.html", "shop_name": null, "shop_url": "https://shop2723349.1688.com/", "min_order": 5, "title": "ポルハムスター籠天窓籠マルチ居室透明アクリル籠二重基礎籠大城"}, "orb_similarity": 0.0063, "hist_similarity": 0.9284, "combined_score": 0.5595, "profit": {"amazon_price": 2390, "cost_1688_jpy": 598, "shipping": 115, "customs": 71, "referral_fee": 358, "fba_fee": 318, "total_cost": 1523, "profit": 867, "profit_rate": 0.3627615062761506, "is_profitable": true, "profit_rate_percentage": 36.3}}, {"alibaba": {"price_cny": 7.65, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Uam6qX1Mh1M3LMnXb_!!2218794741465-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1014244029938.html", "shop_name": null, "shop_url": "https://shop7414654.1688.com/", "min_order": 1, "title": "小田园仓鼠饲养笼子外带两用金丝熊窝笼双层豪华仓鼠别墅仓鼠笼子"}, "orb_similarity": 0.0063, "hist_similarity": 0.928, "combined_score": 0.5593, "profit": {"amazon_price": 2390, "cost_1688_jpy": 175, "shipping": 115, "customs": 29, "referral_fee": 358, "fba_fee": 318, "total_cost": 1046, "profit": 1344, "profit_rate": 0.5623430962343097, "is_profitable": true, "profit_rate_percentage": 56.2}}, {"alibaba": {"price_cny": 90.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01tKc0v41aK1wXeFhQv_!!3951883310-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/739496829897.html", "shop_name": null, "shop_url": "https://shop1883310.1688.com/", "min_order": 1, "title": "メーカー直販手提げ籠ハムスター用品単層別荘外籠金糸熊籠ハムスター籠小田園籠"}, "orb_similarity": 0.0064, "hist_similarity": 0.9279, "combined_score": 0.5593, "profit": {"amazon_price": 2390, "cost_1688_jpy": 2070, "shipping": 115, "customs": 218, "referral_fee": 358, "fba_fee": 318, "total_cost": 3187, "profit": -797, "profit_rate": -0.33347280334728036, "is_profitable": false, "profit_rate_percentage": -33.3}}, {"alibaba": {"price_cny": 41.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01rD3wi924pZmWCCcV9_!!3044427440-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/920402238677.html", "shop_name": null, "shop_url": "https://shop7440064.1688.com/", "min_order": 1, "title": "ハムスターケージ用品フルセットパッケージゴールデンベアトンネルおもちゃケージ尿砂バス砂用品完全セット二層"}, "orb_similarity": 0.0066, "hist_similarity": 0.9274, "combined_score": 0.559, "profit": {"amazon_price": 2390, "cost_1688_jpy": 961, "shipping": 115, "customs": 107, "referral_fee": 358, "fba_fee": 318, "total_cost": 1933, "profit": 457, "profit_rate": 0.19121338912133892, "is_profitable": true, "profit_rate_percentage": 19.1}}, {"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01xtOkon1re2oNC5o5j_!!2213820195655-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/930754687624.html", "shop_name": null, "shop_url": "https://shop0195655.1688.com/", "min_order": 3, "title": "リビングルーム収納ボックス折りたたみ家庭用衣類キルト透明ワードローブ収納本おもちゃ衣類透明整理ボックス"}, "orb_similarity": 0.0121, "hist_similarity": 0.9205, "combined_score": 0.5571, "profit": {"amazon_price": 2390, "cost_1688_jpy": 598, "shipping": 115, "customs": 71, "referral_fee": 358, "fba_fee": 318, "total_cost": 1523, "profit": 867, "profit_rate": 0.3627615062761506, "is_profitable": true, "profit_rate_percentage": 36.3}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01WdB64Y1Zi1CKOKMH0_!!2216135843227-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/982266608590.html", "shop_name": null, "shop_url": "https://shop5843227.1688.com/", "min_order": 1, "title": "仓鼠笼子用品全套套餐金丝熊隧道玩具笼尿沙浴沙用品一整套"}, "orb_similarity": 0.0021, "hist_similarity": 0.9253, "combined_score": 0.556, "profit": {"amazon_price": 2390, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 358, "fba_fee": 318, "total_cost": 1575, "profit": 815, "profit_rate": 0.3410041841004184, "is_profitable": true, "profit_rate_percentage": 34.1}}, {"alibaba": {"price_cny": 19.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013JwaOi1GjrtTfCK9D_!!2216431480659-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/742231472195.html", "shop_name": null, "shop_url": "https://shop8065965.1688.com/", "min_order": 1, "title": "包郵便メーカー卸売りハムスターケージ超大空間城ケージ金糸熊フルセットハムスターケージ二重ケージ"}, "orb_similarity": 0.0021, "hist_similarity": 0.9245, "combined_score": 0.5556, "profit": {"amazon_price": 2390, "cost_1688_jpy": 437, "shipping": 115, "customs": 55, "referral_fee": 358, "fba_fee": 318, "total_cost": 1342, "profit": 1048, "profit_rate": 0.4384937238493724, "is_profitable": true, "profit_rate_percentage": 43.8}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

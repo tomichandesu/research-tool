@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "爬虫類 シェルター 大型", "generated_at": "2026-02-10 20:39:16", "products": [{"amazon": {"asin": "B0CCMBSMH4", "title": "シェルター 切り株 【Mサイズ】 (幅215mm×奥行135mm×高さ75mm) 浮き島 爬虫類 両生類 カメ レオパ 日光浴 隠れ家 水槽 陸地 足場 テラリウム", "price": 1690, "image_url": "https://m.media-amazon.com/images/I/61mgmkL3WTL._AC_SX679_.jpg", "bsr": 26854, "category": "ペット用品", "review_count": 17, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0CCMBSMH4", "rating": 3.7, "seller_name": "ozgram", "variation_count": 3, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 42, "estimated_monthly_revenue": 70980, "candidates": [{"alibaba": {"price_cny": 3.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01wQ5sP41DBZFPgz0Cm_!!1842260178-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/556959331020.html", "shop_name": null, "shop_url": "https://shop2260178.1688.com/", "min_order": 9, "title": "水槽水族造景装飾橋築山両生類爬行橋爬行台休憩台形亀干し台卸売り"}, "orb_similarity": 0.1002, "hist_similarity": 0.9971, "combined_score": 0.6384, "profit": {"amazon_price": 1690, "cost_1688_jpy": 87, "shipping": 115, "customs": 20, "referral_fee": 253, "fba_fee": 318, "total_cost": 841, "profit": 849, "profit_rate": 0.5023668639053255, "is_profitable": true, "profit_rate_percentage": 50.2}}, {"alibaba": {"price_cny": 4.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01c02wJ71hVChbQRcV6_!!2206401144282-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/672882866458.html", "shop_name": null, "shop_url": "https://shop1144282.1688.com/", "min_order": 5, "title": "水槽のカメの日焼け台の登り台の洞窟は坂を登ります。"}, "orb_similarity": 0.1002, "hist_similarity": 0.9971, "combined_score": 0.6384, "profit": {"amazon_price": 1690, "cost_1688_jpy": 92, "shipping": 115, "customs": 20, "referral_fee": 253, "fba_fee": 318, "total_cost": 846, "profit": 844, "profit_rate": 0.49940828402366866, "is_profitable": true, "profit_rate_percentage": 49.9}}, {"alibaba": {"price_cny": 12.7, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01eWci1B1OM48dvwGlw_!!1776301690.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/815032330089.html", "shop_name": null, "shop_url": "https://shop2841673.1688.com/", "min_order": 1, "title": "亀干し台爬虫類階段登り台よけ穴守宮よけ屋水槽ペット造景亀干し台"}, "orb_similarity": 0.0154, "hist_similarity": 0.9956, "combined_score": 0.6035, "profit": {"amazon_price": 1690, "cost_1688_jpy": 292, "shipping": 115, "customs": 40, "referral_fee": 253, "fba_fee": 318, "total_cost": 1072, "profit": 618, "profit_rate": 0.3656804733727811, "is_profitable": true, "profit_rate_percentage": 36.6}}, {"alibaba": {"price_cny": 1.3, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01EYz70H1I68vMNs9Kf_!!3391970843-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/584522898814.html", "shop_name": null, "shop_url": "https://shop4389501.1688.com/", "min_order": 3, "title": "水槽の水槽のカメの日焼け台の卸売りは坂を登ります。"}, "orb_similarity": 0.0063, "hist_similarity": 0.9964, "combined_score": 0.6003, "profit": {"amazon_price": 1690, "cost_1688_jpy": 29, "shipping": 115, "customs": 14, "referral_fee": 253, "fba_fee": 318, "total_cost": 775, "profit": 915, "profit_rate": 0.5414201183431953, "is_profitable": true, "profit_rate_percentage": 54.1}}, {"alibaba": {"price_cny": 4.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01V8BTEX2BGUZjyKWm0_!!2216451418311-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/737027786209.html", "shop_name": null, "shop_url": "https://shop1831186.1688.com/", "min_order": 1, "title": "金魚鉢造景築山造景石装飾水草灰色シミュレーション青龍石回避洞窟置物セット"}, "orb_similarity": 0.0083, "hist_similarity": 0.9945, "combined_score": 0.6001, "profit": {"amazon_price": 1690, "cost_1688_jpy": 103, "shipping": 115, "customs": 21, "referral_fee": 253, "fba_fee": 318, "total_cost": 859, "profit": 831, "profit_rate": 0.49171597633136094, "is_profitable": true, "profit_rate_percentage": 49.2}}, {"alibaba": {"price_cny": 3.36, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01mTanJy1nWTrgujXee_!!2218082555097-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/808125806028.html", "shop_name": null, "shop_url": "https://shop5550976.1688.com/", "min_order": 1, "title": "金魚鉢の造景亀の日焼け台の樹脂は水族の工芸品を飾ります。"}, "orb_similarity": 0.0062, "hist_similarity": 0.9959, "combined_score": 0.6, "profit": {"amazon_price": 1690, "cost_1688_jpy": 77, "shipping": 115, "customs": 19, "referral_fee": 253, "fba_fee": 318, "total_cost": 830, "profit": 860, "profit_rate": 0.5088757396449705, "is_profitable": true, "profit_rate_percentage": 50.9}}, {"alibaba": {"price_cny": 3.56, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01KrmYP72A8sY14A7W9_!!2219228358159-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/885890829888.html", "shop_name": null, "shop_url": "https://shop8358159.1688.com/", "min_order": 1, "title": "亀の日焼け台に登るクモのハムスターのトカゲは宮の蛇を守って穴の樹脂の装飾を避けます。"}, "orb_similarity": 0.011, "hist_similarity": 0.9924, "combined_score": 0.5998, "profit": {"amazon_price": 1690, "cost_1688_jpy": 81, "shipping": 115, "customs": 19, "referral_fee": 253, "fba_fee": 318, "total_cost": 834, "profit": 856, "profit_rate": 0.506508875739645, "is_profitable": true, "profit_rate_percentage": 50.7}}, {"alibaba": {"price_cny": 27.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZRZzTq1LPmnB4zDbG_!!2904771292-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/953060515968.html", "shop_name": null, "shop_url": "https://shop1292634.1688.com/", "min_order": 3, "title": "仿真石头仿真鼓包苔藓石道具青龙玻璃钢拍摄道具园林假山造景石头"}, "orb_similarity": 0.0065, "hist_similarity": 0.9946, "combined_score": 0.5993, "profit": {"amazon_price": 1690, "cost_1688_jpy": 621, "shipping": 115, "customs": 73, "referral_fee": 253, "fba_fee": 318, "total_cost": 1444, "profit": 246, "profit_rate": 0.1455621301775148, "is_profitable": true, "profit_rate_percentage": 14.6}}, {"alibaba": {"price_cny": 16.41, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN010z5Aa22L9IhPhAuPA_!!2219775609649-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/981804292168.html", "shop_name": null, "shop_url": "https://shop0146232.1688.com/", "min_order": 1, "title": "乌龟晒台爬台躲避爬宠躲避屋石头洞穴草龟巴西龟爬坡台晒背台造景"}, "orb_similarity": 0.0041, "hist_similarity": 0.9957, "combined_score": 0.599, "profit": {"amazon_price": 1690, "cost_1688_jpy": 377, "shipping": 115, "customs": 49, "referral_fee": 253, "fba_fee": 318, "total_cost": 1169, "profit": 521, "profit_rate": 0.30828402366863905, "is_profitable": true, "profit_rate_percentage": 30.8}}, {"alibaba": {"price_cny": 3.16, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN019qePP11nLULGqUzPx_!!2218427455073-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/989554682573.html", "shop_name": null, "shop_url": "https://shop5073876.1688.com/", "min_order": 1, "title": "爬宠躲避穴躲避洞爬台晒背晒台乌龟树脂装饰布景鱼缸水族景观造景"}, "orb_similarity": 0.0085, "hist_similarity": 0.9925, "combined_score": 0.5989, "profit": {"amazon_price": 1690, "cost_1688_jpy": 72, "shipping": 115, "customs": 18, "referral_fee": 253, "fba_fee": 318, "total_cost": 824, "profit": 866, "profit_rate": 0.5124260355029586, "is_profitable": true, "profit_rate_percentage": 51.2}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

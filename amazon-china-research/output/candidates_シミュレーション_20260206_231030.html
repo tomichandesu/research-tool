@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "シミュレーション", "generated_at": "2026-02-06 23:10:30", "products": [{"amazon": {"asin": "B0EXAMPLE01", "title": "バンプラバー ショックアブソーバー用 フロント リア 2個セット 汎用 ウレタン製", "price": 2480, "image_url": "https://m.media-amazon.com/images/I/61J8xyKGfzL._AC_SL1500_.jpg", "bsr": 12500, "category": "DIY・工具・ガーデン", "review_count": 23, "rating": 3.8, "is_fba": true, "variation_count": 2, "dimensions": [15, 8, 8], "weight_kg": 0.3, "product_url": "https://www.amazon.co.jp/dp/B0EXAMPLE01"}, "estimated_monthly_sales": 150, "estimated_monthly_revenue": 372000, "candidates": [{"alibaba": {"title": "汽车减震器缓冲胶 聚氨酯弹簧缓冲块 前后通用", "price_cny": 12.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01example1.jpg", "product_url": "https://detail.1688.com/offer/example1.html", "shop_name": "广州永盛汽车配件有限公司"}, "profit": {"amazon_price": 2480, "cost_1688_jpy": 290, "shipping": 138, "customs": 43, "referral_fee": 372, "fba_fee": 434, "total_cost": 1277, "profit": 1203, "profit_rate": 0.485, "is_profitable": true, "profit_rate_percentage": 48.5}}, {"alibaba": {"title": "减震器防尘套缓冲胶套装 通用型号", "price_cny": 18.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01example2.jpg", "product_url": "https://detail.1688.com/offer/example2.html", "shop_name": "东莞市鑫达橡胶制品厂"}, "profit": {"amazon_price": 2480, "cost_1688_jpy": 426, "shipping": 138, "customs": 56, "referral_fee": 372, "fba_fee": 434, "total_cost": 1426, "profit": 1054, "profit_rate": 0.425, "is_profitable": true, "profit_rate_percentage": 42.5}}, {"alibaba": {"title": "汽车弹簧缓冲器 减震胶垫 A/B/C型号选择", "price_cny": 25.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01example3.jpg", "product_url": "https://detail.1688.com/offer/example3.html", "shop_name": "佛山市顺德区良品汽配店"}, "profit": {"amazon_price": 2480, "cost_1688_jpy": 575, "shipping": 138, "customs": 71, "referral_fee": 372, "fba_fee": 434, "total_cost": 1590, "profit": 890, "profit_rate": 0.359, "is_profitable": true, "profit_rate_percentage": 35.9}}]}, {"amazon": {"asin": "B0EXAMPLE02", "title": "収納ボックス 折りたたみ式 大容量 衣類収納 3個セット グレー", "price": 1980, "image_url": "https://m.media-amazon.com/images/I/71abc123def._AC_SL1500_.jpg", "bsr": 8200, "category": "ホーム＆キッチン", "review_count": 15, "rating": 4.0, "is_fba": true, "variation_count": 3, "dimensions": [40, 30, 25], "weight_kg": 0.8, "product_url": "https://www.amazon.co.jp/dp/B0EXAMPLE02"}, "estimated_monthly_sales": 250, "estimated_monthly_revenue": 495000, "candidates": [{"alibaba": {"title": "折叠收纳箱 衣物整理箱 大号三件套", "price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01example4.jpg", "product_url": "https://detail.1688.com/offer/example4.html", "shop_name": "义乌市美居家居用品有限公司"}, "profit": {"amazon_price": 1980, "cost_1688_jpy": 345, "shipping": 184, "customs": 53, "referral_fee": 297, "fba_fee": 514, "total_cost": 1393, "profit": 587, "profit_rate": 0.296, "is_profitable": true, "profit_rate_percentage": 29.6}}, {"alibaba": {"title": "无纺布收纳盒 可折叠储物箱 多色可选", "price_cny": 22.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01example5.jpg", "product_url": "https://detail.1688.com/offer/example5.html", "shop_name": "浙江恒丰日用品有限公司"}, "profit": {"amazon_price": 1980, "cost_1688_jpy": 506, "shipping": 184, "customs": 69, "referral_fee": 297, "fba_fee": 514, "total_cost": 1570, "profit": 410, "profit_rate": 0.207, "is_profitable": true, "profit_rate_percentage": 20.7}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

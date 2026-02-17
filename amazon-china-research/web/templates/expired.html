@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}プラン期限切れ{% endblock %}
+
+{% block content %}
+<div class="card mt-1" style="text-align: center; padding: 40px 20px;">
+    <h1 style="color: #dc3545; margin-bottom: 20px;">プランの有効期限が切れました</h1>
+    <p style="font-size: 1.1rem; margin-bottom: 20px;">
+        ご利用中のプランの有効期限が過ぎたため、ツールをご利用いただけません。
+    </p>
+    <p style="margin-bottom: 20px;">
+        プランをアップグレードして引き続きご利用ください。
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <a href="/billing/checkout?plan=lite&billing=monthly" class="btn btn-outline">ライト (59,800円/月)</a>
+        <a href="/billing/checkout?plan=standard&billing=monthly" class="btn btn-primary">スタンダード (79,800円/月)</a>
+        <a href="/billing/checkout?plan=pro&billing=annual" class="btn btn-outline">プロ (998,000円/年)</a>
+    </div>
+    <div style="margin-bottom: 20px; padding-top: 12px; border-top: 1px solid #eee;">
+        <p style="color: #666; margin-bottom: 10px;">コンサルティングをご希望の方:</p>
+        {% if user and user.consul_request_status == 'pending' %}
+        <span style="color: #0d6efd;">コンサル申請済み（承認待ち）</span>
+        {% else %}
+        <form method="post" action="/billing/request-consul" style="display: inline;">
+            <button class="btn btn-outline">コンサルを申し込む</button>
+        </form>
+        {% endif %}
+    </div>
+    <a href="/logout" class="btn btn-outline">ログアウト</a>
+</div>
+{% endblock %}

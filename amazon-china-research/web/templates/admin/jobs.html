@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}全ジョブ - 管理{% endblock %}
+
+{% block content %}
+<h1>全ジョブ</h1>
+<a href="/admin/" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>ユーザー</th>
+            <th>キーワード</th>
+            <th>ステータス</th>
+            <th>進捗</th>
+            <th>作成日時</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for j in jobs %}
+        <tr>
+            <td><a href="/research/{{ j.id }}">{{ j.id }}</a></td>
+            <td>{{ users_map.get(j.user_id, '不明') }}</td>
+            <td>{{ j.keyword }}</td>
+            <td>
+                <span class="badge badge-{{ j.status }}">
+                    {%- if j.status == 'pending' -%}順番待ち
+                    {%- elif j.status == 'running' -%}リサーチ中
+                    {%- elif j.status == 'completed' -%}完了
+                    {%- elif j.status == 'failed' -%}エラー
+                    {%- else -%}{{ j.status }}{%- endif -%}
+                </span>
+            </td>
+            <td>{{ j.progress_pct }}%</td>
+            <td>{{ j.created_at|jst }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "バンプラバー ウレタン", "generated_at": "2026-02-07 20:01:51", "products": [{"amazon": {"asin": "B0C6M34RGL", "title": "TOMMYFIELD バンプラバー バンプ ショックアブソーバー 汎用 ウレタン", "price": 1550, "image_url": "https://m.media-amazon.com/images/I/61KLrJA-TPL._AC_SX679_.jpg", "bsr": 21203, "category": "車＆バイク", "review_count": 28, "is_fba": false, "product_url": "https://www.amazon.co.jp/dp/B0C6M34RGL", "rating": 4.0, "seller_name": "TOMMYFIELD", "variation_count": 1, "dimensions": [2.0, 2.0, 5.0], "weight_kg": 0.5}, "estimated_monthly_sales": 50, "estimated_monthly_revenue": 77500, "candidates": [{"alibaba": {"price_cny": 3.6, "image_url": "https://cbu01.alicdn.com/img/ibank/20474945699_398684670.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/626538355344.html", "shop_name": null, "shop_url": null, "min_order": null, "title": null}, "orb_similarity": 0.027, "hist_similarity": 0.6062, "combined_score": 0.3745, "profit": {"amazon_price": 1550, "cost_1688_jpy": 82, "shipping": 115, "customs": 19, "referral_fee": 232, "fba_fee": 0, "total_cost": 496, "profit": 1054, "profit_rate": 0.68, "is_profitable": true, "profit_rate_percentage": 68.0}}, {"alibaba": {"price_cny": 2.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN018rLFfB24KQtRIsszQ_!!2220263807372-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/986088256991.html", "shop_name": null, "shop_url": null, "min_order": null, "title": null}, "orb_similarity": 0.0, "hist_similarity": 0.6051, "combined_score": 0.3631, "profit": {"amazon_price": 1550, "cost_1688_jpy": 64, "shipping": 115, "customs": 17, "referral_fee": 232, "fba_fee": 0, "total_cost": 475, "profit": 1075, "profit_rate": 0.6935483870967742, "is_profitable": true, "profit_rate_percentage": 69.4}}]}, {"amazon": {"asin": "B0D81RTX6J", "title": "ソフトバンプラバー ハイエース200系 ランクル用 バンプラバー バンプストップラバー 大容量 ウレタン バンプラバー 左右セット", "price": 3500, "image_url": "https://m.media-amazon.com/images/I/71hh+ytBIRL._AC_SX679_.jpg", "bsr": 38388, "category": "車＆バイク", "review_count": 26, "is_fba": false, "product_url": "https://www.amazon.co.jp/dp/B0D81RTX6J", "rating": 3.8, "seller_name": "Sarasara JP", "variation_count": 1, "dimensions": [14.0, 10.0, 13.0], "weight_kg": 0.5}, "estimated_monthly_sales": 31, "estimated_monthly_revenue": 108500, "candidates": [{"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013kO3yy1QFJqqyZxGN_!!2220888841946-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998541865490.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "适用于丰田日系减震橡胶件 48306-35180"}, "orb_similarity": 0.0368, "hist_similarity": 0.9716, "combined_score": 0.5977, "profit": {"amazon_price": 3500, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 525, "fba_fee": 0, "total_cost": 722, "profit": 2778, "profit_rate": 0.7937142857142857, "is_profitable": true, "profit_rate_percentage": 79.4}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01xBia8l1TCydsnbILG_!!2218325792347-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/956380364856.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "ダンベルラックポータブルホームヨガフィットネスサポート機器ブラケット収納ラック三脚ホームフィットネス"}, "orb_similarity": 0.0111, "hist_similarity": 0.9715, "combined_score": 0.5873, "profit": {"amazon_price": 3500, "cost_1688_jpy": 115, "shipping": 115, "customs": 23, "referral_fee": 525, "fba_fee": 0, "total_cost": 827, "profit": 2673, "profit_rate": 0.7637142857142857, "is_profitable": true, "profit_rate_percentage": 76.4}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01RgeVR22BlBJsPZUTP_!!2219395728378-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/961604054897.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "厂家直销家用三层小哑铃架办公室小型塑料架商用健身器材现货批发"}, "orb_similarity": 0.0089, "hist_similarity": 0.9714, "combined_score": 0.5864, "profit": {"amazon_price": 3500, "cost_1688_jpy": 115, "shipping": 115, "customs": 23, "referral_fee": 525, "fba_fee": 0, "total_cost": 827, "profit": 2673, "profit_rate": 0.7637142857142857, "is_profitable": true, "profit_rate_percentage": 76.4}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01RgeVR22BlBJsPZUTP_!!2219395728378-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1013392396843.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "现货批发健身家用三层小哑铃架办公室小型塑料架商用健身器材收纳"}, "orb_similarity": 0.0089, "hist_similarity": 0.9714, "combined_score": 0.5864, "profit": {"amazon_price": 3500, "cost_1688_jpy": 115, "shipping": 115, "customs": 23, "referral_fee": 525, "fba_fee": 0, "total_cost": 827, "profit": 2673, "profit_rate": 0.7637142857142857, "is_profitable": true, "profit_rate_percentage": 76.4}}, {"alibaba": {"price_cny": 11.93, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01O6QDHt1fV5fIwwISl_!!2219589334011-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/906208976777.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "ダンベルラック家庭用三層ダンベル小型スタンド収納フィットネス女性と男性のためのトレーニング機器クロスボーダー工場"}, "orb_similarity": 0.0089, "hist_similarity": 0.9712, "combined_score": 0.5862, "profit": {"amazon_price": 3500, "cost_1688_jpy": 274, "shipping": 115, "customs": 38, "referral_fee": 525, "fba_fee": 0, "total_cost": 1006, "profit": 2494, "profit_rate": 0.7125714285714285, "is_profitable": true, "profit_rate_percentage": 71.3}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01IrN4xq2KWMnOTtCUC_!!2209913549564-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/708867121486.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "48306-35180クッションブロックはトヨタ4runner kzn185 rzn185に適用します。"}, "orb_similarity": 0.0089, "hist_similarity": 0.9701, "combined_score": 0.5856, "profit": {"amazon_price": 3500, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 525, "fba_fee": 0, "total_cost": 722, "profit": 2778, "profit_rate": 0.7937142857142857, "is_profitable": true, "profit_rate_percentage": 79.4}}, {"alibaba": {"price_cny": 18.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01t8ybZ21z8STBizSrP_!!2220725716669-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998195733822.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "2915013LC 适配江铃陆风X8后钢板缓冲块 减震缓冲胶块 板簧缓冲胶"}, "orb_similarity": 0.0069, "hist_similarity": 0.9702, "combined_score": 0.5849, "profit": {"amazon_price": 3500, "cost_1688_jpy": 414, "shipping": 115, "customs": 52, "referral_fee": 525, "fba_fee": 0, "total_cost": 1164, "profit": 2336, "profit_rate": 0.6674285714285715, "is_profitable": true, "profit_rate_percentage": 66.7}}, {"alibaba": {"price_cny": 1.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01UTSSHv22LE5rfxHBS_!!1058107103-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/681793291188.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "ZH-31固定式プラスチックボックスコントローラハウジング自動車電源プロトコルボックス"}, "orb_similarity": 0.0043, "hist_similarity": 0.9714, "combined_score": 0.5846, "profit": {"amazon_price": 3500, "cost_1688_jpy": 41, "shipping": 115, "customs": 15, "referral_fee": 525, "fba_fee": 0, "total_cost": 743, "profit": 2757, "profit_rate": 0.7877142857142857, "is_profitable": true, "profit_rate_percentage": 78.8}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01gsZkql1ZuNozxB7fI_!!2218219203254-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/868291463095.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "48036-60011 48306-60201後吊り緩衝剤はサンプル注文メーカー直販に来ることができる"}, "orb_similarity": 0.0, "hist_similarity": 0.9738, "combined_score": 0.5843, "profit": {"amazon_price": 3500, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 525, "fba_fee": 0, "total_cost": 722, "profit": 2778, "profit_rate": 0.7937142857142857, "is_profitable": true, "profit_rate_percentage": 79.4}}, {"alibaba": {"price_cny": 6.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JaBAPo1GyytnWrx7D_!!2214437810692-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/687660505747.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "クロスボーダーダンベルラック 女性用ダンベル収納ラック 男性用フィットネス機器 家庭用子供用六角ダンベルスタンド"}, "orb_similarity": 0.0044, "hist_similarity": 0.9702, "combined_score": 0.5839, "profit": {"amazon_price": 3500, "cost_1688_jpy": 149, "shipping": 115, "customs": 26, "referral_fee": 525, "fba_fee": 0, "total_cost": 865, "profit": 2635, "profit_rate": 0.7528571428571429, "is_profitable": true, "profit_rate_percentage": 75.3}}]}, {"amazon": {"asin": "B0CJ2HFBQ9", "title": "大容量 ウレタン バンプラバー 200系ハイエース、ランクル用", "price": 3450, "image_url": "https://m.media-amazon.com/images/I/61stN0ey02L._AC_SX679_.jpg", "bsr": 45922, "category": "車＆バイク", "review_count": 13, "is_fba": false, "product_url": "https://www.amazon.co.jp/dp/B0CJ2HFBQ9", "rating": 4.0, "seller_name": "Kiload", "variation_count": 1, "dimensions": [22.9, 16.7, 7.8], "weight_kg": 0.5}, "estimated_monthly_sales": 27, "estimated_monthly_revenue": 93150, "candidates": [{"alibaba": {"price_cny": 100.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01x9lda61DoxZLXq6gD_!!2210390880264-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/851485037918.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "ホンダXL 750 TRANSALP XL 750 TRANSALP 2023-2025荷物棚に適用"}, "orb_similarity": 0.0128, "hist_similarity": 0.9915, "combined_score": 0.6, "profit": {"amazon_price": 3450, "cost_1688_jpy": 2300, "shipping": 115, "customs": 241, "referral_fee": 517, "fba_fee": 0, "total_cost": 3288, "profit": 162, "profit_rate": 0.04695652173913043, "is_profitable": true, "profit_rate_percentage": 4.7}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qkO06h1Bs31FBjKYB_!!0-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/862823572317.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "適用鈴木オートバイ後ブレーキマスタシリンダ保護カバーGSX-8S GSX-8R GSX-S1000GT"}, "orb_similarity": 0.0225, "hist_similarity": 0.9773, "combined_score": 0.5954, "profit": {"amazon_price": 3450, "cost_1688_jpy": 345, "shipping": 115, "customs": 46, "referral_fee": 517, "fba_fee": 0, "total_cost": 1079, "profit": 2371, "profit_rate": 0.6872463768115942, "is_profitable": true, "profit_rate_percentage": 68.7}}, {"alibaba": {"price_cny": 55.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01rZngBv1DoxWuFclMV_!!2210390880264-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/809811074556.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "ヤマハYZF-R6 2006-2016改造部品を適用した後、ナンバープレートフレームのナンバープレートフレームのショートテール"}, "orb_similarity": 0.0104, "hist_similarity": 0.9824, "combined_score": 0.5936, "profit": {"amazon_price": 3450, "cost_1688_jpy": 1265, "shipping": 115, "customs": 138, "referral_fee": 517, "fba_fee": 0, "total_cost": 2118, "profit": 1332, "profit_rate": 0.38608695652173913, "is_profitable": true, "profit_rate_percentage": 38.6}}, {"alibaba": {"price_cny": 100.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kSmbhM1DoxPg8e8Ri_!!2210390880264-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/725925675433.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "適用川崎異獣versys 650改造エンジンシャシー保護カバーエンジン下保護底板アルミニウム合金"}, "orb_similarity": 0.0156, "hist_similarity": 0.9787, "combined_score": 0.5935, "profit": {"amazon_price": 3450, "cost_1688_jpy": 2300, "shipping": 115, "customs": 241, "referral_fee": 517, "fba_fee": 0, "total_cost": 3288, "profit": 162, "profit_rate": 0.04695652173913043, "is_profitable": true, "profit_rate_percentage": 4.7}}, {"alibaba": {"price_cny": 20.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01tHBXmu1DoxMV6H1ii_!!2210390880264-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/669785209966.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "BMW R1200GS R1250GS ADV R1250Rエンジンスターター保護カバー適用"}, "orb_similarity": 0.0211, "hist_similarity": 0.9744, "combined_score": 0.5931, "profit": {"amazon_price": 3450, "cost_1688_jpy": 460, "shipping": 115, "customs": 57, "referral_fee": 517, "fba_fee": 0, "total_cost": 1208, "profit": 2242, "profit_rate": 0.6498550724637682, "is_profitable": true, "profit_rate_percentage": 65.0}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01yLVIjf22OQss2AxKJ_!!2215565897110-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/727870878920.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "テスラの車に適用します。"}, "orb_similarity": 0.0146, "hist_similarity": 0.9775, "combined_score": 0.5923, "profit": {"amazon_price": 3450, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 517, "fba_fee": 0, "total_cost": 714, "profit": 2736, "profit_rate": 0.7930434782608695, "is_profitable": true, "profit_rate_percentage": 79.3}}, {"alibaba": {"price_cny": 20.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01cXbzMd1fvCIF9l2Gv_!!2215582554068-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1017947091226.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "仿真冰场围挡可拼接防护栏体育馆防撞安全挡板聚乙烯旱地冰球围挡"}, "orb_similarity": 0.0192, "hist_similarity": 0.9739, "combined_score": 0.592, "profit": {"amazon_price": 3450, "cost_1688_jpy": 460, "shipping": 115, "customs": 57, "referral_fee": 517, "fba_fee": 0, "total_cost": 1208, "profit": 2242, "profit_rate": 0.6498550724637682, "is_profitable": true, "profit_rate_percentage": 65.0}}, {"alibaba": {"price_cny": 72.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Qmy6Hj1qsPg8HD8Gc_!!2220874985551-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1002070441022.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "跨境FDA510K光子硅胶面罩LED红外线光疗面膜仪嫩肤蓝彩光谱美容仪"}, "orb_similarity": 0.0115, "hist_similarity": 0.9781, "combined_score": 0.5914, "profit": {"amazon_price": 3450, "cost_1688_jpy": 1656, "shipping": 115, "customs": 177, "referral_fee": 517, "fba_fee": 0, "total_cost": 2560, "profit": 890, "profit_rate": 0.2579710144927536, "is_profitable": true, "profit_rate_percentage": 25.8}}, {"alibaba": {"price_cny": 115.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01n5rBQ61BwAa51971m_!!2214935200009-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/860001845767.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "BMW BMW R1200GS ADV水鳥エンジン保護カバーシリンダーヘッド保護カバーシリンダーヘッド適用"}, "orb_similarity": 0.0126, "hist_similarity": 0.9767, "combined_score": 0.5911, "profit": {"amazon_price": 3450, "cost_1688_jpy": 2645, "shipping": 115, "customs": 276, "referral_fee": 517, "fba_fee": 0, "total_cost": 3678, "profit": -228, "profit_rate": -0.06608695652173913, "is_profitable": false, "profit_rate_percentage": -6.6}}, {"alibaba": {"price_cny": 12.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN010weq6C214ue9XGlVk_!!2210620886932-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1013298091500.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "适用春风450MT摩托车前卡钳保护罩铝合金防水防刮机车卡钳盖配件"}, "orb_similarity": 0.013, "hist_similarity": 0.9762, "combined_score": 0.5909, "profit": {"amazon_price": 3450, "cost_1688_jpy": 285, "shipping": 115, "customs": 40, "referral_fee": 517, "fba_fee": 0, "total_cost": 1011, "profit": 2439, "profit_rate": 0.7069565217391305, "is_profitable": true, "profit_rate_percentage": 70.7}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

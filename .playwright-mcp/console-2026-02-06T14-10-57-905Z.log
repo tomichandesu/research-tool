@@ -1,0 +1,8 @@
+[     531ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cbu01.alicdn.com/img/ibank/O1CN01example1.jpg:0
+[     544ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cbu01.alicdn.com/img/ibank/O1CN01example2.jpg:0
+[     552ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cbu01.alicdn.com/img/ibank/O1CN01example4.jpg:0
+[     557ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cbu01.alicdn.com/img/ibank/O1CN01example3.jpg:0
+[     567ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cbu01.alicdn.com/img/ibank/O1CN01example5.jpg:0
+[    1147ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://m.media-amazon.com/images/I/71abc123def._AC_SL1500_.jpg:0
+[    1159ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://m.media-amazon.com/images/I/61J8xyKGfzL._AC_SL1500_.jpg:0
+[    1188ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0

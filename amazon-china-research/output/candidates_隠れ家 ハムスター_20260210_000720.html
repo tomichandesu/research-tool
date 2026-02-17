@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "隠れ家 ハムスター", "generated_at": "2026-02-10 00:07:20", "products": [{"amazon": {"asin": "B0BPXHFX98", "title": "【3glad】ハムスター ハウス きのこ型 陶器 小動物用 隠れ家 巣箱 涼しい 天然通気口付き ピンク 中サイズ おしゃれ 小動物 ハリネズミ リス チンチラ対応 (ピンク, 中)", "price": 1790, "image_url": "https://m.media-amazon.com/images/I/31GlEZGsGdL._AC_SY450_.jpg", "bsr": 28835, "category": "ペット用品", "review_count": 17, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0BPXHFX98", "rating": 4.0, "seller_name": "このっぽろ１", "variation_count": 5, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 39, "estimated_monthly_revenue": 69810, "candidates": [{"alibaba": {"price_cny": 3.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01D4v0ti2NYboO9dbKC_!!2200592779975-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/924228981729.html", "shop_name": null, "shop_url": "https://shop7586187.1688.com/", "min_order": 1, "title": "国境を越えた水槽、セラミックの魚とエビの隠れ家、陶器の壺の巣、ミニオウムの繁殖小屋、隠れ家、装飾品、造園用の穴"}, "orb_similarity": 0.1429, "hist_similarity": 0.8501, "combined_score": 0.5672, "profit": {"amazon_price": 1790, "cost_1688_jpy": 80, "shipping": 115, "customs": 19, "referral_fee": 268, "fba_fee": 318, "total_cost": 848, "profit": 942, "profit_rate": 0.5262569832402234, "is_profitable": true, "profit_rate_percentage": 52.6}}, {"alibaba": {"price_cny": 4.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01TrhGjC1j9ngrsLMeQ_!!2218997224506-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/861051995771.html", "shop_name": null, "shop_url": "https://shop7224506.1688.com/", "min_order": 1, "title": "クロスボーダーセラミックシェルターハウス、小さなキノコハウス、水槽の装飾品、陶器のポット、魚とエビの巣、ミニオウムの繁殖ハウス、シェルターハウス"}, "orb_similarity": 0.1429, "hist_similarity": 0.8501, "combined_score": 0.5672, "profit": {"amazon_price": 1790, "cost_1688_jpy": 110, "shipping": 115, "customs": 22, "referral_fee": 268, "fba_fee": 318, "total_cost": 882, "profit": 908, "profit_rate": 0.5072625698324023, "is_profitable": true, "profit_rate_percentage": 50.7}}, {"alibaba": {"price_cny": 1.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01j6zP8C1zOUG5Oqodz_!!2219356816704-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/887673511223.html", "shop_name": null, "shop_url": "https://shop6816704.1688.com/", "min_order": 1, "title": "創意的な家庭のかわいいキノコのつまようじ箱のレストランは圧力式の携帯筒のホテルを押して自動的につまようじの瓶の缶の席を飛び出します。"}, "orb_similarity": 0.0, "hist_similarity": 0.8555, "combined_score": 0.5133, "profit": {"amazon_price": 1790, "cost_1688_jpy": 34, "shipping": 115, "customs": 14, "referral_fee": 268, "fba_fee": 318, "total_cost": 796, "profit": 994, "profit_rate": 0.5553072625698324, "is_profitable": true, "profit_rate_percentage": 55.5}}, {"alibaba": {"price_cny": 12.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013zk0lP2BTmHkateRD_!!2211545138340-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/985649889238.html", "shop_name": null, "shop_url": "https://shop8340023.1688.com/", "min_order": 1, "title": "秘鲁圣木可爱小蘑菇香薰炉陶瓷小众高级香薰炉薰衣草鼠尾草熏香炉"}, "orb_similarity": 0.0, "hist_similarity": 0.8545, "combined_score": 0.5127, "profit": {"amazon_price": 1790, "cost_1688_jpy": 276, "shipping": 115, "customs": 39, "referral_fee": 268, "fba_fee": 318, "total_cost": 1070, "profit": 720, "profit_rate": 0.4022346368715084, "is_profitable": true, "profit_rate_percentage": 40.2}}, {"alibaba": {"price_cny": 6.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01zbWRLA1SguiitOqyd_!!3430672277-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/684934026631.html", "shop_name": null, "shop_url": "https://shop6722778.1688.com/", "min_order": 1, "title": "キノコのペットは通用する陶磁器の巣のハムスターの金糸熊の家具の睡眠の巣の家のペット用品のセットです。"}, "orb_similarity": 0.0, "hist_similarity": 0.8441, "combined_score": 0.5065, "profit": {"amazon_price": 1790, "cost_1688_jpy": 151, "shipping": 115, "customs": 26, "referral_fee": 268, "fba_fee": 318, "total_cost": 928, "profit": 862, "profit_rate": 0.48156424581005586, "is_profitable": true, "profit_rate_percentage": 48.2}}, {"alibaba": {"price_cny": 10.1, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01PWdFvU1WpOQj8XzvZ_!!2214794702837-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/921860135854.html", "shop_name": null, "shop_url": "https://shop6890269.1688.com/", "min_order": 2, "title": "ハムスターの巣卸売セラミック木の切り株ゴールデンベア冷却ハウス夏の暑さを和らげる睡眠ハウスアイスハウス用品アマゾン"}, "orb_similarity": 0.0, "hist_similarity": 0.8404, "combined_score": 0.5042, "profit": {"amazon_price": 1790, "cost_1688_jpy": 232, "shipping": 115, "customs": 34, "referral_fee": 268, "fba_fee": 318, "total_cost": 1019, "profit": 771, "profit_rate": 0.43072625698324024, "is_profitable": true, "profit_rate_percentage": 43.1}}, {"alibaba": {"price_cny": 10.78, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01NS2SzK1IXclBycbUz_!!2220159790903-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1007119946543.html", "shop_name": null, "shop_url": "https://shop9790903.1688.com/", "min_order": 1, "title": "猪食盆喝水迷你陶瓷食盆防翻仓鼠小型吃饭碗陶瓷金丝用品家具"}, "orb_similarity": 0.0, "hist_similarity": 0.8314, "combined_score": 0.4989, "profit": {"amazon_price": 1790, "cost_1688_jpy": 247, "shipping": 115, "customs": 36, "referral_fee": 268, "fba_fee": 318, "total_cost": 1037, "profit": 753, "profit_rate": 0.4206703910614525, "is_profitable": true, "profit_rate_percentage": 42.1}}, {"alibaba": {"price_cny": 12.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013TpYbJ26jHbQDhdCe_!!2219581797697-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/966725190853.html", "shop_name": null, "shop_url": "https://shop7976975.1688.com/", "min_order": 1, "title": "陶瓷树桩仓鼠窝金丝熊降温屋消暑窝降温睡觉窝房子冰屋仓鼠用品"}, "orb_similarity": 0.0476, "hist_similarity": 0.127, "combined_score": 0.0952, "profit": {"amazon_price": 1790, "cost_1688_jpy": 294, "shipping": 115, "customs": 40, "referral_fee": 268, "fba_fee": 318, "total_cost": 1089, "profit": 701, "profit_rate": 0.3916201117318436, "is_profitable": true, "profit_rate_percentage": 39.2}}, {"alibaba": {"price_cny": 2.24, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HrGMyX2NYboO9jNKa_!!2200592779975-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/924706952297.html", "shop_name": null, "shop_url": "https://shop7586187.1688.com/", "min_order": 1, "title": "クロスボーダーハムスターセラミックハウス、夏用ゴールデンハムスター寝床、冷却・避暑用、ドワーフカタツムリ小屋、アイスハウス"}, "orb_similarity": 0.0476, "hist_similarity": 0.0139, "combined_score": 0.0274, "profit": {"amazon_price": 1790, "cost_1688_jpy": 51, "shipping": 115, "customs": 16, "referral_fee": 268, "fba_fee": 318, "total_cost": 815, "profit": 975, "profit_rate": 0.5446927374301676, "is_profitable": true, "profit_rate_percentage": 54.5}}]}, {"amazon": {"asin": "B0FMXTGXM8", "title": "Zaposccaハムスター ハウス 隠れ家 ハムスター 家 らしいイチゴ可愛造型 陶器製 飾りとしても使用可能 掃除が便利 快適でかわいい 洗える 涼感があり 夏用に最適 ひんやりとした触感 冷房環境でも使用可 暑さ対策に最適 ピンク色款", "price": 2499, "image_url": "https://m.media-amazon.com/images/I/71HPbqx8GZL._AC_SX679_.jpg", "bsr": 31455, "category": "ペット用品", "review_count": 1, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0FMXTGXM8", "rating": 4.0, "seller_name": "YQDa Store", "variation_count": 5, "dimensions": [13.0, 13.0, 9.4], "weight_kg": 0.5}, "estimated_monthly_sales": 37, "estimated_monthly_revenue": 92463, "candidates": [{"alibaba": {"price_cny": 12.91, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011aoH981QRgYl33SGY_!!2221624091973-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1018930631476.html", "shop_name": null, "shop_url": "https://shop4091973.1688.com/", "min_order": 1, "title": "莓陶瓷窝仓鼠窝金丝熊躲避窝凉窝大号降温夏天四季通用造景冰屋"}, "orb_similarity": 0.0125, "hist_similarity": 0.1336, "combined_score": 0.0851, "profit": {"amazon_price": 2499, "cost_1688_jpy": 296, "shipping": 115, "customs": 41, "referral_fee": 374, "fba_fee": 318, "total_cost": 1198, "profit": 1301, "profit_rate": 0.5206082432973189, "is_profitable": true, "profit_rate_percentage": 52.1}}, {"alibaba": {"price_cny": 3.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN014RNVOE1mZqv5dn2W2_!!3905404969-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/734327163479.html", "shop_name": null, "shop_url": "https://shop5404969.1688.com/", "min_order": 1, "title": "3Dシミュレーション果物野菜抱き枕ぬいぐるみクリエイティブかわいいクッションオフィスクッションホテル装飾飾り物"}, "orb_similarity": 0.0071, "hist_similarity": 0.0756, "combined_score": 0.0482, "profit": {"amazon_price": 2499, "cost_1688_jpy": 80, "shipping": 115, "customs": 19, "referral_fee": 374, "fba_fee": 318, "total_cost": 954, "profit": 1545, "profit_rate": 0.6182472989195679, "is_profitable": true, "profit_rate_percentage": 61.8}}, {"alibaba": {"price_cny": 32.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01TPjZ2a1vMQ3G5YQGi_!!2219548756158-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/957012975661.html", "shop_name": null, "shop_url": "https://shop8756158.1688.com/", "min_order": 1, "title": "草莓可爱纸巾盒客厅抽纸盒收纳盒高档轻奢2026新款餐桌餐巾纸盒子"}, "orb_similarity": 0.0051, "hist_similarity": 0.0345, "combined_score": 0.0227, "profit": {"amazon_price": 2499, "cost_1688_jpy": 736, "shipping": 115, "customs": 85, "referral_fee": 374, "fba_fee": 318, "total_cost": 1696, "profit": 803, "profit_rate": 0.321328531412565, "is_profitable": true, "profit_rate_percentage": 32.1}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01icNJ2X1vMQ3gifD4Q_!!2219548756158-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/902466078560.html", "shop_name": null, "shop_url": "https://shop8756158.1688.com/", "min_order": 1, "title": "漫画のイチゴの引き出し箱家庭用リビングルームのお茶の収納箱のアイデアの高級感のあるティッシュ箱のナプキンの引き出し箱"}, "orb_similarity": 0.0102, "hist_similarity": 0.0209, "combined_score": 0.0166, "profit": {"amazon_price": 2499, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 374, "fba_fee": 318, "total_cost": 1591, "profit": 908, "profit_rate": 0.3633453381352541, "is_profitable": true, "profit_rate_percentage": 36.3}}, {"alibaba": {"price_cny": 100.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01FP7bGw1TxEGfL8h5k_!!956712448-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/652915480604.html", "shop_name": null, "shop_url": null, "min_order": 1, "title": "無色感香粉果香微カプセル香り粉服装プリント香りシール用摩擦発香粉"}, "orb_similarity": 0.0063, "hist_similarity": -0.005, "combined_score": -0.0005, "profit": {"amazon_price": 2499, "cost_1688_jpy": 2300, "shipping": 115, "customs": 241, "referral_fee": 374, "fba_fee": 318, "total_cost": 3463, "profit": -964, "profit_rate": -0.38575430172068825, "is_profitable": false, "profit_rate_percentage": -38.6}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}新規リサーチ{% endblock %}
+
+{% block content %}
+<h1>新規リサーチ</h1>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if not session_ok %}
+<div class="card" style="background: #fff3cd; border-left: 4px solid #dc3545; padding: 1rem; margin-bottom: 1rem;">
+    <strong style="color: #dc3545;">1688接続エラー</strong>
+    <p style="margin: 0.5rem 0 0 0;">{{ session_msg }}</p>
+</div>
+{% endif %}
+
+{% if not usage_allowed %}
+<div class="alert alert-error">{{ usage_message }}</div>
+{% else %}
+<div class="card">
+    <form method="post" action="/research/new">
+        <div class="form-group">
+            <label for="keyword">キーワード</label>
+            <div style="display: flex; gap: .5rem;">
+                <input type="text" id="keyword" name="keyword" required autofocus
+                       placeholder="例：スマホスタンド" style="flex: 1;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="saveKeyword()"
+                        title="キーワードを保存">&#9733; 保存</button>
+            </div>
+            <small>Amazon-1688のリサーチキーワードを入力してください。</small>
+        </div>
+
+        <div class="form-group">
+            <label for="mode">モード</label>
+            <select id="mode" name="mode" onchange="toggleAutoOptions()">
+                <option value="single">シングル（1キーワード）</option>
+                <option value="auto">オートリサーチ（サジェスト展開）</option>
+            </select>
+            <small>オートモードはシードキーワードからAmazonサジェストを使い、複数キーワードを自動リサーチします。</small>
+        </div>
+
+        <div id="auto-options" style="display:none;">
+            <div class="form-group">
+                <label for="auto_max_keywords">最大キーワード数</label>
+                <input type="number" id="auto_max_keywords" name="auto_max_keywords"
+                       value="10" min="2" max="100">
+                <small>リサーチするキーワードの最大数</small>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">リサーチ開始</button>
+    </form>
+    <p class="mt-1 text-muted">
+        今月のリサーチ数: {{ user.candidate_count_monthly }} / {{ user.candidate_limit_monthly }}
+    </p>
+</div>
+
+{% if saved_keywords %}
+<div class="card mt-1">
+    <h2>保存済みキーワード</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>キーワード</th>
+                <th>保存日時</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for kw in saved_keywords %}
+            <tr>
+                <td>{{ kw.keyword }}</td>
+                <td>{{ kw.created_at|jst }}</td>
+                <td style="white-space: nowrap;">
+                    <button class="btn btn-sm btn-primary" onclick="useKeyword('{{ kw.keyword }}')">使用</button>
+                    <form method="post" action="/research/keywords/{{ kw.id }}/delete" style="display: inline;"
+                          onsubmit="return confirm('削除しますか？')">
+                        <button class="btn btn-sm btn-outline" type="submit">削除</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<script>
+function toggleAutoOptions() {
+    var mode = document.getElementById('mode').value;
+    document.getElementById('auto-options').style.display = mode === 'auto' ? 'block' : 'none';
+}
+
+function useKeyword(kw) {
+    document.getElementById('keyword').value = kw;
+    document.getElementById('keyword').focus();
+}
+
+function saveKeyword() {
+    var kw = document.getElementById('keyword').value.trim();
+    if (!kw) { alert('キーワードを入力してください'); return; }
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/research/keywords/save';
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'keyword';
+    input.value = kw;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endif %}
+{% endblock %}

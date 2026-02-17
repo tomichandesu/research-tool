@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px 20px 80px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:box-shadow .2s}
+.product-card.has-selection{box-shadow:0 2px 8px rgba(76,175,80,.2)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;cursor:pointer;transition:all .15s;position:relative;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate.selected{border-color:#4CAF50;background:#f0fff0;box-shadow:0 0 0 2px rgba(76,175,80,.3)}
+.candidate.selected::after{content:"\2713";position:absolute;top:6px;right:8px;color:#4CAF50;font-size:18px;font-weight:bold}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.candidate-none{border:2px dashed #ccc;border-radius:10px;width:175px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px;color:#999;font-size:13px;transition:all .15s}
+.candidate-none:hover{border-color:#ef9a9a;color:#e57373}
+.candidate-none.selected{border-color:#e53935;background:#fff5f5;color:#e53935}
+.candidate-none.selected::after{content:"\2717";position:absolute;top:6px;right:8px;color:#e53935;font-size:18px;font-weight:bold}
+.candidate-none{position:relative}
+.none-icon{font-size:32px;margin-bottom:8px}
+
+.export-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px 24px;border-top:2px solid #e0e0e0;display:flex;align-items:center;justify-content:center;gap:20px;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.progress-text{font-size:14px;color:#555}
+.progress-text b{color:#1a1a2e}
+.export-btn{background:#4CAF50;color:#fff;border:none;padding:10px 28px;font-size:15px;font-weight:bold;border-radius:6px;cursor:pointer;transition:background .2s}
+.export-btn:hover{background:#388E3C}
+.export-btn:disabled{background:#ccc;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補レビュー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    各Amazon商品に対して、1688の候補画像を確認し、同じ商品だと思うものをクリックしてください。<br>
+    該当する商品がない場合は「該当なし」をクリック。全て選択したら下部の「エクスポート」でJSONを保存。<br>
+    保存後: <code>python run_research.py --finalize &lt;保存したJSON&gt;</code> でExcelレポートを生成できます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<div class="export-bar">
+  <span class="progress-text" id="progressText">0 / 0 件 選択済み</span>
+  <button class="export-btn" id="exportBtn" onclick="doExport()">選択結果をエクスポート</button>
+</div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "テスト", "generated_at": "2026-02-06 22:51:22", "products": [{"amazon": {"asin": "B0C6M34RGL", "title": "TOMMYFIELD バンプラバー テスト", "price": 2280, "image_url": "https://example.com/test.jpg", "bsr": 12345, "category": "automotive", "review_count": 15, "rating": 3.8, "is_fba": true, "product_url": "https://www.amazon.co.jp/dp/B0C6M34RGL", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5, "seller_name": null}, "estimated_monthly_sales": 50, "estimated_monthly_revenue": 114000, "candidates": [{"alibaba": {"price_cny": 12.6, "image_url": "https://example.com/1688_1.jpg", "product_url": "https://detail.1688.com/offer/12345.html", "shop_name": "テストショップ", "title": "ショックアブソーバーバンプ"}, "profit": {"amazon_price": 2280, "cost_1688_jpy": 290, "shipping": 115, "customs": 41, "referral_fee": 228, "fba_fee": 434, "total_cost": 1108, "profit": 1172, "profit_rate": 0.514, "is_profitable": true, "profit_rate_percentage": 32.1}}]}]}');
+const selections = {};
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+  updateProgress();
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+  card.id = 'card-' + product.amazon.asin;
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand, ci) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate" id="cand-' + am.asin + '-' + ci + '" onclick="selectCand(\'' + am.asin + '\',' + ci + ')">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank" onclick="event.stopPropagation()">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '<div class="candidate-none" id="cand-' + am.asin + '-none" onclick="selectCand(\'' + am.asin + '\',-1)">';
+  html += '<div class="none-icon">&#10060;</div>';
+  html += '該当なし';
+  html += '</div>';
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function selectCand(asin, ci) {
+  selections[asin] = ci;
+  // Update UI
+  var card = document.getElementById('card-' + asin);
+  card.querySelectorAll('.candidate,.candidate-none').forEach(function(el) { el.classList.remove('selected'); });
+  if (ci >= 0) {
+    document.getElementById('cand-' + asin + '-' + ci).classList.add('selected');
+  } else {
+    document.getElementById('cand-' + asin + '-none').classList.add('selected');
+  }
+  card.classList.add('has-selection');
+  updateProgress();
+}
+
+function updateProgress() {
+  var total = DATA.products.length;
+  var done = Object.keys(selections).length;
+  document.getElementById('progressText').innerHTML = '<b>' + done + '</b> / ' + total + ' 件 選択済み';
+  document.getElementById('exportBtn').disabled = (done === 0);
+}
+
+function doExport() {
+  var result = {
+    keyword: DATA.keyword,
+    generated_at: DATA.generated_at,
+    finalized_at: new Date().toISOString(),
+    selections: []
+  };
+
+  DATA.products.forEach(function(product) {
+    var ci = selections[product.amazon.asin];
+    if (ci === undefined) return; // 未選択はスキップ
+    if (ci < 0) return; // 該当なしはスキップ
+
+    var cand = product.candidates[ci];
+    result.selections.push({
+      amazon: product.amazon,
+      alibaba: cand.alibaba,
+      profit: cand.profit,
+      estimated_monthly_sales: product.estimated_monthly_sales,
+      estimated_monthly_revenue: product.estimated_monthly_revenue
+    });
+  });
+
+  if (result.selections.length === 0) {
+    alert('選択された商品がありません（全て「該当なし」）');
+    return;
+  }
+
+  var blob = new Blob([JSON.stringify(result, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'selections_' + DATA.keyword + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert('エクスポート完了: ' + result.selections.length + '件\n\n次のコマンドでExcelを生成:\npython run_research.py --finalize selections_' + DATA.keyword + '.json');
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

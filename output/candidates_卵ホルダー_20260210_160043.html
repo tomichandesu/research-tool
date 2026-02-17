@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "卵ホルダー", "generated_at": "2026-02-10 16:00:43", "products": [{"amazon": {"asin": "B09BYXJ362", "title": "Catwo 卵ケース 卵入れ エッグホルダ 卵容器 透明 21個", "price": 1799, "image_url": "https://m.media-amazon.com/images/I/61ePCp8zdLL._AC_SX679_.jpg", "bsr": 50557, "category": "ホーム＆キッチン", "review_count": 41, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B09BYXJ362", "rating": 3.8, "seller_name": "Blacktome-ペットの世界", "variation_count": 3, "dimensions": [20, 15, 10], "weight_kg": 0.65}, "estimated_monthly_sales": 44, "estimated_monthly_revenue": 79156, "candidates": [{"alibaba": {"price_cny": 6.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01aEtsOY1VvyXwGigId_!!2212849712716-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/686264073762.html", "shop_name": null, "shop_url": "https://shop2716248.1688.com/", "min_order": 1, "title": "国境を越えた新製品は冷蔵庫の収納ケースを積み重ねることができます。"}, "orb_similarity": 0.0043, "hist_similarity": 0.9678, "combined_score": 0.5824, "profit": {"amazon_price": 1799, "cost_1688_jpy": 151, "shipping": 149, "customs": 30, "referral_fee": 269, "fba_fee": 318, "total_cost": 967, "profit": 832, "profit_rate": 0.462479155086159, "is_profitable": true, "profit_rate_percentage": 46.2}}, {"alibaba": {"price_cny": 3.3, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01raD9zz29RMaDQB0ld_!!2639258064-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/629172266273.html", "shop_name": null, "shop_url": "https://shop9258064.1688.com/", "min_order": 2, "title": "厚いデスクトップの新鮮な箱のプラスチックの透明な密封の箱の冷蔵庫の収納の箱の果物と野菜の冷凍の台所の貯蔵の箱を厚くして重ねます。"}, "orb_similarity": 0.0043, "hist_similarity": 0.9638, "combined_score": 0.58, "profit": {"amazon_price": 1799, "cost_1688_jpy": 75, "shipping": 149, "customs": 22, "referral_fee": 269, "fba_fee": 318, "total_cost": 881, "profit": 918, "profit_rate": 0.5102834908282379, "is_profitable": true, "profit_rate_percentage": 51.0}}, {"alibaba": {"price_cny": 5.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01vccAFE1sqF0O8Kugq_!!3882745817-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/688086330472.html", "shop_name": null, "shop_url": "https://shop2745817.1688.com/", "min_order": 2, "title": "冷蔵庫卵収納ケースpet蓋付き鮮度保持シール家庭用冷蔵庫キッチン卵収納ケース透明卵"}, "orb_similarity": 0.0085, "hist_similarity": 0.4008, "combined_score": 0.2439, "profit": {"amazon_price": 1799, "cost_1688_jpy": 135, "shipping": 149, "customs": 28, "referral_fee": 269, "fba_fee": 318, "total_cost": 949, "profit": 850, "profit_rate": 0.4724847137298499, "is_profitable": true, "profit_rate_percentage": 47.2}}, {"alibaba": {"price_cny": 4.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01pSL8HP1iIDRE54pgD_!!2207760104389-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/995972564327.html", "shop_name": null, "shop_url": "https://shop4389238.1688.com/", "min_order": 2, "title": "冰箱专用透明加厚鸡蛋托跨境专供鸡蛋收纳盒家用厨房鸡蛋收纳架"}, "orb_similarity": 0.0128, "hist_similarity": 0.2175, "combined_score": 0.1357, "profit": {"amazon_price": 1799, "cost_1688_jpy": 92, "shipping": 149, "customs": 24, "referral_fee": 269, "fba_fee": 318, "total_cost": 900, "profit": 899, "profit_rate": 0.49972206781545303, "is_profitable": true, "profit_rate_percentage": 50.0}}, {"alibaba": {"price_cny": 6.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01k78vHo1sqEi45M5FA_!!3882745817-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/692707617208.html", "shop_name": null, "shop_url": "https://shop2745817.1688.com/", "min_order": 2, "title": "冷蔵庫サイドドア卵収納ケース30枚多層反転卵収納棚キッチン卵ケース冷蔵庫保存ケース"}, "orb_similarity": 0.0085, "hist_similarity": 0.1758, "combined_score": 0.1089, "profit": {"amazon_price": 1799, "cost_1688_jpy": 156, "shipping": 149, "customs": 30, "referral_fee": 269, "fba_fee": 318, "total_cost": 972, "profit": 827, "profit_rate": 0.45969983324068925, "is_profitable": true, "profit_rate_percentage": 46.0}}, {"alibaba": {"price_cny": 12.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01GbrDxd2GHvwYmPWbJ_!!2204183238991-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/671039193617.html", "shop_name": null, "shop_url": "https://shop3899170.1688.com/", "min_order": 5, "title": "台所に卵を入れた箱に卵を入れた棚にプラスチックの卵を入れた冷蔵庫の収納ケースの多層卵収納ケース"}, "orb_similarity": 0.0213, "hist_similarity": 0.0531, "combined_score": 0.0404, "profit": {"amazon_price": 1799, "cost_1688_jpy": 287, "shipping": 149, "customs": 43, "referral_fee": 269, "fba_fee": 318, "total_cost": 1120, "profit": 679, "profit_rate": 0.377431906614786, "is_profitable": true, "profit_rate_percentage": 37.7}}, {"alibaba": {"price_cny": 18.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01jKNi1220gdDqqSXEe_!!2568256879-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/647543878350.html", "shop_name": null, "shop_url": "https://shop2568794.1688.com/", "min_order": 1, "title": "家庭用冷蔵庫の卵収納ケースキッチン冷蔵庫の鮮度保持収納ケースの卵ケースのプラスチックは卵ケースを重ねることができる"}, "orb_similarity": 0.0085, "hist_similarity": 0.0602, "combined_score": 0.0395, "profit": {"amazon_price": 1799, "cost_1688_jpy": 434, "shipping": 149, "customs": 58, "referral_fee": 269, "fba_fee": 318, "total_cost": 1287, "profit": 512, "profit_rate": 0.2846025569760978, "is_profitable": true, "profit_rate_percentage": 28.5}}, {"alibaba": {"price_cny": 4.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN015HLN3L1Lj1MRaEYni_!!2072121334-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/851987294625.html", "shop_name": null, "shop_url": "https://shop2121334.1688.com/", "min_order": 1, "title": "スクロール卵収納ケース冷蔵庫専用サイドドアに卵ケースを入れる整理神器入り卵ラック卵ケース"}, "orb_similarity": 0.0085, "hist_similarity": 0.0522, "combined_score": 0.0347, "profit": {"amazon_price": 1799, "cost_1688_jpy": 112, "shipping": 149, "customs": 26, "referral_fee": 269, "fba_fee": 318, "total_cost": 923, "profit": 876, "profit_rate": 0.4869371873262924, "is_profitable": true, "profit_rate_percentage": 48.7}}, {"alibaba": {"price_cny": 15.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01oLlu6j1tYfQHcjRw9_!!2215075305914-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/874825561609.html", "shop_name": null, "shop_url": "https://shop9144769.1688.com/", "min_order": 1, "title": "二重卵収納ケース新型キッチン冷蔵庫卵鮮度保持ケースPETタイミング卵ケース引き出し式卵トレイ"}, "orb_similarity": 0.0191, "hist_similarity": 0.0371, "combined_score": 0.0299, "profit": {"amazon_price": 1799, "cost_1688_jpy": 356, "shipping": 149, "customs": 50, "referral_fee": 269, "fba_fee": 318, "total_cost": 1198, "profit": 601, "profit_rate": 0.33407448582545857, "is_profitable": true, "profit_rate_percentage": 33.4}}, {"alibaba": {"price_cny": 200.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZPNhMB23TlMdg22nb_!!2221465617257-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1007211751753.html", "shop_name": null, "shop_url": "https://shop6172576.1688.com/", "min_order": 1, "title": "透明30枚装一次性蛋托商超专供塑料带盖 包装盒厂家一次性鸡蛋托"}, "orb_similarity": 0.0069, "hist_similarity": 0.0071, "combined_score": 0.007, "profit": {"amazon_price": 1799, "cost_1688_jpy": 4600, "shipping": 149, "customs": 474, "referral_fee": 269, "fba_fee": 318, "total_cost": 5994, "profit": -4195, "profit_rate": -2.331851028349083, "is_profitable": false, "profit_rate_percentage": -233.2}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "置物 おしゃれ", "generated_at": "2026-02-10 23:12:53", "products": [{"amazon": {"asin": "B0DQYG17XT", "title": "ブルドッグ鍵置きトレイ 犬型キースタンド - おしゃれ玄関インテリア 鍵収納ホルダー｜男性誕生日プレゼント 面白い誕プレ お父さん贈り物 樹脂製置物デスクトップ収納飾り入口キーホルダー眼鏡/入口印鑑/シール/リモコン/化粧品/キャンディーその他小物収納誕生日/結婚式/バレンタイン/父の日プレゼント,デスクトップ彫像動物彫像30 CM (Color : Black)", "price": 2999, "image_url": "https://m.media-amazon.com/images/I/51uPlZHEyvL._AC_SX679_.jpg", "bsr": 33276, "category": "ホーム＆キッチン", "review_count": 7, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0DQYG17XT", "rating": 3.1, "seller_name": "guangdun-JP旗艦店(登録6941869)跟卖必投诉", "variation_count": 4, "dimensions": [31.0, 25.2, 20.2], "weight_kg": 1.04}, "estimated_monthly_sales": 60, "estimated_monthly_revenue": 179940, "candidates": [{"alibaba": {"price_cny": 68.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01jwEdmq2DY0qv77Mtn_!!2209863298620-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/694433341438.html", "shop_name": null, "shop_url": "https://shop3298620.1688.com/", "min_order": 1, "title": "鍵を入れる置物の入り口に入る棚に入れて、玄関の家庭装飾品を収納します。"}, "orb_similarity": 0.0, "hist_similarity": 0.5718, "combined_score": 0.3431, "profit": {"amazon_price": 2999, "cost_1688_jpy": 1564, "shipping": 604, "customs": 216, "referral_fee": 449, "fba_fee": 514, "total_cost": 3439, "profit": -440, "profit_rate": -0.14671557185728576, "is_profitable": false, "profit_rate_percentage": -14.7}}, {"alibaba": {"price_cny": 68.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01zXldgm1nXOa0NHBnN_!!2219517305099-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/898527272426.html", "shop_name": null, "shop_url": "https://shop3050994.1688.com/", "min_order": 1, "title": "軽豪華法闘犬入戸玄関鍵収納客間デスクトップ飾り物"}, "orb_similarity": 0.0064, "hist_similarity": 0.5591, "combined_score": 0.338, "profit": {"amazon_price": 2999, "cost_1688_jpy": 1564, "shipping": 604, "customs": 216, "referral_fee": 449, "fba_fee": 514, "total_cost": 3439, "profit": -440, "profit_rate": -0.14671557185728576, "is_profitable": false, "profit_rate_percentage": -14.7}}, {"alibaba": {"price_cny": 59.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Dusccn2DY0umqmxnS_!!2209863298620-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/677536061850.html", "shop_name": null, "shop_url": "https://shop3298620.1688.com/", "min_order": 1, "title": "創意闘牛犬が入り口に入って鍵を置く置物玄関の下駄箱収納ケースの家に飾り物を入れてプレゼントします。"}, "orb_similarity": 0.0107, "hist_similarity": 0.549, "combined_score": 0.3337, "profit": {"amazon_price": 2999, "cost_1688_jpy": 1357, "shipping": 604, "customs": 196, "referral_fee": 449, "fba_fee": 514, "total_cost": 3206, "profit": -207, "profit_rate": -0.06902300766922308, "is_profitable": false, "profit_rate_percentage": -6.9}}, {"alibaba": {"price_cny": 39.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Plj1rx2DY1C4Entcu_!!2209863298620-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998096584707.html", "shop_name": null, "shop_url": "https://shop3298620.1688.com/", "min_order": 1, "title": "轻奢法斗犬钥匙收纳玄关狗摆件高档客厅入户鞋柜装饰品家居电视柜"}, "orb_similarity": 0.0109, "hist_similarity": 0.5266, "combined_score": 0.3203, "profit": {"amazon_price": 2999, "cost_1688_jpy": 897, "shipping": 604, "customs": 150, "referral_fee": 449, "fba_fee": 514, "total_cost": 2686, "profit": 313, "profit_rate": 0.10436812270756919, "is_profitable": true, "profit_rate_percentage": 10.4}}, {"alibaba": {"price_cny": 40.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ksp43u1vh1u2oIQzn_!!2215580766203-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/996014371387.html", "shop_name": null, "shop_url": "https://shop0766203.1688.com/", "min_order": 1, "title": "创意大嘴狗狗入户玄关钥匙收纳摆件放门口鞋柜客厅家居装饰工艺品"}, "orb_similarity": 0.0021, "hist_similarity": 0.4837, "combined_score": 0.2911, "profit": {"amazon_price": 2999, "cost_1688_jpy": 920, "shipping": 604, "customs": 152, "referral_fee": 449, "fba_fee": 514, "total_cost": 2712, "profit": 287, "profit_rate": 0.09569856618872957, "is_profitable": true, "profit_rate_percentage": 9.6}}, {"alibaba": {"price_cny": 19.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kxZqn61Qo7xuwbiMA_!!2221499692022-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1017872893995.html", "shop_name": null, "shop_url": "https://shop9202256.1688.com/", "min_order": 5, "title": "入户门口放钥匙收纳摆件客厅轻奢鞋柜玄关托盘斗牛犬搬家装饰礼品"}, "orb_similarity": 0.0065, "hist_similarity": 0.432, "combined_score": 0.2618, "profit": {"amazon_price": 2999, "cost_1688_jpy": 457, "shipping": 604, "customs": 106, "referral_fee": 449, "fba_fee": 514, "total_cost": 2189, "profit": 810, "profit_rate": 0.2700900300100033, "is_profitable": true, "profit_rate_percentage": 27.0}}, {"alibaba": {"price_cny": 39.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01BupVfR1ZyxpLvWrb9_!!2214161943264-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/947129287083.html", "shop_name": null, "shop_url": "https://shop2643716.1688.com/", "min_order": 1, "title": "北欧网红轻奢客厅法斗大嘴收纳钥匙置物托盘摆件鞋柜玄关桌面家居"}, "orb_similarity": 0.0064, "hist_similarity": 0.3598, "combined_score": 0.2184, "profit": {"amazon_price": 2999, "cost_1688_jpy": 897, "shipping": 604, "customs": 150, "referral_fee": 449, "fba_fee": 514, "total_cost": 2686, "profit": 313, "profit_rate": 0.10436812270756919, "is_profitable": true, "profit_rate_percentage": 10.4}}, {"alibaba": {"price_cny": 58.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01TJGecj1vh1cWZ3lMV_!!2215580766203-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/708729253342.html", "shop_name": null, "shop_url": "https://shop0766203.1688.com/", "min_order": 1, "title": "玄関の玄関のテーブルの鍵を収納して飾ります。"}, "orb_similarity": 0.0109, "hist_similarity": 0.3563, "combined_score": 0.2181, "profit": {"amazon_price": 2999, "cost_1688_jpy": 1334, "shipping": 604, "customs": 193, "referral_fee": 449, "fba_fee": 514, "total_cost": 3180, "profit": -181, "profit_rate": -0.06035345115038346, "is_profitable": false, "profit_rate_percentage": -6.0}}, {"alibaba": {"price_cny": 7.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01eYlCNa1evMjCOBqUQ_!!2550063933-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/717985585004.html", "shop_name": null, "shop_url": "https://shop0063933.1688.com/", "min_order": 1, "title": "社会のボス犬灰皿の新商品の個性的な防風防飛灰ネット赤灰皿ins高顔値"}, "orb_similarity": 0.0043, "hist_similarity": 0.3463, "combined_score": 0.2095, "profit": {"amazon_price": 2999, "cost_1688_jpy": 161, "shipping": 604, "customs": 76, "referral_fee": 449, "fba_fee": 514, "total_cost": 1854, "profit": 1145, "profit_rate": 0.3817939313104368, "is_profitable": true, "profit_rate_percentage": 38.2}}, {"alibaba": {"price_cny": 40.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HGoIOD2FHBt3PhU0J_!!2221148488854-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016287083395.html", "shop_name": null, "shop_url": "https://shop8488854.1688.com/", "min_order": 1, "title": "法斗犬入户玄关钥匙收纳盒门口鞋柜置物乔迁客厅卧室装饰收纳摆件"}, "orb_similarity": 0.0085, "hist_similarity": 0.2995, "combined_score": 0.1831, "profit": {"amazon_price": 2999, "cost_1688_jpy": 920, "shipping": 604, "customs": 152, "referral_fee": 449, "fba_fee": 514, "total_cost": 2712, "profit": 287, "profit_rate": 0.09569856618872957, "is_profitable": true, "profit_rate_percentage": 9.6}}]}, {"amazon": {"asin": "B0DHTN8Z3H", "title": "ゴールドアップル 黄金のリンゴ 置き物 金箔入り ゴールドアップル 誕生日 記念日 お祝い プレゼント ギフト 母の日 敬老の日 クリスマス 女性 男性 縁起物 林檎 贈り物 風水 金運 置物", "price": 1999, "image_url": "https://m.media-amazon.com/images/I/61lYRJDB7zL._AC_SX679_.jpg", "bsr": 68238, "category": "ホーム＆キッチン", "review_count": 18, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0DHTN8Z3H", "rating": 3.2, "seller_name": "Grass Field", "variation_count": 1, "dimensions": [15.2, 12.4, 9.8], "weight_kg": 0.37}, "estimated_monthly_sales": 35, "estimated_monthly_revenue": 69965, "candidates": [{"alibaba": {"price_cny": 14.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01yVI9R11fV5fGd7h4V_!!3845464011-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/740195170946.html", "shop_name": null, "shop_url": "https://shop5464011.1688.com/", "min_order": 2, "title": "東南アジア・台湾金箔工芸品 中国風ギフト 金箔福袋 ひょうたん・リンゴ・金元宝 聚宝盆飾り"}, "orb_similarity": 0.0064, "hist_similarity": 0.951, "combined_score": 0.5732, "profit": {"amazon_price": 1999, "cost_1688_jpy": 333, "shipping": 85, "customs": 41, "referral_fee": 299, "fba_fee": 318, "total_cost": 1131, "profit": 868, "profit_rate": 0.43421710855427714, "is_profitable": true, "profit_rate_percentage": 43.4}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01hgvjsl1h6Td7m8e6C_!!2645384228-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/632738520376.html", "shop_name": null, "shop_url": "https://shop3842288.1688.com/", "min_order": 5, "title": "新商品は金箔のリンゴの工芸品を発売してアイデアを飾っています。"}, "orb_similarity": 0.0042, "hist_similarity": 0.9522, "combined_score": 0.573, "profit": {"amazon_price": 1999, "cost_1688_jpy": 345, "shipping": 85, "customs": 43, "referral_fee": 299, "fba_fee": 318, "total_cost": 1146, "profit": 853, "profit_rate": 0.42671335667833915, "is_profitable": true, "profit_rate_percentage": 42.7}}, {"alibaba": {"price_cny": 18.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013DNiz91TwJqgTwy6y_!!2216194052446-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/950615296309.html", "shop_name": null, "shop_url": "https://shop4052446.1688.com/", "min_order": 1, "title": "Amazonクロスボーダーホットスタイルハロウィンカラフルなフルスパンコールカボチャデコレーション感謝祭のホリデー雰囲気の装飾吊り下げ装飾品"}, "orb_similarity": 0.0063, "hist_similarity": 0.9504, "combined_score": 0.5727, "profit": {"amazon_price": 1999, "cost_1688_jpy": 418, "shipping": 85, "customs": 50, "referral_fee": 299, "fba_fee": 318, "total_cost": 1228, "profit": 771, "profit_rate": 0.3856928464232116, "is_profitable": true, "profit_rate_percentage": 38.6}}, {"alibaba": {"price_cny": 19.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN018lGwCg1pOLbVTzN12_!!935995350-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/684864385800.html", "shop_name": null, "shop_url": "https://shop0233207.1688.com/", "min_order": 3, "title": "車の香水は水晶のリンゴの香水の座の車内の男女の自動車の香水の装飾品を飾って代行します。"}, "orb_similarity": 0.0041, "hist_similarity": 0.9511, "combined_score": 0.5723, "profit": {"amazon_price": 1999, "cost_1688_jpy": 437, "shipping": 85, "customs": 52, "referral_fee": 299, "fba_fee": 318, "total_cost": 1250, "profit": 749, "profit_rate": 0.3746873436718359, "is_profitable": true, "profit_rate_percentage": 37.5}}, {"alibaba": {"price_cny": 12.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01vSJZxs21pcvjb2fOa_!!2207861647034-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/623747775989.html", "shop_name": null, "shop_url": "https://shop6470345.1688.com/", "min_order": 5, "title": "水晶金箔リンゴ平安果創意クリスマスプレゼントホームオフィス招財工芸品風水置物プレゼント"}, "orb_similarity": 0.002, "hist_similarity": 0.9514, "combined_score": 0.5717, "profit": {"amazon_price": 1999, "cost_1688_jpy": 287, "shipping": 85, "customs": 37, "referral_fee": 299, "fba_fee": 318, "total_cost": 1080, "profit": 919, "profit_rate": 0.45972986493246626, "is_profitable": true, "profit_rate_percentage": 46.0}}, {"alibaba": {"price_cny": 4.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ew56tD1T2RYjy50GB_!!2006292324-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/992366851069.html", "shop_name": null, "shop_url": "https://shop6292324.1688.com/", "min_order": 3, "title": "新年圣诞节的小礼物装饰苹果送给男生女生小朋友水晶苹果白纸盒装"}, "orb_similarity": 0.0, "hist_similarity": 0.9491, "combined_score": 0.5695, "profit": {"amazon_price": 1999, "cost_1688_jpy": 92, "shipping": 85, "customs": 17, "referral_fee": 299, "fba_fee": 318, "total_cost": 859, "profit": 1140, "profit_rate": 0.5702851425712856, "is_profitable": true, "profit_rate_percentage": 57.0}}, {"alibaba": {"price_cny": 16.02, "image_url": "https://cbu01.alicdn.com/img/ibank/23366197461_481701194.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/528155082582.html", "shop_name": null, "shop_url": "https://shop3842288.1688.com/", "min_order": 5, "title": "新商品発売金箔水晶福袋工芸品置物会社の販促創意プレゼント"}, "orb_similarity": 0.0065, "hist_similarity": 0.7464, "combined_score": 0.4505, "profit": {"amazon_price": 1999, "cost_1688_jpy": 368, "shipping": 85, "customs": 45, "referral_fee": 299, "fba_fee": 318, "total_cost": 1172, "profit": 827, "profit_rate": 0.4137068534267134, "is_profitable": true, "profit_rate_percentage": 41.4}}, {"alibaba": {"price_cny": 12.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011QX8i01QWiu5W1UFQ_!!2213267281984-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1000329229793.html", "shop_name": null, "shop_url": "https://shop9842275.1688.com/", "min_order": 1, "title": "水晶苹果金箔摆件平安喜乐创意圣诞节礼品招财进宝新家乔迁装饰"}, "orb_similarity": 0.0041, "hist_similarity": 0.6585, "combined_score": 0.3968, "profit": {"amazon_price": 1999, "cost_1688_jpy": 276, "shipping": 85, "customs": 36, "referral_fee": 299, "fba_fee": 318, "total_cost": 1068, "profit": 931, "profit_rate": 0.4657328664332166, "is_profitable": true, "profit_rate_percentage": 46.6}}, {"alibaba": {"price_cny": 40.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01dlCn2n21QRA4vKOCO_!!2213241766979-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/692765477366.html", "shop_name": null, "shop_url": "https://shop7924556.1688.com/", "min_order": 1, "title": "純粋な真鍮のリンゴはアイデアを飾っています。銅のリンゴは平安です。"}, "orb_similarity": 0.0, "hist_similarity": 0.5207, "combined_score": 0.3124, "profit": {"amazon_price": 1999, "cost_1688_jpy": 920, "shipping": 85, "customs": 100, "referral_fee": 299, "fba_fee": 318, "total_cost": 1795, "profit": 204, "profit_rate": 0.10205102551275638, "is_profitable": true, "profit_rate_percentage": 10.2}}, {"alibaba": {"price_cny": 3.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01WIOuu22JCqapifEk9_!!2221533259386-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016224393164.html", "shop_name": null, "shop_url": "https://shop2593869.1688.com/", "min_order": 1, "title": "跨境亚克力立牌摆件毕业季教师节送老师同学礼品工艺品摆台"}, "orb_similarity": 0.0061, "hist_similarity": 0.2369, "combined_score": 0.1446, "profit": {"amazon_price": 1999, "cost_1688_jpy": 69, "shipping": 85, "customs": 15, "referral_fee": 299, "fba_fee": 318, "total_cost": 834, "profit": 1165, "profit_rate": 0.5827913956978489, "is_profitable": true, "profit_rate_percentage": 58.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

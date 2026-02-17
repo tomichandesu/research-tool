@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}お支払い完了{% endblock %}
+
+{% block content %}
+<div class="card mt-1" style="text-align: center; padding: 40px 20px;">
+    <h1 style="color: #28a745; margin-bottom: 20px;">お支払いが完了しました</h1>
+    <p style="font-size: 1.1rem; margin-bottom: 20px;">
+        ご購入ありがとうございます。プランが自動的に更新されます。
+    </p>
+    <p style="margin-bottom: 30px; color: #666;">
+        反映まで数秒かかる場合があります。ダッシュボードでプラン状態をご確認ください。
+    </p>
+    <a href="/" class="btn btn-primary">ダッシュボードへ戻る</a>
+</div>
+{% endblock %}

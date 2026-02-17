@@ -1,0 +1,26 @@
+Job 33: keyword=置物, mode=auto, status=failed, started=2026-02-10 14:06:45.926358, completed=2026-02-10T18:12:55.809871
+  error: Job timed out after running for over 4 hours. Process likely crashed or hung.
+
+Job 32: keyword=箸置き, mode=auto, status=completed, started=2026-02-10 14:00:05.348130, completed=2026-02-10 14:06:24.072169
+
+Job 31: keyword=箸置き, mode=auto, status=completed, started=2026-02-10 13:55:23.077191, completed=2026-02-10 13:55:26.024352
+
+Job 30: keyword=箸置き, mode=auto, status=completed, started=2026-02-10 13:45:07.463720, completed=2026-02-10 13:45:10.292978
+
+Job 29: keyword=箸置き, mode=auto, status=completed, started=2026-02-10 13:44:34.777885, completed=2026-02-10 13:44:46.759078
+
+Job 28: keyword=箸置き, mode=auto, status=failed, started=2026-02-10 13:21:19.439913, completed=2026-02-10 13:21:22.354828
+  error: 商品検索が実行できませんでした。1688のセッションが無効になっている可能性があります。管理者にお問い合わせください。
+
+Job 27: keyword=箸置き, mode=auto, status=failed, started=2026-02-10 13:19:43.795779, completed=2026-02-10 13:19:47.430835
+  error: 商品検索が実行できませんでした。1688のセッションが無効になっている可能性があります。管理者にお問い合わせください。
+
+Job 26: keyword=箸置き, mode=auto, status=failed, started=2026-02-10 13:18:13.799065, completed=2026-02-10 13:18:16.937108
+  error: 商品検索が実行できませんでした。1688のセッションが無効になっている可能性があります。管理者にお問い合わせください。
+
+Job 25: keyword=箸置き, mode=auto, status=failed, started=2026-02-10 13:10:54.062782, completed=2026-02-10 13:11:11.009323
+  error: 商品検索が実行できませんでした。1688のセッションが無効になっている可能性があります。管理者にお問い合わせください。
+
+Job 24: keyword=箸置き, mode=auto, status=failed, started=2026-02-10 12:36:08.457609, completed=2026-02-10 12:36:23.626575
+  error: 商品検索が実行できませんでした。1688のセッションが無効になっている可能性があります。管理者にお問い合わせください。
+

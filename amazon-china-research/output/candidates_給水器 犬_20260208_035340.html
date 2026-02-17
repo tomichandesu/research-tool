@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "給水器 犬", "generated_at": "2026-02-08 03:53:40", "products": [{"amazon": {"asin": "B00DMUV0YU", "title": "市瀬 ペットドリンキングネオ DY-2N 茶", "price": 1605, "image_url": "https://m.media-amazon.com/images/I/713fU7Q3waL._AC_SY741_.jpg", "bsr": 20090, "category": "ペット用品", "review_count": 22, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B00DMUV0YU", "rating": 4.2, "seller_name": "GARDENINA（ガーデニーナ）", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 52, "estimated_monthly_revenue": 83460, "candidates": [{"alibaba": {"price_cny": 4.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01N73h1Z1gVNakluCdh_!!1006694147-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/996245699604.html", "shop_name": null, "shop_url": null, "min_order": 2, "title": "久烧不烫手卡式喷枪气罐喷火枪烧烤烧猪毛便携手持涡轮增压喷火枪"}, "orb_similarity": 0.0084, "hist_similarity": 0.0864, "combined_score": 0.0552, "profit": {"amazon_price": 1605, "cost_1688_jpy": 110, "shipping": 115, "customs": 22, "referral_fee": 240, "fba_fee": 318, "total_cost": 854, "profit": 751, "profit_rate": 0.46791277258566977, "is_profitable": true, "profit_rate_percentage": 46.8}}, {"alibaba": {"price_cny": 18.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011sbxAS2BCNC0vqtep_!!2210302898302-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016019527283.html", "shop_name": null, "shop_url": "https://shop1143249.1688.com/", "min_order": 5, "title": "宠物悬挂式自动饮水器小型犬撞针式饮水壶挂笼自动饮水器"}, "orb_similarity": 0.0068, "hist_similarity": 0.0814, "combined_score": 0.0516, "profit": {"amazon_price": 1605, "cost_1688_jpy": 423, "shipping": 115, "customs": 53, "referral_fee": 240, "fba_fee": 318, "total_cost": 1207, "profit": 398, "profit_rate": 0.24797507788161993, "is_profitable": true, "profit_rate_percentage": 24.8}}, {"alibaba": {"price_cny": 3.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011sbxAS2BCNC0vqtep_!!2210302898302-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/635782088380.html", "shop_name": null, "shop_url": "https://shop3022943.1688.com/", "min_order": 10, "title": "ペット用吊り下げ式自動給水器 小型犬用針式給水器 ケージ吊り下げ式自動給水器"}, "orb_similarity": 0.0068, "hist_similarity": 0.0814, "combined_score": 0.0516, "profit": {"amazon_price": 1605, "cost_1688_jpy": 89, "shipping": 115, "customs": 20, "referral_fee": 240, "fba_fee": 318, "total_cost": 830, "profit": 775, "profit_rate": 0.48286604361370716, "is_profitable": true, "profit_rate_percentage": 48.3}}, {"alibaba": {"price_cny": 4.7, "image_url": "https://cbu01.alicdn.com/img/ibank/13053853373_486729576.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/610425053315.html", "shop_name": null, "shop_url": "https://shop7478156.1688.com/", "min_order": 5, "title": "ペット用吊り下げ式給水器、猫と犬用のボール型給水器、飲水口、給水ヘッド、ペット用飲水器"}, "orb_similarity": 0.0088, "hist_similarity": 0.079, "combined_score": 0.051, "profit": {"amazon_price": 1605, "cost_1688_jpy": 108, "shipping": 115, "customs": 22, "referral_fee": 240, "fba_fee": 318, "total_cost": 852, "profit": 753, "profit_rate": 0.4691588785046729, "is_profitable": true, "profit_rate_percentage": 46.9}}, {"alibaba": {"price_cny": 3.18, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01G1Hi5w251TqILsMZe_!!2213192437466-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/704569438624.html", "shop_name": null, "shop_url": "https://shop2437466.1688.com/", "min_order": 1, "title": "ペット用水飲み器クロスボーダー現物ボール掛け式水飲み器セットドリンクコーラボトル犬籠吊り水飲み器"}, "orb_similarity": 0.0071, "hist_similarity": 0.0453, "combined_score": 0.03, "profit": {"amazon_price": 1605, "cost_1688_jpy": 73, "shipping": 115, "customs": 18, "referral_fee": 240, "fba_fee": 318, "total_cost": 812, "profit": 793, "profit_rate": 0.4940809968847352, "is_profitable": true, "profit_rate_percentage": 49.4}}, {"alibaba": {"price_cny": 3.84, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01NXmbjV1XLSSwDURyY_!!2218699972907-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/841009300475.html", "shop_name": null, "shop_url": "https://shop2907009.1688.com/", "min_order": 1, "title": "ノズル焼き豚毛点火器ガスタンク式噴火銃バーベキュー家庭用携帯式スプレーガンライター屋外"}, "orb_similarity": 0.0069, "hist_similarity": 0.0089, "combined_score": 0.0081, "profit": {"amazon_price": 1605, "cost_1688_jpy": 88, "shipping": 115, "customs": 20, "referral_fee": 240, "fba_fee": 318, "total_cost": 829, "profit": 776, "profit_rate": 0.4834890965732087, "is_profitable": true, "profit_rate_percentage": 48.3}}]}, {"amazon": {"asin": "B0DK7C3MYC", "title": "aninako 犬用水飲み器 大容量1L ペット 水飲み器 犬 給水器 こぼれ防止 溢れ防止 カビ防止 ステンレス製 洗いやすい 清潔 防塵 滑り止め 洗いやすい 取り外し可能 猫給水器 犬給水器", "price": 1699, "image_url": "https://m.media-amazon.com/images/I/61kt8Sn2CaL._AC_SY450_.jpg", "bsr": 10800, "category": "ペット用品", "review_count": 30, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0DK7C3MYC", "rating": 4.2, "seller_name": "Aninako", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 85, "estimated_monthly_revenue": 144415, "candidates": [{"alibaba": {"price_cny": 9.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01girKrO1SQQc9pwpiB_!!2217928822241-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/956027734587.html", "shop_name": null, "shop_url": "https://shop8275478.1688.com/", "min_order": 1, "title": "正品宠物食具不锈钢狗碗悬浮碗饮水漂浮喝水大容量狗盆宠物饮水器"}, "orb_similarity": 0.1162, "hist_similarity": 0.9854, "combined_score": 0.6377, "profit": {"amazon_price": 1699, "cost_1688_jpy": 227, "shipping": 115, "customs": 34, "referral_fee": 254, "fba_fee": 318, "total_cost": 1000, "profit": 699, "profit_rate": 0.4114184814596822, "is_profitable": true, "profit_rate_percentage": 41.1}}, {"alibaba": {"price_cny": 8.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01girKrO1SQQc9pwpiB_!!2217928822241-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/992187073877.html", "shop_name": null, "shop_url": "https://shop8275478.1688.com/", "min_order": 1, "title": "宠物食具304不锈钢狗碗悬浮碗猫狗用品喝水大容量狗盆宠物饮水器"}, "orb_similarity": 0.1162, "hist_similarity": 0.9854, "combined_score": 0.6377, "profit": {"amazon_price": 1699, "cost_1688_jpy": 204, "shipping": 115, "customs": 31, "referral_fee": 254, "fba_fee": 318, "total_cost": 974, "profit": 725, "profit_rate": 0.42672160094173045, "is_profitable": true, "profit_rate_percentage": 42.7}}, {"alibaba": {"price_cny": 8.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01girKrO1SQQc9pwpiB_!!2217928822241-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/997929293005.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "宠物食具304不锈钢狗碗悬浮碗猫狗用品喝水大容量狗盆宠物饮水器"}, "orb_similarity": 0.1162, "hist_similarity": 0.9854, "combined_score": 0.6377, "profit": {"amazon_price": 1699, "cost_1688_jpy": 204, "shipping": 115, "customs": 31, "referral_fee": 254, "fba_fee": 318, "total_cost": 974, "profit": 725, "profit_rate": 0.42672160094173045, "is_profitable": true, "profit_rate_percentage": 42.7}}, {"alibaba": {"price_cny": 9.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01SvXsFq1SQQcCfP3nt_!!2217928822241-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/953105280652.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "正品宠物食具不锈钢狗碗悬浮碗饮水漂浮喝水大容量狗盆宠物饮水器"}, "orb_similarity": 0.0505, "hist_similarity": 0.9723, "combined_score": 0.6036, "profit": {"amazon_price": 1699, "cost_1688_jpy": 227, "shipping": 115, "customs": 34, "referral_fee": 254, "fba_fee": 318, "total_cost": 1000, "profit": 699, "profit_rate": 0.4114184814596822, "is_profitable": true, "profit_rate_percentage": 41.1}}, {"alibaba": {"price_cny": 47.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01gNcqL0256WTtP9zta_!!2220924767477-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/986277470528.html", "shop_name": null, "shop_url": "https://shop4767477.1688.com/", "min_order": 5, "title": "宠物悬浮水碗狗狗喝水器不湿嘴304不锈钢抗菌猫水碗狗碗漂浮水盆"}, "orb_similarity": 0.0076, "hist_similarity": 0.9572, "combined_score": 0.5774, "profit": {"amazon_price": 1699, "cost_1688_jpy": 1092, "shipping": 115, "customs": 120, "referral_fee": 254, "fba_fee": 318, "total_cost": 1977, "profit": -278, "profit_rate": -0.16362566215420835, "is_profitable": false, "profit_rate_percentage": -16.4}}, {"alibaba": {"price_cny": 33.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01lJJgW71UnRlAERGaX_!!2830292562-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/896103630374.html", "shop_name": null, "shop_url": "https://shop2925623.1688.com/", "min_order": 1, "title": "犬の碗の犬のたらいは犬のたらいをひっくり返すことを防ぎます。"}, "orb_similarity": 0.0152, "hist_similarity": 0.9429, "combined_score": 0.5718, "profit": {"amazon_price": 1699, "cost_1688_jpy": 759, "shipping": 115, "customs": 87, "referral_fee": 254, "fba_fee": 318, "total_cost": 1601, "profit": 98, "profit_rate": 0.05768098881695115, "is_profitable": true, "profit_rate_percentage": 5.8}}, {"alibaba": {"price_cny": 36.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01T2EDql1qzjw3hY0Gi_!!1049355567-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/893633796150.html", "shop_name": null, "shop_url": null, "min_order": 2, "title": "ステンレスの犬の碗の犬のたらいは犬のたらいをひっくり返すことを防ぎます。"}, "orb_similarity": 0.0126, "hist_similarity": 0.9429, "combined_score": 0.5708, "profit": {"amazon_price": 1699, "cost_1688_jpy": 828, "shipping": 115, "customs": 94, "referral_fee": 254, "fba_fee": 318, "total_cost": 1679, "profit": 20, "profit_rate": 0.011771630370806356, "is_profitable": true, "profit_rate_percentage": 1.2}}, {"alibaba": {"price_cny": 540.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01AOj5bJ2GIqsJLQ0Qi_!!2218960768993-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/924305879956.html", "shop_name": null, "shop_url": "https://shop0768993.1688.com/", "min_order": 1, "title": "西塔老太太黑金电烤炉圆形烧烤泥炉韩式商用上排烟蚊香管烤肉店炉"}, "orb_similarity": 0.0076, "hist_similarity": 0.9424, "combined_score": 0.5685, "profit": {"amazon_price": 1699, "cost_1688_jpy": 12420, "shipping": 115, "customs": 1253, "referral_fee": 254, "fba_fee": 318, "total_cost": 14778, "profit": -13079, "profit_rate": -7.698057680988817, "is_profitable": false, "profit_rate_percentage": -769.8}}, {"alibaba": {"price_cny": 6.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01zhPHAL1cOGghYvl6V_!!2214914803590-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/692677433344.html", "shop_name": null, "shop_url": "https://shop8035905.1688.com/", "min_order": 2, "title": "韓国式オーブン家庭用パーティー焼肉ストーブ商用室内無煙ステンレス製炭素オーブン"}, "orb_similarity": 0.0051, "hist_similarity": 0.9408, "combined_score": 0.5665, "profit": {"amazon_price": 1699, "cost_1688_jpy": 149, "shipping": 115, "customs": 26, "referral_fee": 254, "fba_fee": 318, "total_cost": 912, "profit": 787, "profit_rate": 0.46321365509123014, "is_profitable": true, "profit_rate_percentage": 46.3}}, {"alibaba": {"price_cny": 34.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01STBRZU1UnRnT6kAje_!!2830292562-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/955411650993.html", "shop_name": null, "shop_url": "https://shop2925623.1688.com/", "min_order": 1, "title": "狗狗慢食碗304不锈钢狗盆中大型犬狗饭碗防噎防打翻宠物碗易清洗"}, "orb_similarity": 0.0, "hist_similarity": 0.9415, "combined_score": 0.5649, "profit": {"amazon_price": 1699, "cost_1688_jpy": 782, "shipping": 115, "customs": 89, "referral_fee": 254, "fba_fee": 318, "total_cost": 1627, "profit": 72, "profit_rate": 0.04237786933490288, "is_profitable": true, "profit_rate_percentage": 4.2}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

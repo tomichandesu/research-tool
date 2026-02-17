@@ -1,0 +1,50 @@
+{
+  "keyword": "テスト",
+  "generated_at": "2026-02-06 22:00:00",
+  "finalized_at": "2026-02-06 22:30:00",
+  "selections": [
+    {
+      "amazon": {
+        "asin": "B0C6M34RGL",
+        "title": "TOMMYFIELD バンプラバー テスト",
+        "price": 2280,
+        "image_url": "https://example.com/test.jpg",
+        "bsr": 12345,
+        "category": "automotive",
+        "review_count": 15,
+        "rating": 3.8,
+        "is_fba": true,
+        "product_url": "https://www.amazon.co.jp/dp/B0C6M34RGL",
+        "variation_count": 1,
+        "dimensions": [
+          20,
+          15,
+          10
+        ],
+        "weight_kg": 0.5,
+        "seller_name": null
+      },
+      "alibaba": {
+        "price_cny": 12.6,
+        "image_url": "https://example.com/1688_1.jpg",
+        "product_url": "https://detail.1688.com/offer/12345.html",
+        "shop_name": "テストショップ",
+        "title": "ショックアブソーバーバンプ"
+      },
+      "profit": {
+        "amazon_price": 2280,
+        "cost_1688_jpy": 290,
+        "shipping": 115,
+        "customs": 41,
+        "referral_fee": 228,
+        "fba_fee": 434,
+        "total_cost": 1108,
+        "profit": 1172,
+        "profit_rate": 0.321,
+        "is_profitable": true
+      },
+      "estimated_monthly_sales": 50,
+      "estimated_monthly_revenue": 114000
+    }
+  ]
+}

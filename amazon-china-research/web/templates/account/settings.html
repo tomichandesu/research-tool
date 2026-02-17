@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}アカウント設定{% endblock %}
+
+{% block content %}
+<h1>アカウント設定</h1>
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <h2>プロフィール</h2>
+    <form method="post" action="/account/profile">
+        <div class="form-group">
+            <label for="display_name">表示名</label>
+            <input type="text" id="display_name" name="display_name" required
+                   value="{{ user.display_name }}" placeholder="表示名">
+        </div>
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" required
+                   value="{{ user.email }}" placeholder="your@email.com">
+        </div>
+        <button type="submit" class="btn btn-primary">プロフィールを更新</button>
+    </form>
+</div>
+{% endblock %}

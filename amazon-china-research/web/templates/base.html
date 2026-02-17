@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Amazon-1688 リサーチツール{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/htmx.min.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="nav-brand">Amazon-1688 リサーチ</a>
+            {% if user %}
+            <div class="nav-links">
+                <a href="/">ダッシュボード</a>
+                <a href="/research/new">新規リサーチ</a>
+                <a href="/research/history">履歴</a>
+                <a href="/help">使い方</a>
+                <a href="/keyword-guide">キーワードのコツ</a>
+                {% if user.role == 'admin' %}
+                <a href="/admin/" class="nav-admin">管理</a>
+                {% endif %}
+                <span class="nav-separator">|</span>
+                <span class="nav-user">{{ user.display_name }}</span>
+                <a href="/account/settings" class="btn btn-sm btn-outline">アカウント設定</a>
+                <a href="/logout" class="btn btn-sm btn-outline">ログアウト</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Amazon-1688 リサーチツール</p>
+        </div>
+    </footer>
+</body>
+</html>

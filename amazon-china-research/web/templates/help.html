@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}使い方ガイド{% endblock %}
+
+{% block content %}
+<h1>使い方ガイド</h1>
+
+<div class="card">
+    <h2>目次</h2>
+    <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li><a href="#login">1. ログイン</a></li>
+        <li><a href="#dashboard">2. ダッシュボード</a></li>
+        <li><a href="#research-single">3. シングルリサーチ</a></li>
+        <li><a href="#research-auto">4. オートリサーチ</a></li>
+        <li><a href="#keywords">5. キーワードの保存・再利用</a></li>
+        <li><a href="#results">6. リサーチ結果の見方</a></li>
+        <li><a href="#download">7. 結果のダウンロード</a></li>
+        <li><a href="#history">8. リサーチ履歴</a></li>
+        <li><a href="#account">9. アカウント設定</a></li>
+        <li><a href="#faq">10. よくある質問</a></li>
+    </ul>
+</div>
+
+<div class="card mt-1" id="login">
+    <h2>1. ログイン</h2>
+    <p>運営から受け取った<strong>メールアドレス</strong>と<strong>パスワード</strong>を入力してログインしてください。</p>
+    <p>パスワードの変更が必要な場合は、運営チームまでご連絡ください。</p>
+</div>
+
+<div class="card mt-1" id="dashboard">
+    <h2>2. ダッシュボード</h2>
+    <p>ログイン後に表示されるトップページです。以下の情報が確認できます。</p>
+    <dl class="dl-horizontal" style="margin-top: 1rem;">
+        <dt>今月のリサーチ数</dt>
+        <dd>今月使用した回数と上限が表示されます。毎月リセットされます。</dd>
+        <dt>現在のプラン</dt>
+        <dd>ご利用中のプラン名と有効期限が表示されます。</dd>
+        <dt>リサーチ履歴</dt>
+        <dd>直近のリサーチ結果が一覧で表示されます。「詳細」から結果を確認できます。</dd>
+    </dl>
+</div>
+
+<div class="card mt-1" id="research-single">
+    <h2>3. シングルリサーチ</h2>
+    <p>1つのキーワードでAmazonと1688の商品を調査します。</p>
+    <ol style="line-height: 2; padding-left: 1.5rem;">
+        <li>ナビバーの「<strong>新規リサーチ</strong>」をクリック</li>
+        <li>調べたいキーワードを入力（例：スマホスタンド）</li>
+        <li>モードは「<strong>シングル（1キーワード）</strong>」を選択</li>
+        <li>「<strong>リサーチ開始</strong>」をクリック</li>
+        <li>リサーチ詳細ページに移動し、進捗がリアルタイムで表示されます</li>
+        <li>完了すると結果が表示されます</li>
+    </ol>
+</div>
+
+<div class="card mt-1" id="research-auto">
+    <h2>4. オートリサーチ</h2>
+    <p>シードキーワードからAmazonサジェストを使い、<strong>複数のキーワードを自動で展開</strong>してリサーチします。</p>
+    <ol style="line-height: 2; padding-left: 1.5rem;">
+        <li>ナビバーの「<strong>新規リサーチ</strong>」をクリック</li>
+        <li>シードとなるキーワードを入力（例：スマホ）</li>
+        <li>モードは「<strong>オートリサーチ（サジェスト展開）</strong>」を選択</li>
+        <li>「<strong>最大キーワード数</strong>」を設定（2〜100、デフォルト10）</li>
+        <li>「<strong>リサーチ開始</strong>」をクリック</li>
+    </ol>
+    <p style="margin-top: 0.5rem; color: var(--gray-500); font-size: 0.9em;">
+        ※ オートリサーチはキーワード数に応じて時間がかかります。ページを開いたまま他の作業をしてもOKです。
+    </p>
+</div>
+
+<div class="card mt-1" id="keywords">
+    <h2>5. キーワードの保存・再利用</h2>
+    <p>よく使うキーワードを保存して、次回からワンクリックで入力できます。</p>
+    <dl class="dl-horizontal" style="margin-top: 1rem;">
+        <dt>保存する</dt>
+        <dd>キーワード入力欄にテキストを入力し、右の「<strong>★ 保存</strong>」ボタンをクリック</dd>
+        <dt>使用する</dt>
+        <dd>保存済みキーワード一覧の「<strong>使用</strong>」ボタンをクリックすると、入力欄に自動入力されます</dd>
+        <dt>削除する</dt>
+        <dd>不要なキーワードは「<strong>削除</strong>」ボタンで削除できます</dd>
+    </dl>
+</div>
+
+<div class="card mt-1" id="results">
+    <h2>6. リサーチ結果の見方</h2>
+    <p>リサーチが完了すると、以下の情報が表示されます。</p>
+    <dl class="dl-horizontal" style="margin-top: 1rem;">
+        <dt>調査商品数</dt>
+        <dd>Amazonで見つかった商品の総数です</dd>
+        <dt>フィルタ通過</dt>
+        <dd>条件をクリアした商品の数です</dd>
+        <dt>候補数</dt>
+        <dd>最終的に候補として選ばれた商品の数です</dd>
+        <dt>スコア</dt>
+        <dd>リサーチ結果の総合スコアです。高いほど有望です</dd>
+    </dl>
+    <p style="margin-top: 1rem;">候補が0件の場合は、除外された理由の内訳が表示されます。別のキーワードでお試しください。</p>
+</div>
+
+<div class="card mt-1" id="download">
+    <h2>7. 結果のダウンロード</h2>
+    <p>リサーチ完了後、結果を2つの形式でダウンロードできます。</p>
+    <dl class="dl-horizontal" style="margin-top: 1rem;">
+        <dt>HTMLダウンロード</dt>
+        <dd>ブラウザで開ける見やすいレポート形式です。商品画像や詳細情報が含まれます。</dd>
+        <dt>Excelダウンロード</dt>
+        <dd>Excel形式でデータを分析・加工したい場合に使います。</dd>
+    </dl>
+</div>
+
+<div class="card mt-1" id="history">
+    <h2>8. リサーチ履歴</h2>
+    <p>ナビバーの「<strong>履歴</strong>」から、過去のリサーチ結果を確認できます。</p>
+    <p>各リサーチの「<strong>詳細</strong>」ボタンから、結果の確認やダウンロードが可能です。</p>
+    <p style="margin-top: 0.5rem;">ステータスの意味：</p>
+    <ul style="line-height: 2; padding-left: 1.5rem;">
+        <li><span class="badge badge-pending">順番待ち</span> リサーチの開始を待っています</li>
+        <li><span class="badge badge-running">リサーチ中</span> リサーチを実行中です</li>
+        <li><span class="badge badge-completed">完了</span> リサーチが完了しました</li>
+        <li><span class="badge badge-failed">エラー</span> エラーが発生しました（再実行できます）</li>
+    </ul>
+</div>
+
+<div class="card mt-1" id="account">
+    <h2>9. アカウント設定</h2>
+    <p>ナビバーの「<strong>アカウント設定</strong>」から、以下の情報を変更できます。</p>
+    <dl class="dl-horizontal" style="margin-top: 1rem;">
+        <dt>表示名</dt>
+        <dd>ナビバーに表示される名前を変更できます</dd>
+        <dt>メールアドレス</dt>
+        <dd>ログインに使用するメールアドレスを変更できます</dd>
+    </dl>
+</div>
+
+<div class="card mt-1" id="faq">
+    <h2>10. よくある質問</h2>
+
+    <div style="margin-top: 1rem;">
+        <p><strong>Q. リサーチにどのくらい時間がかかりますか？</strong></p>
+        <p style="color: var(--gray-700); margin-bottom: 1rem;">
+            シングルモードで約5〜15分、オートモードはキーワード数に応じて長くなります。
+            リサーチ中はページを開いたまま他の作業をしていただいて構いません。
+        </p>
+
+        <p><strong>Q. リサーチ中にエラーが出ました。</strong></p>
+        <p style="color: var(--gray-700); margin-bottom: 1rem;">
+            エラー詳細画面の「再実行」ボタンから同じキーワードでリトライできます。
+            繰り返しエラーが出る場合は運営チームまでご連絡ください。
+        </p>
+
+        <p><strong>Q. 月のリサーチ上限に達しました。</strong></p>
+        <p style="color: var(--gray-700); margin-bottom: 1rem;">
+            リサーチ回数は毎月リセットされます。上限の引き上げが必要な場合は運営チームまでご相談ください。
+        </p>
+
+        <p><strong>Q. パスワードを忘れました。</strong></p>
+        <p style="color: var(--gray-700); margin-bottom: 1rem;">
+            運営チームまでご連絡ください。新しいパスワードを設定いたします。
+        </p>
+
+        <p><strong>Q. 1688接続エラーが表示されます。</strong></p>
+        <p style="color: var(--gray-700);">
+            1688サイトとの接続が一時的に不安定な場合に表示されます。
+            しばらく時間をおいてからお試しください。解消しない場合は運営チームまでご連絡ください。
+        </p>
+    </div>
+</div>
+
+{% endblock %}

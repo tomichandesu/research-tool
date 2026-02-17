@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}除外キーワード管理 - 管理{% endblock %}
+
+{% block content %}
+<h1>除外キーワード管理</h1>
+<a href="/admin/" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+<div class="card mt-1">
+    <h2>キーワード追加</h2>
+    <p style="color: #666; font-size: 0.9em; margin-bottom: 1rem;">
+        オートリサーチで自動生成されるキーワードのうち、リサーチ対象から除外したいキーワードを登録します。<br>
+        フレーズ一致：登録したフレーズがそのまま含まれるキーワードが除外されます。
+    </p>
+    <form method="post" action="/admin/excluded-keywords">
+        <div style="margin-bottom: 0.75rem;">
+            <label style="font-weight: bold; display: block; margin-bottom: 4px;">キーワード（複数可：改行 or カンマ区切り）</label>
+            <textarea name="keywords" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em;" placeholder="スマホスタンド&#10;ポスター&#10;マウスパッド" required></textarea>
+        </div>
+        <div style="margin-bottom: 0.75rem;">
+            <label style="font-weight: bold; display: block; margin-bottom: 4px;">除外理由（任意）</label>
+            <input type="text" name="reason" style="width: 100%; max-width: 400px; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px;" placeholder="例：類似品が多すぎる">
+        </div>
+        <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+</div>
+
+<div class="card mt-1">
+    <h2>登録済みキーワード（{{ keywords|length }}件）</h2>
+    {% if keywords %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>キーワード</th>
+                <th>除外理由</th>
+                <th>登録日</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for kw in keywords %}
+            <tr>
+                <td style="font-weight: bold;">{{ kw.keyword }}</td>
+                <td style="color: #666;">{{ kw.reason or '-' }}</td>
+                <td>{{ kw.created_at|jst }}</td>
+                <td>
+                    <form method="post" action="/admin/excluded-keywords/{{ kw.id }}/delete"
+                          onsubmit="return confirm('「{{ kw.keyword }}」を削除しますか？')" style="display: inline;">
+                        <button class="btn btn-sm" style="background: #d32f2f; color: #fff; border: none; cursor: pointer; padding: 2px 8px;">削除</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: #888;">除外キーワードはまだ登録されていません。</p>
+    {% endif %}
+</div>
+{% endblock %}

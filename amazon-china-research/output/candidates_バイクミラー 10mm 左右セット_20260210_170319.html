@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "バイクミラー 10mm 左右セット", "generated_at": "2026-02-10 17:03:19", "products": [{"amazon": {"asin": "B0G1YL77VT", "title": "KEMIMOTO バイク ミラー 汎用 左右セット 10mm 8mm 360°調整可能 取付簡単 角型 オートバイ ミラー KM3003", "price": 2985, "image_url": "https://m.media-amazon.com/images/I/71sDaRKY4KL._AC_SX679_.jpg", "bsr": 31521, "category": "車＆バイク", "review_count": 11, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0G1YL77VT", "rating": 3.4, "seller_name": "LOSRECAL JP(日本国内発送)", "variation_count": 1, "dimensions": [34.29, 18.6, 6.8], "weight_kg": 0.5}, "estimated_monthly_sales": 37, "estimated_monthly_revenue": 110445, "candidates": [{"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01aHSOyO1gAJMGND93i_!!2219617184101-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/981009344895.html", "shop_name": null, "shop_url": "https://shop1841013.1688.com/", "min_order": 1, "title": "跨境适用于宝马X1F482016-2019中央扶手箱盖包皮套 拆装手扶箱套"}, "orb_similarity": 3.3333, "hist_similarity": 0.1166, "combined_score": 1.4033, "profit": {"amazon_price": 2985, "cost_1688_jpy": 230, "shipping": 166, "customs": 39, "referral_fee": 447, "fba_fee": 318, "total_cost": 1252, "profit": 1733, "profit_rate": 0.580569514237856, "is_profitable": true, "profit_rate_percentage": 58.1}}, {"alibaba": {"price_cny": 21.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01X8T4wO1sILiKkU7Hs_!!2215424085743-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/999296629208.html", "shop_name": null, "shop_url": "https://shop4085743.1688.com/", "min_order": 20, "title": "定做SYM 三阳 XS300T-2A joyride 行者300 左/右后视镜反光镜原装"}, "orb_similarity": 0.0643, "hist_similarity": 0.9984, "combined_score": 0.6248, "profit": {"amazon_price": 2985, "cost_1688_jpy": 494, "shipping": 166, "customs": 66, "referral_fee": 447, "fba_fee": 318, "total_cost": 1551, "profit": 1434, "profit_rate": 0.48040201005025124, "is_profitable": true, "profit_rate_percentage": 48.0}}, {"alibaba": {"price_cny": 21.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01vfAQHR1LS4nuhegFY_!!2218608091297-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1000021904190.html", "shop_name": null, "shop_url": "https://shop9129755.1688.com/", "min_order": 2, "title": "定做摩托车电动车反光镜光阳鬼火劲战福喜大视野高清倒车镜后视镜"}, "orb_similarity": 0.0498, "hist_similarity": 0.9977, "combined_score": 0.6185, "profit": {"amazon_price": 2985, "cost_1688_jpy": 494, "shipping": 166, "customs": 66, "referral_fee": 447, "fba_fee": 318, "total_cost": 1551, "profit": 1434, "profit_rate": 0.48040201005025124, "is_profitable": true, "profit_rate_percentage": 48.0}}, {"alibaba": {"price_cny": 20.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01BRMIPm1UWxX2abykK_!!4046652526-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/947029462501.html", "shop_name": null, "shop_url": "https://shop6525261.1688.com/", "min_order": 3, "title": "跨境摩托车电动车自行车通用高清后视镜山地车平衡车多功能反光镜"}, "orb_similarity": 0.039, "hist_similarity": 0.9986, "combined_score": 0.6148, "profit": {"amazon_price": 2985, "cost_1688_jpy": 460, "shipping": 166, "customs": 62, "referral_fee": 447, "fba_fee": 318, "total_cost": 1512, "profit": 1473, "profit_rate": 0.4934673366834171, "is_profitable": true, "profit_rate_percentage": 49.3}}, {"alibaba": {"price_cny": 25.0, "image_url": "https://cbu01.alicdn.com/img/ibank/11494271564_1140129683.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/598098440634.html", "shop_name": null, "shop_url": "https://shop9908332.1688.com/", "min_order": 1, "title": "Suzuki gsr400/750を適用します。"}, "orb_similarity": 0.035, "hist_similarity": 0.9987, "combined_score": 0.6132, "profit": {"amazon_price": 2985, "cost_1688_jpy": 575, "shipping": 166, "customs": 74, "referral_fee": 447, "fba_fee": 318, "total_cost": 1643, "profit": 1342, "profit_rate": 0.4495812395309883, "is_profitable": true, "profit_rate_percentage": 45.0}}, {"alibaba": {"price_cny": 25.0, "image_url": "https://cbu01.alicdn.com/img/ibank/11494271564_1140129683.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/598494622761.html", "shop_name": null, "shop_url": "https://shop9908332.1688.com/", "min_order": 1, "title": "川崎z250 z300 z750 z800 z1000 er6n改造バックミラーミラーミラー"}, "orb_similarity": 0.035, "hist_similarity": 0.9987, "combined_score": 0.6132, "profit": {"amazon_price": 2985, "cost_1688_jpy": 575, "shipping": 166, "customs": 74, "referral_fee": 447, "fba_fee": 318, "total_cost": 1643, "profit": 1342, "profit_rate": 0.4495812395309883, "is_profitable": true, "profit_rate_percentage": 45.0}}, {"alibaba": {"price_cny": 17.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01GLYc4b2BtsofAflOG_!!2219608188397-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/932978655945.html", "shop_name": null, "shop_url": "https://shop1883972.1688.com/", "min_order": 40, "title": "摩托车反光镜电动车倒车镜铝杆贝纳利BJ150T-10C踏板车后视镜耐震"}, "orb_similarity": 0.0302, "hist_similarity": 0.9976, "combined_score": 0.6107, "profit": {"amazon_price": 2985, "cost_1688_jpy": 395, "shipping": 166, "customs": 56, "referral_fee": 447, "fba_fee": 318, "total_cost": 1439, "profit": 1546, "profit_rate": 0.5179229480737019, "is_profitable": true, "profit_rate_percentage": 51.8}}, {"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN012rtZKw1iw3qRTlxyY_!!2216244474476-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/924289162134.html", "shop_name": null, "shop_url": "https://shop4744762.1688.com/", "min_order": 4, "title": "跨境摩托车改装后视镜铝合金杆踏板车跑车倒车镜通用大排量系列"}, "orb_similarity": 0.031, "hist_similarity": 0.9965, "combined_score": 0.6103, "profit": {"amazon_price": 2985, "cost_1688_jpy": 598, "shipping": 166, "customs": 76, "referral_fee": 447, "fba_fee": 318, "total_cost": 1668, "profit": 1317, "profit_rate": 0.44120603015075377, "is_profitable": true, "profit_rate_percentage": 44.1}}, {"alibaba": {"price_cny": 25.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01arPutK2JYN7kSQfpF_!!998189433-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/39961522408.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "メーカー卸売り通用大排気量スポーツカー道路レース大面バックミラー改造バックミラーバイク反射"}, "orb_similarity": 0.0258, "hist_similarity": 0.9986, "combined_score": 0.6095, "profit": {"amazon_price": 2985, "cost_1688_jpy": 575, "shipping": 166, "customs": 74, "referral_fee": 447, "fba_fee": 318, "total_cost": 1643, "profit": 1342, "profit_rate": 0.4495812395309883, "is_profitable": true, "profit_rate_percentage": 45.0}}, {"alibaba": {"price_cny": 32.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01g0mMrW1nWTnz6WA2P_!!2099105097-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/930621138673.html", "shop_name": null, "shop_url": "https://shop9105097.1688.com/", "min_order": 5, "title": "039摩托车后视镜M10正丝后视镜CB系列倒车镜反光镜"}, "orb_similarity": 0.0263, "hist_similarity": 0.998, "combined_score": 0.6093, "profit": {"amazon_price": 2985, "cost_1688_jpy": 736, "shipping": 166, "customs": 90, "referral_fee": 447, "fba_fee": 318, "total_cost": 1825, "profit": 1160, "profit_rate": 0.38860971524288107, "is_profitable": true, "profit_rate_percentage": 38.9}}]}, {"amazon": {"asin": "B0G7D9DTNW", "title": "バイクミラー 汎用 左右セット, 10mm/8mm対応, 正ネジ/逆ネジ対応, 角型デザイン, 超広角可視範囲, 360度調整可能, オートバイ/スクーター/ダートバイク/ATV用, ブラック, 取付金具5個付属, 台座2個付属", "price": 1680, "image_url": "https://m.media-amazon.com/images/I/61n5tunlmjL._AC_SX679_.jpg", "bsr": 21185, "category": "車＆バイク", "review_count": 1, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0G7D9DTNW", "rating": 1.0, "seller_name": "Ginginx", "variation_count": 1, "dimensions": [0.8, 4.0, 0.6], "weight_kg": 0.5}, "estimated_monthly_sales": 50, "estimated_monthly_revenue": 84000, "candidates": [{"alibaba": {"price_cny": 7.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ycza7C1UfekeIx4aA_!!995842545-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/617064399734.html", "shop_name": null, "shop_url": null, "min_order": 5, "title": "Flyquickクロスボーダー貿易供給atv四輪車ビーチ車汎用バックミラーミラーミラー"}, "orb_similarity": 0.0571, "hist_similarity": 0.9996, "combined_score": 0.6226, "profit": {"amazon_price": 1680, "cost_1688_jpy": 161, "shipping": 115, "customs": 27, "referral_fee": 252, "fba_fee": 318, "total_cost": 923, "profit": 757, "profit_rate": 0.4505952380952381, "is_profitable": true, "profit_rate_percentage": 45.1}}, {"alibaba": {"price_cny": 13.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01EUT6661kR27Uu0Y4C_!!2217087554679-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/755148938686.html", "shop_name": null, "shop_url": "https://shop5546791.1688.com/", "min_order": 1, "title": "オートバイ地平線150バックミラー川崎小忍者反射鏡レース永源戦隼改造バックミラー"}, "orb_similarity": 0.0571, "hist_similarity": 0.9987, "combined_score": 0.6221, "profit": {"amazon_price": 1680, "cost_1688_jpy": 310, "shipping": 115, "customs": 42, "referral_fee": 252, "fba_fee": 318, "total_cost": 1092, "profit": 588, "profit_rate": 0.35, "is_profitable": true, "profit_rate_percentage": 35.0}}, {"alibaba": {"price_cny": 22.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01s2juAK1UfehZysraz_!!995842545-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/614011517544.html", "shop_name": null, "shop_url": null, "min_order": 5, "title": "Flyquickクロスボーダー貿易供給atvビーチカーバックミラー通用電気自動車ミラー"}, "orb_similarity": 0.0548, "hist_similarity": 0.9994, "combined_score": 0.6215, "profit": {"amazon_price": 1680, "cost_1688_jpy": 506, "shipping": 115, "customs": 62, "referral_fee": 252, "fba_fee": 318, "total_cost": 1314, "profit": 366, "profit_rate": 0.21785714285714286, "is_profitable": true, "profit_rate_percentage": 21.8}}, {"alibaba": {"price_cny": 11.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01XZxVck28EiHPHeWqH_!!2214013137901-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/805142259624.html", "shop_name": null, "shop_url": "https://shop1379014.1688.com/", "min_order": 1, "title": "国境を越えた電気商バイク電気自動車ミラーペダル車バックミラーATVバックミラー車ミラー改造共通"}, "orb_similarity": 0.0524, "hist_similarity": 0.9997, "combined_score": 0.6208, "profit": {"amazon_price": 1680, "cost_1688_jpy": 273, "shipping": 115, "customs": 38, "referral_fee": 252, "fba_fee": 318, "total_cost": 1050, "profit": 630, "profit_rate": 0.375, "is_profitable": true, "profit_rate_percentage": 37.5}}, {"alibaba": {"price_cny": 22.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01bNx9Sy2JYMyyyCMOx_!!998189433-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/746202857212.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "卸売りクロスボーダー電気商オートバイのバックミラーは、無極LX500R 300AC 300R 650DS倒鏡を適用します。"}, "orb_similarity": 0.0429, "hist_similarity": 1.0, "combined_score": 0.6171, "profit": {"amazon_price": 1680, "cost_1688_jpy": 506, "shipping": 115, "customs": 62, "referral_fee": 252, "fba_fee": 318, "total_cost": 1314, "profit": 366, "profit_rate": 0.21785714285714286, "is_profitable": true, "profit_rate_percentage": 21.8}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZFK9Py2JYN9hicglR_!!998189433-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/583952696393.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "メーカーは、カワサキ Z1000 2003 - 2015 モデルのオートバイ用リアビューミラー、スクーター用を供給しています。"}, "orb_similarity": 0.0429, "hist_similarity": 1.0, "combined_score": 0.6171, "profit": {"amazon_price": 1680, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 252, "fba_fee": 318, "total_cost": 1469, "profit": 211, "profit_rate": 0.1255952380952381, "is_profitable": true, "profit_rate_percentage": 12.6}}, {"alibaba": {"price_cny": 35.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01sUQedt1IRfZC8QfDw_!!987730890-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/945616932841.html", "shop_name": null, "shop_url": null, "min_order": 4, "title": "适用九号电动车摩托车Mmax110P机械师m95c/mzmix改装反光镜后视镜"}, "orb_similarity": 0.0405, "hist_similarity": 0.9998, "combined_score": 0.6161, "profit": {"amazon_price": 1680, "cost_1688_jpy": 805, "shipping": 115, "customs": 92, "referral_fee": 252, "fba_fee": 318, "total_cost": 1652, "profit": 28, "profit_rate": 0.016666666666666666, "is_profitable": true, "profit_rate_percentage": 1.7}}, {"alibaba": {"price_cny": 20.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01UwToDD2D8N0ppWTHo_!!2220880608564-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/986956216858.html", "shop_name": null, "shop_url": "https://shop0856401.1688.com/", "min_order": 1, "title": "跨境摩托车后视镜改装大视野反光镜蛇纹地平线方镜电动车后视镜"}, "orb_similarity": 0.0405, "hist_similarity": 0.9986, "combined_score": 0.6153, "profit": {"amazon_price": 1680, "cost_1688_jpy": 460, "shipping": 115, "customs": 57, "referral_fee": 252, "fba_fee": 318, "total_cost": 1261, "profit": 419, "profit_rate": 0.2494047619047619, "is_profitable": true, "profit_rate_percentage": 24.9}}, {"alibaba": {"price_cny": 12.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01B37IY92JYNAzsGvP7_!!998189433-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/561025468487.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "クロスボーダーオートバイバックミラー修正された大視野リフレクターヘビパターンホライゾンスクエアミラー電気自動車バックミラー"}, "orb_similarity": 0.0357, "hist_similarity": 1.0, "combined_score": 0.6143, "profit": {"amazon_price": 1680, "cost_1688_jpy": 276, "shipping": 115, "customs": 39, "referral_fee": 252, "fba_fee": 318, "total_cost": 1054, "profit": 626, "profit_rate": 0.3726190476190476, "is_profitable": true, "profit_rate_percentage": 37.3}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Z5qpL92JYN932qw6w_!!998189433-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/924166718849.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "ホンダ CB300400XCB400F 600 バックミラー CB500X 反転ミラー反射ミラーに適しています。"}, "orb_similarity": 0.0333, "hist_similarity": 1.0, "combined_score": 0.6133, "profit": {"amazon_price": 1680, "cost_1688_jpy": 345, "shipping": 115, "customs": 46, "referral_fee": 252, "fba_fee": 318, "total_cost": 1132, "profit": 548, "profit_rate": 0.3261904761904762, "is_profitable": true, "profit_rate_percentage": 32.6}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

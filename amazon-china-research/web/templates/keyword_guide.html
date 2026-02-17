@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+{% block title %}キーワード選定ガイド{% endblock %}
+
+{% block content %}
+<h1>キーワード選定ガイド</h1>
+<p style="color: var(--gray-500); margin-bottom: 1.5rem;">
+    売れる商品を見つけ、ライバルと被らないための検索キーワードのコツ
+</p>
+
+<div class="card">
+    <h2>目次</h2>
+    <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li><a href="#most-important">1. 最も重要な考え方：「ユニークな商品」を狙え</a></li>
+        <li><a href="#ng-keywords">2. 避けるべきキーワード一覧</a></li>
+        <li><a href="#image-check">3. 必ず目視で確認：「画像の強弱」を見る</a></li>
+        <li><a href="#auto-tips">4. オートリサーチの活用テクニック</a></li>
+        <li><a href="#workflow">5. おすすめリサーチの流れ</a></li>
+    </ul>
+</div>
+
+<!-- ========== Section 1: 最重要コンセプト ========== -->
+<div class="card mt-1" id="most-important" style="border-left: 4px solid #ff6b00;">
+    <h2 style="color: #ff6b00;">1. 最も重要な考え方：「ユニークな商品」を狙え</h2>
+
+    <p style="font-size: 1.05em; line-height: 1.8;">
+        キーワード選びで<strong>最も大切なこと</strong>は、
+        <span style="background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">デザインや形がそれぞれ違う「ユニークな商品」がたくさん出てくるキーワード</span>を選ぶことです。
+    </p>
+
+    <h3 style="margin-top: 1.5rem; font-size: 1rem;">なぜ「ユニークさ」が重要なのか？</h3>
+
+    <p>お客さんの立場で考えてみてください。</p>
+
+    <p>
+        Amazonで「ペン」と検索すると、どの商品も形がほとんど同じです。
+        お客さんは<strong>「あっちも似ているからあっちでいいや」「安い方がいいや」</strong>と考え、
+        結局<strong>価格の安い方</strong>を選びます。
+        こうなると、出品者は値下げするしかなくなり、利益がどんどん削られていきます。
+    </p>
+
+    <p>
+        一方、「置物」と検索すると、動物の置物、アート風のオブジェ、和風の飾りなど、
+        <strong>デザインも形もサイズもすべて違う商品</strong>が並びます。
+        この場合、お客さんは<strong>「このデザインが好きだからこれを買おう」</strong>と選びます。
+        他の商品と見た目が違うので、<strong>価格が多少高くても「このデザインがいい」と選ばれる</strong>のです。
+    </p>
+
+    <div style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.5rem; align-items: center;">
+            <div style="text-align: center;">
+                <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">類似品が多いジャンル</p>
+                <p style="margin: 0; font-size: 0.9em;">「似てるから安い方でいいや」</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.85em; color: #666;">→ 価格競争 → 利益が出ない</p>
+            </div>
+            <div style="font-size: 1.5em; color: #999;">VS</div>
+            <div style="text-align: center;">
+                <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #2e7d32;">デザインが違うジャンル</p>
+                <p style="margin: 0; font-size: 0.9em;">「このデザインが好きだから買う」</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.85em; color: #666;">→ 価格で選ばれない → 高くても売れる</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; padding: 1rem; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ff6b00;">
+        <p style="margin: 0; font-size: 1.05em; line-height: 1.8;">
+            <strong>キーワードを選ぶときの判断基準：</strong><br>
+            そのキーワードで検索して出てくる商品を想像してください。<br>
+            <strong>(a)</strong> 商品ごとにデザイン・形・大きさが違うか？ → <strong style="color: #2e7d32;">YES なら良いキーワード</strong><br>
+            <strong>(b)</strong> どれも似たような見た目か？ → <strong style="color: #c62828;">YES なら避けるべきキーワード（次のセクション2を確認）</strong>
+        </p>
+    </div>
+</div>
+
+<!-- ========== Section 2: 避けるべきキーワード（メイン） ========== -->
+<div class="card mt-1" id="ng-keywords" style="border-left: 4px solid #c62828;">
+    <h2 style="color: #c62828;">2. 避けるべきキーワード一覧</h2>
+
+    <p style="font-size: 1.05em; line-height: 1.8;">
+        以下は<strong>避けた方がよいキーワードの一例</strong>です。
+        これらは似た商品が大量にあるため、
+        <span style="background: #fce4ec; padding: 2px 6px; border-radius: 4px; font-weight: bold;">出品しても価格競争に巻き込まれやすいジャンル</span>です。
+        ここに載っていないキーワードでも、同じような傾向のものは多数あります。
+        キーワードを入力する前に、「このジャンルは類似品が多くないか？」を必ず考えるようにしてください。
+    </p>
+
+    <!-- === 類似品が多いキーワード === -->
+    <h3 style="margin-top: 1.5rem; font-size: 1.1rem; color: #c62828;">&#9888; 類似品が多すぎるキーワードの例</h3>
+    <p>以下のようなキーワードは、どれも同じような形・見た目の商品ばかり出てきます。これらはあくまで一例ですが、似た傾向のキーワードも同様に避けてください。</p>
+
+    <div style="margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">日用品・生活雑貨</p>
+            <p style="margin: 0; line-height: 1.8;">
+                ドリンクホルダー、コースター、<br>
+                ティッシュケース、ドアストッパー、<br>
+                ハンガー、ハンガー掛け、洗濯ネット、<br>
+                歯ブラシホルダー、石鹸置き、<br>
+                トイレブラシ、ゴミ箱
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">布・ファブリック系</p>
+            <p style="margin: 0; line-height: 1.8;">
+                ポーチ、化粧ポーチ、タオル、<br>
+                サンシェード、マット、カーテン、<br>
+                クッションカバー、座布団、<br>
+                テーブルクロス、ランチョンマット、<br>
+                エコバッグ
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">文具・オフィス</p>
+            <p style="margin: 0; line-height: 1.8;">
+                ペン、クリアファイル、バインダー、<br>
+                日記帳、ノート、ファイル、<br>
+                定規、付箋、筆箱、名刺入れ、<br>
+                ブックカバー
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">スマホ・デジタル</p>
+            <p style="margin: 0; line-height: 1.8;">
+                スマホスタンド、スマホケース、<br>
+                充電器、ケーブル、マウスパッド、<br>
+                イヤホンケース、タブレットスタンド、<br>
+                スマホ関連全般
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">食器・キッチン</p>
+            <p style="margin: 0; line-height: 1.8;">
+                食器、お皿、箸、コップ、マグカップ、<br>
+                スプーン、フォーク、まな板、<br>
+                水切り、スポンジ、キッチンツール、<br>
+                ペットボウル
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">壁掛け・ウォール系</p>
+            <p style="margin: 0; line-height: 1.8;">
+                壁掛けアート、壁飾り、ウォールデコ、<br>
+                ウォールシェルフ、壁掛け時計、<br>
+                ウォールステッカー、ステッカー、<br>
+                フレーム、ポスター
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">収納系</p>
+            <p style="margin: 0; line-height: 1.8;">
+                収納ボックス、収納ケース、<br>
+                整理ボックス、引き出し、<br>
+                衣類カバー、圧縮袋
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">バッグ・ケース類</p>
+            <p style="margin: 0; line-height: 1.8;">
+                トートバッグ、ショルダーバッグ、<br>
+                ペンケース、メイクボックス、<br>
+                パスケース、キーケース
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">ペット用品（類似品が多いもの）</p>
+            <p style="margin: 0; line-height: 1.8;">
+                ペットボウル、犬 リード、<br>
+                ペットシーツ、犬 首輪、<br>
+                猫 トイレ、ペット ベッド
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #c62828;">その他</p>
+            <p style="margin: 0; line-height: 1.8;">
+                ミラー（鏡）、時計、シール、<br>
+                キーホルダー、ブックマーク、<br>
+                ストラップ、リング、<br>
+                傘、折りたたみ傘
+            </p>
+        </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #fce4ec; border-radius: 6px;">
+        <p style="margin: 0; line-height: 1.8;">
+            <strong>判断のコツ：</strong>上のリストに載っていないキーワードでも、
+            「そのキーワードで出てくる商品を10個並べたとき、パッと見で区別がつくか？」を考えてみてください。
+            区別がつかないなら、類似品が多いキーワードの可能性が高いです。
+        </p>
+    </div>
+
+    <!-- === ブランド名 === -->
+    <h3 style="margin-top: 2rem; font-size: 1.1rem; color: #c62828;">&#9888; ブランド名を含むキーワード</h3>
+    <p>商標権の問題でリサーチ対象から除外されます。</p>
+    <div style="background: #fff0f0; padding: 0.75rem 1rem; border-radius: 6px; margin-top: 0.5rem;">
+        <p style="margin: 0; line-height: 1.8;"><strong>NG例：</strong>
+            Nike ランニング、ディズニー グッズ、Apple アクセサリ、無印 収納、<br>
+            サンリオ、ポケモン、ジブリ、アンパンマン、マーベル
+        </p>
+    </div>
+
+    <!-- === 法規制 === -->
+    <h3 style="margin-top: 2rem; font-size: 1.1rem; color: #c62828;">&#9888; 法規制のある商品カテゴリ</h3>
+    <p>中国から輸入する際に許認可が必要だったり、法律上の制約がある商品カテゴリです。これらのキーワードで検索しても、扱いにくい商品ばかりヒットします。</p>
+    <table class="table" style="margin-top: 0.5rem;">
+        <thead>
+            <tr><th>カテゴリ</th><th>キーワード例</th><th>理由</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>食品・サプリ</td><td>お菓子、プロテイン、調味料</td><td>食品衛生法</td></tr>
+            <tr><td>口に触れるもの</td><td>水筒、箸、弁当箱、コップ</td><td>食品衛生法</td></tr>
+            <tr>
+                <td><strong>おもちゃ（6歳未満向け）</strong></td>
+                <td>赤ちゃん おもちゃ、幼児 知育、ベビー 玩具</td>
+                <td>食品衛生法（乳幼児が口に入れる恐れ）</td>
+            </tr>
+            <tr><td>乳幼児用品</td><td>おしゃぶり、赤ちゃん 歯固め、ベビー食器</td><td>安全基準が厳しい</td></tr>
+            <tr><td>電気製品（PSE）</td><td>モバイルバッテリー、ACアダプター、LED電球</td><td>電気用品安全法</td></tr>
+            <tr><td>コスメ・美容</td><td>化粧水、美容液、ネイル、シャンプー</td><td>薬機法</td></tr>
+            <tr><td>医療・健康器具</td><td>血圧計、体温計、マッサージ器</td><td>薬機法・医療機器</td></tr>
+            <tr><td>ファッション</td><td>ワンピース、Tシャツ、靴、帽子</td><td>返品率が高い・別倉庫</td></tr>
+        </tbody>
+    </table>
+    <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: #fff8e1; border-radius: 6px; border-left: 4px solid #ff6b00;">
+        <p style="margin: 0; line-height: 1.8;">
+            <strong>特に注意：おもちゃ（6歳未満向け）</strong><br>
+            6歳未満の子どもが遊ぶ可能性があるおもちゃは、食品衛生法の規制対象になります。
+            乳幼児が口に入れる恐れのある製品は検査・届出が必要なため、安易に扱わないようにしてください。
+        </p>
+    </div>
+
+    <!-- === 自動除外フィルター === -->
+    <h3 style="margin-top: 2rem; font-size: 1.1rem; color: #2e7d32;">&#10004; ツールが自動で除外するもの（安心ポイント）</h3>
+    <p>以下の項目は、<strong>このツールのリサーチフィルターで自動的に除外</strong>されます。ユーザー側で気にする必要はありませんが、参考として記載します。</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+        <div style="background: #f0fff0; padding: 1rem; border-radius: 8px; border: 2px solid #c8e6c9;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #2e7d32;">季節性のある商品</p>
+            <p style="margin: 0; line-height: 1.8; font-size: 0.9em;">
+                クリスマス、ハロウィン、冷感グッズ、電気毛布など季節限定の商品は、
+                リサーチ時に<strong>自動的にフィルターで除外</strong>されます。
+                季節品は一時的に売れても在庫リスクが高いため、最初から候補に含まれません。
+            </p>
+        </div>
+        <div style="background: #f0fff0; padding: 1rem; border-radius: 8px; border: 2px solid #c8e6c9;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #2e7d32;">日本製品</p>
+            <p style="margin: 0; line-height: 1.8; font-size: 0.9em;">
+                日本製が主流の商品（今治タオル、燕三条 包丁、有田焼など）は、
+                1688で同等品が見つかりにくいため<strong>自動的に除外</strong>されます。
+                日本の産地名や伝統工芸名を含むキーワードも同様です。
+            </p>
+        </div>
+    </div>
+    <div style="margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div style="background: #f0fff0; padding: 1rem; border-radius: 8px; border: 2px solid #c8e6c9;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #2e7d32;">大型・重量品</p>
+            <p style="margin: 0; line-height: 1.8; font-size: 0.9em;">
+                本棚、椅子、テーブルなどの大型品は、送料が高く利益が出にくいため
+                <strong>自動的に除外</strong>されます。
+            </p>
+        </div>
+        <div style="background: #f0fff0; padding: 1rem; border-radius: 8px; border: 2px solid #c8e6c9;">
+            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #2e7d32;">ブランド名を含む商品</p>
+            <p style="margin: 0; line-height: 1.8; font-size: 0.9em;">
+                Nike、ディズニー、Apple、サンリオなどブランド名・キャラクター名を含む商品は、
+                商標権の問題があるため<strong>自動的に除外</strong>されます。
+            </p>
+        </div>
+    </div>
+    <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #2e7d32;">
+        <p style="margin: 0; line-height: 1.8;">
+            このように、<strong>法規制や季節性、日本製品、ブランド品などはツール側で自動的に除外</strong>しています。
+            ユーザーの皆さまが意識すべきなのは、上記の「類似品が多すぎるキーワード」を避けることです。
+        </p>
+    </div>
+</div>
+
+<!-- ========== Section 3: 画像の強弱チェック ========== -->
+<div class="card mt-1" id="image-check" style="border-left: 4px solid #ff6b00;">
+    <h2 style="color: #ff6b00;">3. 必ず目視で確認：「画像の強弱」を見る</h2>
+
+    <p style="font-size: 1.05em; line-height: 1.8;">
+        リサーチ結果で候補が見つかったら、次に必ず確認してほしいのが
+        <span style="background: #fff3e0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">その商品のAmazon掲載画像が「強い」か「弱い」か</span>です。
+    </p>
+
+    <h3 style="margin-top: 1.5rem; font-size: 1rem;">なぜ画像の強弱を確認するのか？</h3>
+    <p>
+        リサーチの本質は、<strong>その商品のシェア（お客さん）を奪うこと</strong>です。
+        画像が弱い商品ページは、あなたがしっかりとした画像を作り込むことで、お客さんを奪える可能性があります。
+        逆に、すでにプロが作り込んだ画像の商品から、お客さんを奪うのは非常に困難です。
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+        <div style="background: #f0fff0; padding: 1rem; border-radius: 8px; border: 2px solid #c8e6c9;">
+            <p style="margin: 0 0 0.75rem 0; font-weight: bold; color: #2e7d32; font-size: 1.05em;">&#10004; 画像が弱い → GOサイン</p>
+            <ul style="margin: 0; padding-left: 1.2rem; line-height: 2;">
+                <li>白背景に商品を置いただけ</li>
+                <li>画像が暗い・ぼやけている</li>
+                <li>生活シーンのイメージがない</li>
+                <li>文字入れやデザインがない</li>
+                <li>1688の画像をそのまま使っている</li>
+            </ul>
+            <p style="margin: 0.75rem 0 0 0; font-size: 0.9em; color: #2e7d32;">
+                → あなたが画像を作り込めば<strong>シェアを奪える</strong>
+            </p>
+        </div>
+        <div style="background: #fff0f0; padding: 1rem; border-radius: 8px; border: 2px solid #ffcdd2;">
+            <p style="margin: 0 0 0.75rem 0; font-weight: bold; color: #c62828; font-size: 1.05em;">&#10060; 画像が強い → 参入を避ける</p>
+            <ul style="margin: 0; padding-left: 1.2rem; line-height: 2;">
+                <li>プロのデザイナーが作った画像</li>
+                <li>おしゃれな生活シーンで撮影</li>
+                <li>スペック・特徴がきれいに図解</li>
+                <li>ブランド感のあるデザイン</li>
+                <li>インフォグラフィックが充実</li>
+            </ul>
+            <p style="margin: 0.75rem 0 0 0; font-size: 0.9em; color: #c62828;">
+                → ここから<strong>シェアを奪うのは困難</strong>
+            </p>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 1.5rem; font-size: 1rem;">確認の手順</h3>
+    <ol style="line-height: 2.2; padding-left: 1.5rem;">
+        <li>リサーチ結果から気になる候補商品を見つける</li>
+        <li>そのキーワードで<strong>Amazonを実際に検索</strong>する</li>
+        <li>検索結果に並ぶ商品の画像を眺める</li>
+        <li>画像が「弱い」商品が多ければ → <strong style="color: #2e7d32;">チャンスあり</strong></li>
+        <li>画像が「強い」商品ばかりなら → <strong style="color: #c62828;">別のキーワードへ</strong></li>
+    </ol>
+
+    <div style="margin-top: 1rem; padding: 1rem; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ff6b00;">
+        <p style="margin: 0; line-height: 1.8;">
+            <strong>&#9888; 現時点では目視確認が必須です</strong><br>
+            画像の良し悪しをAIで自動判定する機能は将来的に導入予定ですが、
+            現時点ではツールで自動判定できないため、<strong>必ずご自身の目で確認してください。</strong>
+            「この画像なら自分が作り込めば勝てるか？」が判断のポイントです。
+        </p>
+    </div>
+</div>
+
+<!-- ========== Section 4: オートリサーチ ========== -->
+<div class="card mt-1" id="auto-tips">
+    <h2>4. オートリサーチの活用テクニック</h2>
+    <p>オートリサーチは、シードキーワードからAmazonサジェストを使って自動的にキーワードを展開します。
+        シードキーワードの選び方次第で結果が大きく変わります。</p>
+
+    <h3 style="margin-top: 1.5rem; font-size: 1rem;">&#128161; オートリサーチの効果的な使い方</h3>
+    <ol style="line-height: 2; padding-left: 1.5rem;">
+        <li><strong>まずシングルで試す：</strong>思いついたキーワードをまずシングルモードで1回試して、候補が出るか確認</li>
+        <li><strong>候補が出たらオートに切り替え：</strong>そのキーワードの上位語（もう少し広い言葉）をシードにしてオートリサーチ</li>
+        <li><strong>キーワード数は10〜20がおすすめ：</strong>少なすぎると網が狭く、多すぎると時間がかかります</li>
+        <li><strong>結果が良いキーワードを保存：</strong>候補が多く見つかったキーワードは「★保存」して再利用</li>
+    </ol>
+
+    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #e8f4fd; border-radius: 6px; border-left: 4px solid #2196F3;">
+        <strong>ポイント：</strong>オートリサーチは「広げる→絞る」の繰り返しです。
+        広めのシードから始めて、候補が多いジャンルを見つけたら、今度はそのジャンルに絞ったシードで再度オートリサーチすると、さらに良い商品が見つかります。
+    </div>
+</div>
+
+<!-- ========== Section 5: リサーチの流れ ========== -->
+<div class="card mt-1" id="workflow">
+    <h2>5. おすすめリサーチの流れ</h2>
+    <p>効率的に良い商品を見つけるための、おすすめのリサーチ手順です。</p>
+
+    <div style="margin-top: 1rem;">
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #c62828; color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">まず「避けるべきキーワード」を確認する</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    <a href="#ng-keywords" style="font-weight: bold;">セクション2</a>のNGリストに該当しないか必ずチェック。
+                    類似品が多いキーワードで検索しても時間の無駄になります。
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--primary); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">シングルで2〜3個テスト</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    NGリストに入っていないキーワードを2〜3個選び、シングルモードでリサーチ。候補が1件でも出れば有望なジャンルです。
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--primary); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">オートで一気に展開</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    有望ジャンルのやや広めのキーワードをシードにして、オートリサーチ（10〜20キーワード）を実行。
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--primary); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">4</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">結果を「ユニークさ」で確認</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    候補が出たら、その商品が本当に「他と被らない」デザインか確認。
+                    Amazonで実際に検索して、類似品が多くないかチェックしましょう。
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #ff6b00; color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">5</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">「画像の強弱」を目視チェック（必須）</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    候補商品の画像が「弱い」か「強い」かを確認。
+                    画像が作り込まれていなければGOサイン。プロが作り込んだ画像なら参入を避けましょう。
+                    <a href="#image-check" style="font-weight: bold;">→ 詳しくはセクション3</a>
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1rem;">
+            <div style="background: var(--primary); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">6</div>
+            <div>
+                <p style="margin: 0; font-weight: bold;">良いキーワードを保存して繰り返す</p>
+                <p style="margin: 0.25rem 0 0 0; color: var(--gray-500);">
+                    候補が見つかったキーワードを「★保存」。定期的に同じキーワードでリサーチすると、新しい商品が見つかることもあります。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; padding: 1rem; background: var(--gray-50); border-radius: 6px; border-left: 4px solid #ff6b00;">
+        <p style="margin: 0 0 0.5rem 0; font-weight: bold; font-size: 1.05em;">まとめ：キーワード選定の3原則</p>
+        <ol style="margin: 0; padding-left: 1.5rem; line-height: 2.2;">
+            <li><strong>NGキーワードを避ける：</strong>セクション2のリストに該当するキーワードでは絶対に検索しない</li>
+            <li><strong>ユニークさ第一：</strong>「その商品を10個並べたとき、全部違って見えるか？」が最重要</li>
+            <li><strong>規制・サイズに注意：</strong>法規制品、大型品、ブランド品は避ける</li>
+        </ol>
+    </div>
+</div>
+
+{% endblock %}

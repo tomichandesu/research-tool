@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}招待リンク - 管理{% endblock %}
+
+{% block content %}
+<h1>招待リンク管理</h1>
+<a href="/admin/" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+<div class="card mt-1">
+    <h2>招待リンク作成</h2>
+    <form method="post" action="/admin/invites" class="inline-form">
+        <div class="form-group">
+            <label for="email">メールアドレス制限（任意）</label>
+            <input type="email" id="email" name="email" placeholder="空欄にすると誰でも使用可">
+        </div>
+        <button class="btn btn-primary">招待リンク生成</button>
+    </form>
+</div>
+
+<div class="card mt-1">
+    <h2>招待リンク一覧</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>リンク</th>
+                <th>対象メール</th>
+                <th>ステータス</th>
+                <th>有効期限</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for inv in invites %}
+            <tr>
+                {% set full_url = request.url.scheme ~ '://' ~ request.url.netloc ~ '/register/' ~ inv.token %}
+                <td class="monospace">
+                    <a href="/register/{{ inv.token }}">{{ full_url }}</a>
+                    <button class="btn btn-sm btn-outline copy-btn" onclick="navigator.clipboard.writeText('{{ full_url }}')">コピー</button>
+                </td>
+                <td>{{ inv.email or '指定なし' }}</td>
+                <td>
+                    {% if inv.used_by %}
+                    <span class="badge badge-completed">使用済み</span>
+                    {% elif inv.expires_at < now() %}
+                    <span class="badge badge-failed">期限切れ</span>
+                    {% else %}
+                    <span class="badge badge-active">有効</span>
+                    {% endif %}
+                </td>
+                <td>{{ inv.expires_at|jst }}</td>
+                <td>
+                    {% if not inv.used_by %}
+                    <form method="post" action="/admin/invites/{{ inv.id }}/delete" class="inline-form">
+                        <button class="btn btn-sm btn-danger">削除</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "マーナ スポンジ", "generated_at": "2026-02-10 16:06:00", "products": [{"amazon": {"asin": "B08WPH1BCS", "title": "マーナ スポンジ おはなスポンジ グリーン K364G 5個セット", "price": 1760, "image_url": "https://m.media-amazon.com/images/I/61ZzNnNTgeL._AC_SX679_.jpg", "bsr": 112009, "category": "ホーム＆キッチン", "review_count": 5, "is_fba": false, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B08WPH1BCS", "rating": 3.6, "seller_name": "くらし快適ＳＨＯＰ（圧縮発送となります）集荷予定日より早く発送される場合があります。\n （34件の評価）", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 24, "estimated_monthly_revenue": 42240, "candidates": [{"alibaba": {"price_cny": 0.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QqvzzM1mc96aQz4Dw_!!2220019114974-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/952196767822.html", "shop_name": null, "shop_url": "https://shop9114974.1688.com/", "min_order": 1, "title": "儿童画画涂鸦海绵画刷颜料印章海绵刷套装幼儿园美术涂鸦海绵画刷"}, "orb_similarity": 0.0391, "hist_similarity": 0.9255, "combined_score": 0.5709, "profit": {"amazon_price": 1760, "cost_1688_jpy": 18, "shipping": 115, "customs": 13, "referral_fee": 264, "fba_fee": 0, "total_cost": 456, "profit": 1304, "profit_rate": 0.740909090909091, "is_profitable": true, "profit_rate_percentage": 74.1}}, {"alibaba": {"price_cny": 0.66, "image_url": "https://cbu01.alicdn.com/img/ibank/23553187838_38421536.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/633384300633.html", "shop_name": null, "shop_url": "https://shop9311394.1688.com/", "min_order": 2, "title": "吸盤皿洗いスポンジ韓国版花型スポンジ拭き吸盤鍋ブラシ鍋スポンジ百潔布吸盤メーカー"}, "orb_similarity": 0.0327, "hist_similarity": 0.9169, "combined_score": 0.5632, "profit": {"amazon_price": 1760, "cost_1688_jpy": 15, "shipping": 115, "customs": 13, "referral_fee": 264, "fba_fee": 0, "total_cost": 453, "profit": 1307, "profit_rate": 0.7426136363636363, "is_profitable": true, "profit_rate_percentage": 74.3}}, {"alibaba": {"price_cny": 1.25, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JDISyK1MBPxvKhOat_!!938591396-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/927866962939.html", "shop_name": null, "shop_url": null, "min_order": 1, "title": "ジュンダ猫爪研磨やすり ネイルアート用白研磨やすり 工芸品研磨 魚タンクの汚れ落とし ネイルアートツール 研磨やすり"}, "orb_similarity": 0.005, "hist_similarity": 0.918, "combined_score": 0.5528, "profit": {"amazon_price": 1760, "cost_1688_jpy": 28, "shipping": 115, "customs": 14, "referral_fee": 264, "fba_fee": 0, "total_cost": 467, "profit": 1293, "profit_rate": 0.7346590909090909, "is_profitable": true, "profit_rate_percentage": 73.5}}, {"alibaba": {"price_cny": 2.43, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01YFWH5R1sHtIe2fhQm_!!2220433525742-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/975279987239.html", "shop_name": null, "shop_url": "https://shop3525742.1688.com/", "min_order": 1, "title": "跨境批发彩色形状标记贴几何记号贴纸分类圆点贴不干胶手帐"}, "orb_similarity": 0.0, "hist_similarity": 0.9203, "combined_score": 0.5522, "profit": {"amazon_price": 1760, "cost_1688_jpy": 55, "shipping": 115, "customs": 17, "referral_fee": 264, "fba_fee": 0, "total_cost": 498, "profit": 1262, "profit_rate": 0.7170454545454545, "is_profitable": true, "profit_rate_percentage": 71.7}}, {"alibaba": {"price_cny": 9.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Swkl8R1amt10jWRlZ_!!2216401313373-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/957127709594.html", "shop_name": null, "shop_url": "https://shop1313373.1688.com/", "min_order": 1, "title": "水果切切乐毛毡板忙碌板宝宝蒙氏早教益智玩具板水果摘摘乐学习板"}, "orb_similarity": 0.0167, "hist_similarity": 0.9059, "combined_score": 0.5502, "profit": {"amazon_price": 1760, "cost_1688_jpy": 207, "shipping": 115, "customs": 32, "referral_fee": 264, "fba_fee": 0, "total_cost": 670, "profit": 1090, "profit_rate": 0.6193181818181818, "is_profitable": true, "profit_rate_percentage": 61.9}}, {"alibaba": {"price_cny": 8.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01uVXhyt2LX7Js0gads_!!2220565489701-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/967553695353.html", "shop_name": null, "shop_url": "https://shop5489701.1688.com/", "min_order": 1, "title": "蛇年异形中秋快乐标签贴纸喜乐四叶草祝福语不干胶包装礼盒烘焙贴"}, "orb_similarity": 0.011, "hist_similarity": 0.892, "combined_score": 0.5396, "profit": {"amazon_price": 1760, "cost_1688_jpy": 195, "shipping": 115, "customs": 31, "referral_fee": 264, "fba_fee": 0, "total_cost": 656, "profit": 1104, "profit_rate": 0.6272727272727273, "is_profitable": true, "profit_rate_percentage": 62.7}}, {"alibaba": {"price_cny": 0.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN013UV2lh21sNJUDZ6Rk_!!2216303317040-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/750620418018.html", "shop_name": null, "shop_url": "https://shop3170401.1688.com/", "min_order": 1, "title": "国境を越えた愛の付箋にカラー小学生の便箋シールメモ記事n回カラーシールを貼ると引き裂くことができる"}, "orb_similarity": 0.0, "hist_similarity": 0.8979, "combined_score": 0.5388, "profit": {"amazon_price": 1760, "cost_1688_jpy": 11, "shipping": 115, "customs": 12, "referral_fee": 264, "fba_fee": 0, "total_cost": 448, "profit": 1312, "profit_rate": 0.7454545454545455, "is_profitable": true, "profit_rate_percentage": 74.5}}, {"alibaba": {"price_cny": 0.86, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN010VrfAT1yQUQbVzmWP_!!2220428026573-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/972201731445.html", "shop_name": null, "shop_url": "https://shop8026573.1688.com/", "min_order": 3, "title": "现货仿兔毛球小柿子挂件毛绒玩偶公仔钥匙扣箱包挂饰活动礼品批发"}, "orb_similarity": 0.005, "hist_similarity": 0.2411, "combined_score": 0.1467, "profit": {"amazon_price": 1760, "cost_1688_jpy": 19, "shipping": 115, "customs": 13, "referral_fee": 264, "fba_fee": 0, "total_cost": 457, "profit": 1303, "profit_rate": 0.7403409090909091, "is_profitable": true, "profit_rate_percentage": 74.0}}, {"alibaba": {"price_cny": 0.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN019CceYl1MAVBSlxTYj_!!4139311394-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/946162552504.html", "shop_name": null, "shop_url": "https://shop9311394.1688.com/", "min_order": 2, "title": "5本指フラワーポットブラシ、クリエイティブな取り外し可能なハンドル、自動液体添加スポンジポット洗浄ブラシ、強力な除染クリーニングブラシ"}, "orb_similarity": 0.0059, "hist_similarity": 0.0032, "combined_score": 0.0043, "profit": {"amazon_price": 1760, "cost_1688_jpy": 18, "shipping": 115, "customs": 13, "referral_fee": 264, "fba_fee": 0, "total_cost": 456, "profit": 1304, "profit_rate": 0.740909090909091, "is_profitable": true, "profit_rate_percentage": 74.1}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

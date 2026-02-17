@@ -1,0 +1,7 @@
+Collecting opencv-python-headless
+  Downloading opencv_python_headless-4.13.0.92-cp37-abi3-win_amd64.whl.metadata (20 kB)
+Requirement already satisfied: numpy>=2 in c:\users\tomic\onedrive\dev\リサーチツール\amazon-china-research\venv\lib\site-packages (from opencv-python-headless) (2.4.2)
+Downloading opencv_python_headless-4.13.0.92-cp37-abi3-win_amd64.whl (40.1 MB)
+   ---------------------------------------- 40.1/40.1 MB 1.7 MB/s  0:00:23
+Installing collected packages: opencv-python-headless
+Successfully installed opencv-python-headless-4.13.0.92

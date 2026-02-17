@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}リサーチ履歴{% endblock %}
+
+{% block content %}
+<h1>リサーチ履歴</h1>
+
+{% if jobs %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>キーワード</th>
+            <th>モード</th>
+            <th>ステータス</th>
+            <th>候補数</th>
+            <th>作成日時</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for j in jobs %}
+        <tr>
+            <td>{{ j.keyword }}</td>
+            <td>
+                {% if j.mode == 'auto' %}
+                <span class="badge badge-admin">オート</span>
+                {% else %}
+                <span class="badge badge-member">シングル</span>
+                {% endif %}
+            </td>
+            <td>
+                <span class="badge badge-{{ j.status }}">
+                    {%- if j.status == 'pending' -%}順番待ち
+                    {%- elif j.status == 'running' -%}リサーチ中
+                    {%- elif j.status == 'completed' -%}完了
+                    {%- elif j.status == 'failed' -%}エラー
+                    {%- else -%}{{ j.status }}{%- endif -%}
+                </span>
+            </td>
+            <td>
+                {% if j.result_summary %}
+                {% set s = j.result_summary | from_json %}
+                {{ s.candidates_count if s else '-' }}
+                {% else %}-{% endif %}
+            </td>
+            <td>{{ j.created_at|jst }}</td>
+            <td><a href="/research/{{ j.id }}" class="btn btn-sm btn-outline">詳細</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>リサーチ履歴がありません。</p>
+{% endif %}
+{% endblock %}

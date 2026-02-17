@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "給水器 猫 フィルター", "generated_at": "2026-02-08 03:53:44", "products": [{"amazon": {"asin": "B0CRY6346S", "title": "Parner【2025推奨&昇級版】猫 水 給水器フィルター （12個入） 円形 猫 犬 みずのみ器交換用フィルター 軟水化フィルター イオン交換樹脂 清潔 三重濾過 お留守番対応 下部尿路健康維持（１.5L -2.4Lペット自動給水器に適応）", "price": 1999, "image_url": "https://m.media-amazon.com/images/I/71p5qtKmwZL._AC_SX466_.jpg", "bsr": 8097, "category": "ペット用品", "review_count": 25, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0CRY6346S", "rating": 4.2, "seller_name": "CoolTry（メーカー直営店）", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 107, "estimated_monthly_revenue": 213893, "candidates": [{"alibaba": {"price_cny": 0.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01sW9WEd1uUNKyhbww1_!!2221042906040-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/988880267467.html", "shop_name": null, "shop_url": "https://shop0604015.1688.com/", "min_order": 10, "title": "宠物滤芯圆形滤芯宠物饮水机圆形滤芯猫咪喂水器过滤棉滤网滤水滤"}, "orb_similarity": 12.8, "hist_similarity": 0.8896, "combined_score": 5.6538, "profit": {"amazon_price": 1999, "cost_1688_jpy": 20, "shipping": 115, "customs": 13, "referral_fee": 299, "fba_fee": 318, "total_cost": 811, "profit": 1188, "profit_rate": 0.5942971485742872, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 1.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01MhtPZB1ZA7hq59JyP_!!2217000153153-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/755666937054.html", "shop_name": null, "shop_url": "https://shop1531532.1688.com/", "min_order": 5, "title": "ペットウォーターディスペンサーフィルターエレメント猫と犬のための特別な猫とペット自動ウォーターディスペンサーフィルターエレメント浄水スマート"}, "orb_similarity": 8.0, "hist_similarity": 0.8888, "combined_score": 3.7333, "profit": {"amazon_price": 1999, "cost_1688_jpy": 36, "shipping": 115, "customs": 15, "referral_fee": 299, "fba_fee": 318, "total_cost": 830, "profit": 1169, "profit_rate": 0.5847923961980991, "is_profitable": true, "profit_rate_percentage": 58.5}}, {"alibaba": {"price_cny": 0.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01nxEZm41DhdI8elm5o_!!2220040170248-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/944973324179.html", "shop_name": null, "shop_url": "https://shop7024846.1688.com/", "min_order": 1000, "title": "クロスボーダー猫ウォーターディスペンサーフィルターエレメント多重濾過活性炭浄水フィルター猫と犬のウォーターディスペンサーフィルター綿"}, "orb_similarity": 1.6923, "hist_similarity": 0.8518, "combined_score": 1.188, "profit": {"amazon_price": 1999, "cost_1688_jpy": 11, "shipping": 115, "customs": 12, "referral_fee": 299, "fba_fee": 318, "total_cost": 801, "profit": 1198, "profit_rate": 0.5992996498249125, "is_profitable": true, "profit_rate_percentage": 59.9}}, {"alibaba": {"price_cny": 2.5, "image_url": "https://cbu01.alicdn.com/img/ibank/23301309569_476728266.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016031551045.html", "shop_name": null, "shop_url": "https://shop1143249.1688.com/", "min_order": 5, "title": "厂家直供散装兼容宠物饮水机滤芯猫狗喂水器单卖活性炭过滤片"}, "orb_similarity": 0.3056, "hist_similarity": 0.8951, "combined_score": 0.6593, "profit": {"amazon_price": 1999, "cost_1688_jpy": 57, "shipping": 115, "customs": 17, "referral_fee": 299, "fba_fee": 318, "total_cost": 853, "profit": 1146, "profit_rate": 0.5732866433216608, "is_profitable": true, "profit_rate_percentage": 57.3}}, {"alibaba": {"price_cny": 0.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN010qIrHx21QteqKWXbi_!!2211764846980-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/708854958952.html", "shop_name": null, "shop_url": "https://shop6980133.1688.com/", "min_order": 1, "title": "ペット用ウォーターディスペンサー用フィルターエレメント、猫用噴水フィルター、給水器用多重フィルターコットン、活性炭フィルターエレメント、メーカー卸売"}, "orb_similarity": 0.0216, "hist_similarity": 0.9416, "combined_score": 0.5736, "profit": {"amazon_price": 1999, "cost_1688_jpy": 20, "shipping": 115, "customs": 13, "referral_fee": 299, "fba_fee": 318, "total_cost": 811, "profit": 1188, "profit_rate": 0.5942971485742872, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 0.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01aYCiWC1hiURhZxb7L_!!2217566954311-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/782208904552.html", "shop_name": null, "shop_url": "https://shop4311352.1688.com/", "min_order": 10, "title": "ワイヤレスペット浄水器フィルター外国貿易長条ココナッツシェル活性炭フィルター綿"}, "orb_similarity": 0.0023, "hist_similarity": 0.9537, "combined_score": 0.5731, "profit": {"amazon_price": 1999, "cost_1688_jpy": 18, "shipping": 115, "customs": 13, "referral_fee": 299, "fba_fee": 318, "total_cost": 809, "profit": 1190, "profit_rate": 0.5952976488244122, "is_profitable": true, "profit_rate_percentage": 59.5}}, {"alibaba": {"price_cny": 0.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01FfiaTI1XQUpNVJzRa_!!2218731642918-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998871125066.html", "shop_name": null, "shop_url": "https://shop6429184.1688.com/", "min_order": 1, "title": "亚马逊热销宠物饮水机滤芯过滤棉片活性炭树脂过滤棉厂家批发直销"}, "orb_similarity": 0.0329, "hist_similarity": 0.9293, "combined_score": 0.5707, "profit": {"amazon_price": 1999, "cost_1688_jpy": 20, "shipping": 115, "customs": 13, "referral_fee": 299, "fba_fee": 318, "total_cost": 811, "profit": 1188, "profit_rate": 0.5942971485742872, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 1.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01y47nd11bcdhnJk8sv_!!2214289643486-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/680649733404.html", "shop_name": null, "shop_url": "https://shop6434861.1688.com/", "min_order": 5, "title": "ペット浄水器フィルター綿活性炭猫犬浄水器交換芯樹脂浄化水フィルター綿芯円形"}, "orb_similarity": 0.0318, "hist_similarity": 0.9281, "combined_score": 0.5696, "profit": {"amazon_price": 1999, "cost_1688_jpy": 27, "shipping": 115, "customs": 14, "referral_fee": 299, "fba_fee": 318, "total_cost": 819, "profit": 1180, "profit_rate": 0.5902951475737869, "is_profitable": true, "profit_rate_percentage": 59.0}}, {"alibaba": {"price_cny": 0.95, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01EVE9MC1oWJKs900NG_!!2218746905232-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/981166081144.html", "shop_name": null, "shop_url": "https://shop9052328.1688.com/", "min_order": 1, "title": "宠物饮水机滤芯猫咪饮水器多重过滤毛发过滤棉活性炭适配多款"}, "orb_similarity": 0.0129, "hist_similarity": 0.9382, "combined_score": 0.5681, "profit": {"amazon_price": 1999, "cost_1688_jpy": 21, "shipping": 115, "customs": 13, "referral_fee": 299, "fba_fee": 318, "total_cost": 812, "profit": 1187, "profit_rate": 0.5937968984492246, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 1.35, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01L2MvWG2MEcyHQeDOb_!!2220441289796-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/970998702871.html", "shop_name": null, "shop_url": "https://shop2897967.1688.com/", "min_order": 1, "title": "亚马逊BS爆款宠物饮水机滤芯适用2.4L小花猫咪饮水机狗碗替换滤芯"}, "orb_similarity": 0.0228, "hist_similarity": 0.9279, "combined_score": 0.5658, "profit": {"amazon_price": 1999, "cost_1688_jpy": 31, "shipping": 115, "customs": 14, "referral_fee": 299, "fba_fee": 318, "total_cost": 823, "profit": 1176, "profit_rate": 0.5882941470735368, "is_profitable": true, "profit_rate_percentage": 58.8}}]}, {"amazon": {"asin": "B0CSDF9WF1", "title": "猫 水飲み器 フィルター 犬 水飲み器 猫 給水器 ペット 水飲み器 猫 水飲み 自動給水器に適用【デザイン改良】イオン交換樹脂 活性炭フィルター 多重濾過 交換用5枚入（PW01用）", "price": 1699, "image_url": "https://m.media-amazon.com/images/I/71Bp-Wmf-QL._AC_SX679_.jpg", "bsr": 6698, "category": "ペット用品", "review_count": 39, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0CSDF9WF1", "rating": 4.0, "seller_name": "Petsuper-Direct", "variation_count": 1, "dimensions": [9.2, 9.0, 7.0], "weight_kg": 0.07}, "estimated_monthly_sales": 124, "estimated_monthly_revenue": 210676, "candidates": [{"alibaba": {"price_cny": 3.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01OMXcGt2InCJ3JCKOE_!!2214894949330-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/689747829372.html", "shop_name": null, "shop_url": "https://shop9493305.1688.com/", "min_order": 1, "title": "汎用円形ペット冷水機エレメント樹脂活性炭猫冷水機ろ過綿浄化猫冷水機"}, "orb_similarity": 0.56, "hist_similarity": 0.7847, "combined_score": 0.6948, "profit": {"amazon_price": 1699, "cost_1688_jpy": 69, "shipping": 22, "customs": 9, "referral_fee": 254, "fba_fee": 288, "total_cost": 690, "profit": 1009, "profit_rate": 0.5938787522071807, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 2.5, "image_url": "https://cbu01.alicdn.com/img/ibank/23301309569_476728266.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016031551045.html", "shop_name": null, "shop_url": "https://shop1143249.1688.com/", "min_order": 5, "title": "厂家直供散装兼容宠物饮水机滤芯猫狗喂水器单卖活性炭过滤片"}, "orb_similarity": 0.3333, "hist_similarity": 0.9036, "combined_score": 0.6755, "profit": {"amazon_price": 1699, "cost_1688_jpy": 57, "shipping": 22, "customs": 7, "referral_fee": 254, "fba_fee": 288, "total_cost": 675, "profit": 1024, "profit_rate": 0.6027074749852854, "is_profitable": true, "profit_rate_percentage": 60.3}}, {"alibaba": {"price_cny": 0.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Bf0gb81mWeOEMfJXa_!!4017604962-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/981991342808.html", "shop_name": null, "shop_url": "https://shop6049629.1688.com/", "min_order": 1, "title": "亚马逊宠物饮水机过滤器猫狗喂水器海绵宠物自动饮水机滤芯"}, "orb_similarity": 0.0207, "hist_similarity": 0.8024, "combined_score": 0.4897, "profit": {"amazon_price": 1699, "cost_1688_jpy": 20, "shipping": 22, "customs": 4, "referral_fee": 254, "fba_fee": 288, "total_cost": 634, "profit": 1065, "profit_rate": 0.6268393172454385, "is_profitable": true, "profit_rate_percentage": 62.7}}, {"alibaba": {"price_cny": 2.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CHTMbA209ChVxGNQL_!!2216571686806-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/959121738359.html", "shop_name": null, "shop_url": "https://shop1686806.1688.com/", "min_order": 5, "title": "跨境批发宠物猫咪饮水机过滤芯宠物饮水器专用水质净化循环过滤棉"}, "orb_similarity": 0.0154, "hist_similarity": 0.8008, "combined_score": 0.4866, "profit": {"amazon_price": 1699, "cost_1688_jpy": 46, "shipping": 22, "customs": 6, "referral_fee": 254, "fba_fee": 288, "total_cost": 663, "profit": 1036, "profit_rate": 0.6097704532077692, "is_profitable": true, "profit_rate_percentage": 61.0}}, {"alibaba": {"price_cny": 1.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01yCRZDo27WHvkZstmt_!!2214527627804-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/681676220520.html", "shop_name": null, "shop_url": "https://shop2780469.1688.com/", "min_order": 1, "title": "猫の浄水器は綿のペットの知能を濾過します。"}, "orb_similarity": 0.0232, "hist_similarity": 0.7918, "combined_score": 0.4844, "profit": {"amazon_price": 1699, "cost_1688_jpy": 27, "shipping": 22, "customs": 4, "referral_fee": 254, "fba_fee": 288, "total_cost": 641, "profit": 1058, "profit_rate": 0.6227192466156563, "is_profitable": true, "profit_rate_percentage": 62.3}}, {"alibaba": {"price_cny": 0.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01wG3hly1XQUpNVTmaO_!!2218731642918-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998871125066.html", "shop_name": null, "shop_url": "https://shop6429184.1688.com/", "min_order": 1, "title": "亚马逊热销宠物饮水机滤芯过滤棉片活性炭树脂过滤棉厂家批发直销"}, "orb_similarity": 0.0226, "hist_similarity": 0.7897, "combined_score": 0.4829, "profit": {"amazon_price": 1699, "cost_1688_jpy": 20, "shipping": 22, "customs": 4, "referral_fee": 254, "fba_fee": 288, "total_cost": 634, "profit": 1065, "profit_rate": 0.6268393172454385, "is_profitable": true, "profit_rate_percentage": 62.7}}, {"alibaba": {"price_cny": 0.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01YvtfNJ1HRq8nCJQBu_!!2220399050755-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/964972128640.html", "shop_name": null, "shop_url": "https://shop9050755.1688.com/", "min_order": 50000, "title": "亚马逊爆款宠物饮水机滤芯猫喷泉过滤器喂水器活性炭滤芯厂家批发"}, "orb_similarity": 0.0039, "hist_similarity": 0.8021, "combined_score": 0.4828, "profit": {"amazon_price": 1699, "cost_1688_jpy": 20, "shipping": 22, "customs": 4, "referral_fee": 254, "fba_fee": 288, "total_cost": 634, "profit": 1065, "profit_rate": 0.6268393172454385, "is_profitable": true, "profit_rate_percentage": 62.7}}, {"alibaba": {"price_cny": 3.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01i8xzNh1bxhv1qbBCZ_!!2213423523532-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016026203154.html", "shop_name": null, "shop_url": "https://shop1143249.1688.com/", "min_order": 5, "title": "宠物饮水机滤芯猫喷泉过滤器喂水器活性炭滤芯圆形过滤棉厂家"}, "orb_similarity": 0.0118, "hist_similarity": 0.7953, "combined_score": 0.4819, "profit": {"amazon_price": 1699, "cost_1688_jpy": 69, "shipping": 22, "customs": 9, "referral_fee": 254, "fba_fee": 288, "total_cost": 690, "profit": 1009, "profit_rate": 0.5938787522071807, "is_profitable": true, "profit_rate_percentage": 59.4}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Oyuhl01jN5EmLemAK_!!2201418434535-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/969958757920.html", "shop_name": null, "shop_url": "https://shop4345352.1688.com/", "min_order": 2, "title": "源头工厂批发宠物饮水机滤芯平衡水质三重净水猫猫喂水器过滤芯"}, "orb_similarity": 0.0129, "hist_similarity": 0.7925, "combined_score": 0.4807, "profit": {"amazon_price": 1699, "cost_1688_jpy": 23, "shipping": 22, "customs": 4, "referral_fee": 254, "fba_fee": 288, "total_cost": 637, "profit": 1062, "profit_rate": 0.6250735726898176, "is_profitable": true, "profit_rate_percentage": 62.5}}, {"alibaba": {"price_cny": 0.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZniEqM1iML0UdKKWY_!!2220146684398-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/966024767769.html", "shop_name": null, "shop_url": "https://shop3984998.1688.com/", "min_order": 25, "title": "宠物饮水机滤芯猫咪饮水机过滤棉多重过滤毛发椰壳霍曼饮水机滤芯"}, "orb_similarity": 0.0043, "hist_similarity": 0.7959, "combined_score": 0.4793, "profit": {"amazon_price": 1699, "cost_1688_jpy": 11, "shipping": 22, "customs": 3, "referral_fee": 254, "fba_fee": 288, "total_cost": 624, "profit": 1075, "profit_rate": 0.6327251324308417, "is_profitable": true, "profit_rate_percentage": 63.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

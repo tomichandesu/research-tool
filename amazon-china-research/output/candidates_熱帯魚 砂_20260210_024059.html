@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "熱帯魚 砂", "generated_at": "2026-02-10 02:40:59", "products": [{"amazon": {"asin": "B08F9RJX3D", "title": "白砂 飾り砂 化粧砂 珪砂 [5号] ボトルリウム テラリウム コケリウム ミニアクアリウム 砂浜ジオラマ ミニ庭枯山水にも STC-KEISY5_KAZ", "price": 1918, "image_url": "https://m.media-amazon.com/images/I/71fYVv5iTBL._AC_SX679_.jpg", "bsr": 28603, "category": "ペット用品", "review_count": 23, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B08F9RJX3D", "rating": 4.2, "seller_name": "ゆきぐに", "variation_count": 1, "dimensions": [12.0, 9.0, 4.0], "weight_kg": 0.5}, "estimated_monthly_sales": 40, "estimated_monthly_revenue": 76720, "candidates": [{"alibaba": {"price_cny": 17.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01D2np9w1pt2FsXIrpN_!!3851245417-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/645851729470.html", "shop_name": null, "shop_url": "https://shop1245417.1688.com/", "min_order": 5, "title": "広印通熱転写彫刻膜高弾pu金葱粉閃光熱転写膜アマゾン金葱彫刻膜"}, "orb_similarity": 0.0022, "hist_similarity": 0.4969, "combined_score": 0.299, "profit": {"amazon_price": 1918, "cost_1688_jpy": 391, "shipping": 115, "customs": 50, "referral_fee": 287, "fba_fee": 318, "total_cost": 1218, "profit": 700, "profit_rate": 0.36496350364963503, "is_profitable": true, "profit_rate_percentage": 36.5}}, {"alibaba": {"price_cny": 3.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QtxGL11kqDySPGzfl_!!2217199954734-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/842955327157.html", "shop_name": null, "shop_url": "https://shop5473467.1688.com/", "min_order": 1, "title": "超魅力的な焙煎小麦胚芽タブレット、高タンパク質、香り豊か、バルク釣り餌原料メーカー卸売フナと鯉"}, "orb_similarity": 0.0024, "hist_similarity": 0.4811, "combined_score": 0.2896, "profit": {"amazon_price": 1918, "cost_1688_jpy": 69, "shipping": 115, "customs": 18, "referral_fee": 287, "fba_fee": 318, "total_cost": 855, "profit": 1063, "profit_rate": 0.5542231491136601, "is_profitable": true, "profit_rate_percentage": 55.4}}, {"alibaba": {"price_cny": 2.23, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QtxGL11kqDySPGzfl_!!2217199954734-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/955388800178.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "超诱烘炒小麦胚芽片大高蛋白香味浓郁散装鱼饵原料鲫鲤鱼"}, "orb_similarity": 0.0024, "hist_similarity": 0.4811, "combined_score": 0.2896, "profit": {"amazon_price": 1918, "cost_1688_jpy": 51, "shipping": 115, "customs": 16, "referral_fee": 287, "fba_fee": 318, "total_cost": 834, "profit": 1084, "profit_rate": 0.5651720542231491, "is_profitable": true, "profit_rate_percentage": 56.5}}, {"alibaba": {"price_cny": 9.98, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01S5J9w81Q0CkozOQ3w_!!2213106421913-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/963271508615.html", "shop_name": null, "shop_url": "https://shop9134058.1688.com/", "min_order": 1, "title": "寄居蟹专用沙乌龟缸鱼缸造景底部砂石沙子寄居蟹饲养沙珊瑚沙海沙"}, "orb_similarity": 0.0022, "hist_similarity": 0.4802, "combined_score": 0.289, "profit": {"amazon_price": 1918, "cost_1688_jpy": 229, "shipping": 115, "customs": 34, "referral_fee": 287, "fba_fee": 318, "total_cost": 1035, "profit": 883, "profit_rate": 0.46037539103232533, "is_profitable": true, "profit_rate_percentage": 46.0}}, {"alibaba": {"price_cny": 3.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01OwsSBj1Nmnww30Wnq_!!2214960861613-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/983704165436.html", "shop_name": null, "shop_url": "https://shop6161343.1688.com/", "min_order": 1, "title": "宠物椰砖乌龟冬眠沙寄居蟹专用沙造景鱼缸龟孵蛋过冬沙干苔藓垫材"}, "orb_similarity": 0.0044, "hist_similarity": 0.476, "combined_score": 0.2874, "profit": {"amazon_price": 1918, "cost_1688_jpy": 87, "shipping": 115, "customs": 20, "referral_fee": 287, "fba_fee": 318, "total_cost": 875, "profit": 1043, "profit_rate": 0.5437956204379562, "is_profitable": true, "profit_rate_percentage": 54.4}}, {"alibaba": {"price_cny": 5.66, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01spbp8i21PWRqcO6wl_!!2220550116977-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/989676176958.html", "shop_name": null, "shop_url": "https://shop0116977.1688.com/", "min_order": 1, "title": "沙三湖鼠鱼底沙鱼缸草缸水陆造景化妆沙细河沙水草砂家具跨境专供"}, "orb_similarity": 0.0022, "hist_similarity": 0.4638, "combined_score": 0.2792, "profit": {"amazon_price": 1918, "cost_1688_jpy": 130, "shipping": 115, "customs": 24, "referral_fee": 287, "fba_fee": 318, "total_cost": 923, "profit": 995, "profit_rate": 0.5187695516162669, "is_profitable": true, "profit_rate_percentage": 51.9}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01EyF6rr2KijXpOedr0_!!2215751039591-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/732877518540.html", "shop_name": null, "shop_url": "https://shop9591374.1688.com/", "min_order": 1, "title": "金魚鉢底砂金魚鉢砂亀砂砂利黄金砂白砂造景かめ海砂装飾水族砂卸売り"}, "orb_similarity": 0.0026, "hist_similarity": 0.4543, "combined_score": 0.2736, "profit": {"amazon_price": 1918, "cost_1688_jpy": 115, "shipping": 115, "customs": 23, "referral_fee": 287, "fba_fee": 318, "total_cost": 907, "profit": 1011, "profit_rate": 0.52711157455683, "is_profitable": true, "profit_rate_percentage": 52.7}}, {"alibaba": {"price_cny": 13.1, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01oZ4tQk1USNaygd8U5_!!2525832516-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/981566294719.html", "shop_name": null, "shop_url": "https://shop5832516.1688.com/", "min_order": 1, "title": "钠基矿石猫砂10斤20斤包装邮净味吸水结团紧实不易散矿物矿石猫砂"}, "orb_similarity": 0.0044, "hist_similarity": 0.4347, "combined_score": 0.2626, "profit": {"amazon_price": 1918, "cost_1688_jpy": 301, "shipping": 115, "customs": 41, "referral_fee": 287, "fba_fee": 318, "total_cost": 1117, "profit": 801, "profit_rate": 0.4176225234619395, "is_profitable": true, "profit_rate_percentage": 41.8}}, {"alibaba": {"price_cny": 3.04, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01NHtpj81rsF7ciTTBZ_!!2220727355686-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1019049740083.html", "shop_name": null, "shop_url": "https://shop0038232.1688.com/", "min_order": 1, "title": "鱼缸底砂造景底沙乌龟河沙沙白沙子雨林沙原生缸溪流砂铁胆沙"}, "orb_similarity": 0.0022, "hist_similarity": 0.4336, "combined_score": 0.2611, "profit": {"amazon_price": 1918, "cost_1688_jpy": 69, "shipping": 115, "customs": 18, "referral_fee": 287, "fba_fee": 318, "total_cost": 855, "profit": 1063, "profit_rate": 0.5542231491136601, "is_profitable": true, "profit_rate_percentage": 55.4}}, {"alibaba": {"price_cny": 10.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01KYOC0F2FpXLaslHuA_!!2215531098929-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/738597971054.html", "shop_name": null, "shop_url": "https://shop1098929.1688.com/", "min_order": 3, "title": "金葱粉メーカーのフラッシュ粉幻彩粉銀葱粉金銀粉フラッシュ粉"}, "orb_similarity": 0.0022, "hist_similarity": 0.3719, "combined_score": 0.224, "profit": {"amazon_price": 1918, "cost_1688_jpy": 241, "shipping": 115, "customs": 35, "referral_fee": 287, "fba_fee": 318, "total_cost": 1049, "profit": 869, "profit_rate": 0.45307612095933264, "is_profitable": true, "profit_rate_percentage": 45.3}}]}, {"amazon": {"asin": "B09M869GQF", "title": "アマゾン川源流の白砂 ３ｋｇ（約１．８Ｌ） 微粒 底砂 底床 コリドラス エイ お一人様８点限り", "price": 1929, "image_url": "https://m.media-amazon.com/images/I/21pNs1RdgHL._AC_.jpg", "bsr": 16393, "category": "ペット用品", "review_count": 23, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B09M869GQF", "rating": 4.1, "seller_name": "オンラインショップ久信 東京本店", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 61, "estimated_monthly_revenue": 117669, "candidates": [{"alibaba": {"price_cny": 2.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01B0iKMP2AfqrVNNrdz_!!1015228231-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/720575417492.html", "shop_name": null, "shop_url": null, "min_order": 3, "title": "香薫石膏粉高強度模型粉手作りdiy石膏人形彩色材料自作車載拡香石"}, "orb_similarity": 0.0046, "hist_similarity": 0.4847, "combined_score": 0.2926, "profit": {"amazon_price": 1929, "cost_1688_jpy": 46, "shipping": 115, "customs": 16, "referral_fee": 289, "fba_fee": 318, "total_cost": 831, "profit": 1098, "profit_rate": 0.5692068429237948, "is_profitable": true, "profit_rate_percentage": 56.9}}, {"alibaba": {"price_cny": 4.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01mz14IF1hfk5bJE5FT_!!2219176044305-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/873404535640.html", "shop_name": null, "shop_url": "https://shop0443054.1688.com/", "min_order": 1, "title": "凡士林足部护理倍润膏"}, "orb_similarity": 0.0046, "hist_similarity": 0.3829, "combined_score": 0.2316, "profit": {"amazon_price": 1929, "cost_1688_jpy": 110, "shipping": 115, "customs": 22, "referral_fee": 289, "fba_fee": 318, "total_cost": 903, "profit": 1026, "profit_rate": 0.5318818040435459, "is_profitable": true, "profit_rate_percentage": 53.2}}, {"alibaba": {"price_cny": 6.1, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ERUpMa22e0bxZQoz2_!!2214501417144-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/862689959583.html", "shop_name": null, "shop_url": "https://shop1714411.1688.com/", "min_order": 1, "title": "豆乳粉商用朝食原味無煮インスタント食堂ホテル家庭用大豆粉甘味原味メーカー卸売り"}, "orb_similarity": 0.0046, "hist_similarity": 0.3716, "combined_score": 0.2248, "profit": {"amazon_price": 1929, "cost_1688_jpy": 140, "shipping": 115, "customs": 25, "referral_fee": 289, "fba_fee": 318, "total_cost": 937, "profit": 992, "profit_rate": 0.514256091238984, "is_profitable": true, "profit_rate_percentage": 51.4}}, {"alibaba": {"price_cny": 12.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN016cJ9r920uNOD5EYSO_!!2003766909-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/656002272648.html", "shop_name": null, "shop_url": "https://shop3766909.1688.com/", "min_order": 1, "title": "ビューティーサロン Zhiwei DIY フェイシャルマスクパウダースパケアソフトマスクパウダー保湿保湿美白修復学生病院衣装"}, "orb_similarity": 0.0092, "hist_similarity": 0.3481, "combined_score": 0.2125, "profit": {"amazon_price": 1929, "cost_1688_jpy": 287, "shipping": 115, "customs": 40, "referral_fee": 289, "fba_fee": 318, "total_cost": 1103, "profit": 826, "profit_rate": 0.4282011404872991, "is_profitable": true, "profit_rate_percentage": 42.8}}, {"alibaba": {"price_cny": 1.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01t1Dk4D1W63VvWSCu9_!!2218933112738-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/970355820874.html", "shop_name": null, "shop_url": "https://shop7382530.1688.com/", "min_order": 1, "title": "小鹿妈妈牙套摘取器取拆取器隐形钩摘矫正拆卸勾正畸取牙套神器"}, "orb_similarity": 0.0138, "hist_similarity": 0.226, "combined_score": 0.1411, "profit": {"amazon_price": 1929, "cost_1688_jpy": 27, "shipping": 115, "customs": 14, "referral_fee": 289, "fba_fee": 318, "total_cost": 809, "profit": 1120, "profit_rate": 0.5806117159149818, "is_profitable": true, "profit_rate_percentage": 58.1}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

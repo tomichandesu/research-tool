@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}ユーザー管理 - 管理{% endblock %}
+
+{% block content %}
+<h1>ユーザー管理</h1>
+<a href="/admin/" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+<div class="card mt-1">
+    <h2>新規ユーザー作成</h2>
+    {% if errors %}
+    <div class="alert alert-error">
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    <form method="post" action="/admin/users/create" class="create-user-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">メール</label>
+                <input type="email" id="email" name="email" required
+                       value="{{ form_email or '' }}" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="display_name">表示名</label>
+                <input type="text" id="display_name" name="display_name" required
+                       value="{{ form_display_name or '' }}" placeholder="山田太郎">
+            </div>
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required
+                       minlength="8" placeholder="8文字以上">
+            </div>
+            <div class="form-group">
+                <label for="service_type">サービス</label>
+                <select id="service_type" name="service_type" class="input-sm">
+                    <option value="none">未設定</option>
+                    <option value="ai_automate">AI自動物販</option>
+                    <option value="alumni">卒業生アフターフォロー</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="plan_type">プラン</label>
+                <select id="plan_type" name="plan_type" class="input-sm">
+                    {% for key, info in plan_display.items() %}
+                    <option value="{{ key }}">{{ info.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="align-self: flex-end;">
+                <button class="btn btn-primary">作成</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<table class="table mt-1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名前</th>
+            <th>メール</th>
+            <th>サービス</th>
+            <th>プラン</th>
+            <th>状態</th>
+            <th>リサーチ数（月）</th>
+            <th>有効期限</th>
+            <th>最終ログイン</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+        <tr class="{{ 'inactive' if not u.is_active }}">
+            <td>{{ u.id }}</td>
+            <td>{{ u.display_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+                {% if u.service_type == 'ai_automate' %}AI自動物販
+                {% elif u.service_type == 'alumni' %}卒業生
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                <span class="badge {{ plan_display[u.plan_type].color if u.plan_type in plan_display else 'badge-member' }}">
+                    {{ plan_display[u.plan_type].label if u.plan_type in plan_display else u.plan_type }}
+                </span>
+            </td>
+            <td>
+                {% if u.is_active %}
+                <span class="badge badge-active">有効</span>
+                {% else %}
+                <span class="badge badge-inactive">無効</span>
+                {% endif %}
+            </td>
+            <td>
+                {{ u.candidate_count_monthly }} / {{ u.candidate_limit_monthly }}
+            </td>
+            <td>
+                {% if u.plan_expires_at %}
+                    {% set days_left = ((u.plan_expires_at - now()).days) %}
+                    {% if days_left < 0 %}
+                    <span style="color: #d32f2f; font-weight: bold;">期限切れ</span>
+                    {% elif days_left <= 10 %}
+                    <span style="color: #d32f2f; font-weight: bold;">{{ u.plan_expires_at.strftime('%Y-%m-%d') }}</span>
+                    {% elif days_left <= 30 %}
+                    <span style="color: #f57c00; font-weight: bold;">{{ u.plan_expires_at.strftime('%Y-%m-%d') }}</span>
+                    {% else %}
+                    {{ u.plan_expires_at.strftime('%Y-%m-%d') }}
+                    {% endif %}
+                {% else %}
+                    <span style="color: #888;">-</span>
+                {% endif %}
+            </td>
+            <td>{{ u.last_login_at|jst if u.last_login_at else '-' }}</td>
+            <td><a href="/admin/users/{{ u.id }}" class="btn btn-sm btn-outline">詳細</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

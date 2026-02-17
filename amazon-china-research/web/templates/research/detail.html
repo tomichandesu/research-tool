@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}リサーチ #{{ job.id }} - {{ job.keyword }}{% endblock %}
+
+{% block content %}
+<h1>リサーチ: {{ job.keyword }}</h1>
+<a href="/research/history" class="btn btn-sm btn-outline">&larr; 履歴</a>
+
+<div class="card mt-1">
+    <dl class="dl-horizontal">
+        <dt>モード</dt>
+        <dd>
+            {% if job.mode == 'auto' %}
+            <span class="badge badge-admin">オート</span>
+            （最大{{ job.auto_max_keywords }}キーワード）
+            {% else %}
+            <span class="badge badge-member">シングル</span>
+            {% endif %}
+        </dd>
+        <dt>ステータス</dt>
+        <dd>
+            <span class="badge badge-{{ job.status }}" id="job-status">
+                {%- if job.status == 'pending' -%}順番待ち
+                {%- elif job.status == 'running' -%}リサーチ中
+                {%- elif job.status == 'completed' -%}完了
+                {%- elif job.status == 'failed' -%}エラー
+                {%- else -%}{{ job.status }}{%- endif -%}
+            </span>
+            {% if job.status == 'pending' %}
+            <span style="color: #666; font-size: 0.9em; margin-left: 0.5em;">まもなくリサーチが開始されます。このままお待ちください。</span>
+            {% endif %}
+        </dd>
+        <dt>進捗</dt>
+        <dd>
+            <div class="progress-bar">
+                <div class="progress-fill" id="job-progress" style="width: {{ job.progress_pct }}%">
+                    {{ job.progress_pct }}%
+                </div>
+            </div>
+            <span id="job-message">{{ job.progress_message or '' }}</span>
+        </dd>
+        <dt>作成日時</dt>
+        <dd>{{ job.created_at|jst }}</dd>
+        {% if job.started_at %}
+        <dt>開始日時</dt>
+        <dd>{{ job.started_at|jst }}</dd>
+        {% endif %}
+        {% if job.completed_at %}
+        <dt>完了日時</dt>
+        <dd>{{ job.completed_at|jst }}</dd>
+        {% endif %}
+    </dl>
+</div>
+
+{% if job.status == 'completed' and summary %}
+<div class="card mt-1">
+    <h2>リサーチ結果</h2>
+
+    {% if summary.candidates_count == 0 %}
+    {% set reasons = summary.filter_reasons if summary.filter_reasons else [] %}
+    <div style="background: {% if summary.total_searched > 0 %}#e3f2fd{% else %}#fff3cd{% endif %}; border-left: 4px solid {% if summary.total_searched > 0 %}#42a5f5{% else %}#ffc107{% endif %}; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+        <strong style="color: {% if summary.total_searched > 0 %}#1565c0{% else %}#856404{% endif %}; font-size: 1.1em;">
+            {% if summary.total_searched > 0 %}リサーチ完了 - 候補なし{% else %}リサーチ結果なし{% endif %}
+        </strong>
+        <p style="margin: 0.5rem 0 0 0;">
+            {% if summary.total_searched > 0 %}
+            {{ summary.total_searched }}件の商品を調査しましたが、フィルタ条件に合う候補は見つかりませんでした。
+            {% else %}
+            このキーワードでは候補商品が見つかりませんでした。
+            {% endif %}
+            別のキーワードをお試しください。
+        </p>
+
+        {% if reasons %}
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1);">
+            <strong style="font-size: 1em;">除外理由の内訳（学習用）:</strong>
+            <div style="margin-top: 0.5rem;">
+                {% for r in reasons %}
+                <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;">
+                    <div style="font-weight: bold; font-size: 0.95em; margin-bottom: 4px;">
+                        {{ r.icon }} {{ r.label }}: {{ r.count }}件除外
+                        {% if r.keywords %}
+                        <span style="font-weight: normal; color: #666; font-size: 0.85em;">
+                            （{{ r.keywords | join(', ') }}）
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if r.reason %}
+                    <div style="color: #555; font-size: 0.85em; line-height: 1.6; padding-left: 4px; border-left: 3px solid #e0e0e0; margin-left: 2px;">
+                        {{ r.reason }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="stats-grid">
+        {% if summary.mode == 'auto' %}
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.keywords_researched }}</div>
+            <div class="stat-label">リサーチ済みキーワード数</div>
+        </div>
+        {% endif %}
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.total_searched }}</div>
+            <div class="stat-label">調査商品数</div>
+        </div>
+        {% if summary.pass_count is defined %}
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.pass_count }}</div>
+            <div class="stat-label">フィルタ通過</div>
+        </div>
+        {% endif %}
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.candidates_count }}</div>
+            <div class="stat-label">候補数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ summary.score }}</div>
+            <div class="stat-label">スコア{% if summary.mode == 'auto' %}（平均）{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="mt-1">
+        {% if job.result_html_path %}
+        <a href="/research/{{ job.id }}/download/html" class="btn btn-primary">HTMLダウンロード</a>
+        {% endif %}
+        {% if job.result_excel_path %}
+        <a href="/research/{{ job.id }}/download/excel" class="btn btn-primary">Excelダウンロード</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if job.status == 'failed' %}
+<div class="card mt-1" style="border-left: 4px solid #d32f2f;">
+    <h2 style="color: #d32f2f;">エラー内容</h2>
+    <div style="white-space: pre-wrap; line-height: 1.8; color: #333;">{{ job.error_message }}</div>
+    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+        <form method="post" action="/research/new" style="display: inline;">
+            <input type="hidden" name="keyword" value="{{ job.keyword }}">
+            <input type="hidden" name="mode" value="{{ job.mode }}">
+            {% if job.mode == 'auto' %}
+            <input type="hidden" name="auto_max_keywords" value="{{ job.auto_max_keywords }}">
+            {% endif %}
+            <button class="btn btn-primary" type="submit">「{{ job.keyword }}」で再実行</button>
+        </form>
+        <a href="/research/new" class="btn btn-outline">別のキーワードで検索</a>
+    </div>
+</div>
+{% endif %}
+
+{% if job.status in ('pending', 'running') %}
+<div class="mt-1">
+    <form method="post" action="/research/{{ job.id }}/cancel" style="display: inline;"
+          onsubmit="return confirm('リサーチを停止しますか？')">
+        <button class="btn btn-sm" style="background: #d32f2f; color: #fff; border: none; cursor: pointer;">
+            停止
+        </button>
+    </form>
+</div>
+<script>
+// Request notification permission on page load
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+(function poll() {
+    var statusLabels = {pending: '順番待ち', running: 'リサーチ中', completed: '完了', failed: 'エラー'};
+    fetch('/research/{{ job.id }}/status')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('job-status').textContent = statusLabels[data.status] || data.status;
+            document.getElementById('job-status').className = 'badge badge-' + data.status;
+            document.getElementById('job-progress').style.width = data.progress_pct + '%';
+            document.getElementById('job-progress').textContent = data.progress_pct + '%';
+            document.getElementById('job-message').textContent = data.progress_message;
+            if (data.status === 'completed' || data.status === 'failed') {
+                // Browser notification
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    var msg = data.status === 'completed'
+                        ? '「{{ job.keyword }}」のリサーチが完了しました'
+                        : '「{{ job.keyword }}」のリサーチでエラーが発生しました';
+                    new Notification('リサーチツール', { body: msg });
+                }
+                location.reload();
+            } else {
+                setTimeout(poll, 5000);
+            }
+        })
+        .catch(() => setTimeout(poll, 10000));
+})();
+</script>
+{% endif %}
+{% endblock %}

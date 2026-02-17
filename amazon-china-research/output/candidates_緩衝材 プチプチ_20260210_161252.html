@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "緩衝材 プチプチ", "generated_at": "2026-02-10 16:12:52", "products": [{"amazon": {"asin": "B0D7HJNR96", "title": "エアー緩衝材 梱包材 引っ越し エアパッキン ポンプ ハンドポンプ付き20cm×12cm 衝撃吸収材 自由にカット 隙間埋め空気緩衝材 すき間埋め 梱包 省スペース包装資材，150個大粒", "price": 2099, "image_url": "https://m.media-amazon.com/images/I/61nJ-qtutAL._AC_SX679_.jpg", "bsr": 9420, "category": "文房具・オフィス用品", "review_count": 36, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0D7HJNR96", "rating": 4.2, "seller_name": "Ufriandz", "variation_count": 5, "dimensions": [25.0, 16.0, 4.0], "weight_kg": 0.5}, "estimated_monthly_sales": 100, "estimated_monthly_revenue": 209900, "candidates": [{"alibaba": {"price_cny": 13.53, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01lHVCEa21WNwZ7wE7v_!!2565606992-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/635457013625.html", "shop_name": null, "shop_url": "https://shop5606992.1688.com/", "min_order": 1, "title": "気泡柱ガス柱袋巻材卸売り空気柱宅配便梱包防振気泡袋緩衝包装袋気泡柱"}, "orb_similarity": 0.1111, "hist_similarity": 0.9793, "combined_score": 0.632, "profit": {"amazon_price": 2099, "cost_1688_jpy": 311, "shipping": 115, "customs": 42, "referral_fee": 314, "fba_fee": 318, "total_cost": 1155, "profit": 944, "profit_rate": 0.4497379704621248, "is_profitable": true, "profit_rate_percentage": 45.0}}, {"alibaba": {"price_cny": 4.38, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01t0jYqT1q3ZcZDGul7_!!2212746645440-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/657699463004.html", "shop_name": null, "shop_url": "https://shop5440869.1688.com/", "min_order": 1, "title": "使い捨てフェイスタオル大ロール卸売 美容院フェイスタオル 洗顔タオル コットンソフトタオル 純綿100%洗顔タオル"}, "orb_similarity": 0.006, "hist_similarity": 0.9871, "combined_score": 0.5947, "profit": {"amazon_price": 2099, "cost_1688_jpy": 100, "shipping": 115, "customs": 21, "referral_fee": 314, "fba_fee": 318, "total_cost": 917, "profit": 1182, "profit_rate": 0.5631252977608385, "is_profitable": true, "profit_rate_percentage": 56.3}}, {"alibaba": {"price_cny": 13.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN010IEX5n23Q66TIDTgR_!!2242427249-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/596289843570.html", "shop_name": null, "shop_url": "https://shop2427249.1688.com/", "min_order": 1, "title": "ナイロン増粘気柱ロール Qianhe 直接供給物流緩衝包装耐圧性と耐衝撃性エクスプレス特殊バブル充填"}, "orb_similarity": 0.0121, "hist_similarity": 0.8452, "combined_score": 0.5119, "profit": {"amazon_price": 2099, "cost_1688_jpy": 319, "shipping": 115, "customs": 43, "referral_fee": 314, "fba_fee": 318, "total_cost": 1164, "profit": 935, "profit_rate": 0.4454502143878037, "is_profitable": true, "profit_rate_percentage": 44.5}}, {"alibaba": {"price_cny": 1.42, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HBHpjF1Q69wS37mO2_!!2211960481926-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/991855555448.html", "shop_name": null, "shop_url": "https://shop4819263.1688.com/", "min_order": 1, "title": "超厚猫砂袋猫厕所专用清洁铲屎垃圾袋抽绳收口连卷宠物加厚拾便器"}, "orb_similarity": 0.006, "hist_similarity": 0.2783, "combined_score": 0.1694, "profit": {"amazon_price": 2099, "cost_1688_jpy": 32, "shipping": 115, "customs": 14, "referral_fee": 314, "fba_fee": 318, "total_cost": 839, "profit": 1260, "profit_rate": 0.6002858504049547, "is_profitable": true, "profit_rate_percentage": 60.0}}, {"alibaba": {"price_cny": 11.25, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01uYZZMM23YLHuC7HZW_!!957707267-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/545304818948.html", "shop_name": null, "shop_url": null, "min_order": 30, "title": "気泡柱気柱コイル材空気入り防振気泡袋を厚くして、宅配便の転倒防止緩衝包装気柱袋メーカー"}, "orb_similarity": 0.0091, "hist_similarity": 0.0731, "combined_score": 0.0475, "profit": {"amazon_price": 2099, "cost_1688_jpy": 258, "shipping": 115, "customs": 37, "referral_fee": 314, "fba_fee": 318, "total_cost": 1095, "profit": 1004, "profit_rate": 0.4783230109575989, "is_profitable": true, "profit_rate_percentage": 47.8}}, {"alibaba": {"price_cny": 43.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01uYZZMM23YLHuC7HZW_!!957707267-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1013336536691.html", "shop_name": null, "shop_url": null, "min_order": 30, "title": "气泡柱袋快递专用气柱卷包装汽柱袋充气柱包装袋防撞气柱袋防震"}, "orb_similarity": 0.0091, "hist_similarity": 0.0731, "combined_score": 0.0475, "profit": {"amazon_price": 2099, "cost_1688_jpy": 1000, "shipping": 115, "customs": 111, "referral_fee": 314, "fba_fee": 318, "total_cost": 1934, "profit": 165, "profit_rate": 0.0786088613625536, "is_profitable": true, "profit_rate_percentage": 7.9}}, {"alibaba": {"price_cny": 12.49, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01LCOxNz1w4qKXA5D0X_!!2214627236255-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/685564691115.html", "shop_name": null, "shop_url": "https://shop7236255.1688.com/", "min_order": 5, "title": "エアバブルロール卸売 300m 物流用エアロールフィルム 耐衝撃・防振エアバブルフィルムロール 緩衝ナイロンエアバブルロール"}, "orb_similarity": 0.0091, "hist_similarity": 0.0388, "combined_score": 0.0269, "profit": {"amazon_price": 2099, "cost_1688_jpy": 287, "shipping": 115, "customs": 40, "referral_fee": 314, "fba_fee": 318, "total_cost": 1128, "profit": 971, "profit_rate": 0.4626012386850881, "is_profitable": true, "profit_rate_percentage": 46.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

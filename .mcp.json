@@ -1,0 +1,120 @@
+{
+  "mcpServers": {
+    "taisun-proxy": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["dist/proxy-mcp/server.js"],
+      "disabled": false,
+      "description": "TAISUN Proxy MCP (single entrypoint). Router+Memory+Chrome skills+Skillize+Supervisor.",
+      "category": "system"
+    },
+    "youtube": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/Users/matsumototoshihiko/mcp-youtube/dist/index.js"],
+      "disabled": false,
+      "description": "YouTube downloader - download subtitles from YouTube videos",
+      "category": "media"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "disabled": false,
+      "description": "Context7 - Up-to-date documentation for LLMs. Fetches current docs and code examples to prevent hallucinated APIs.",
+      "category": "documentation"
+    },
+    "gpt-researcher": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "gpt-researcher-mcp", "gpt-researcher-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      },
+      "disabled": false,
+      "description": "GPT Researcher - Autonomous deep research agent. Performs comprehensive web research, validates sources, generates citation-backed reports.",
+      "category": "research"
+    },
+    "figma": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--figma-api-key=${FIGMA_API_KEY}", "--stdio"],
+      "disabled": false,
+      "description": "Figma MCP - Access Figma designs for AI-powered code generation. Provides layout, components, and style information.",
+      "category": "design"
+    },
+    "qdrant": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL:-http://localhost:6333}",
+        "COLLECTION_NAME": "${QDRANT_COLLECTION_NAME:-taisun_memory}",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "disabled": false,
+      "description": "Qdrant MCP - Vector database for semantic search and RAG. Stores embeddings for long-term memory and knowledge retrieval.",
+      "category": "database"
+    },
+    "puppeteer": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "disabled": false,
+      "description": "Puppeteer MCP - Browser automation, screenshots, form filling, element clicks, JavaScript execution, console log monitoring.",
+      "category": "browser-automation"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "disabled": false,
+      "description": "Playwright MCP (Microsoft Official) - Browser automation via accessibility tree, cross-browser testing, modern SPA support.",
+      "category": "browser-automation"
+    },
+    "chroma": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["chroma-mcp"],
+      "env": {
+        "CHROMA_PERSISTENCE_PATH": "./.chroma",
+        "EMBEDDING_FUNCTION": "default"
+      },
+      "disabled": false,
+      "description": "Chroma MCP - Vector database for persistent AI memory. 75% token reduction, 97% storage reduction, 30x query performance.",
+      "category": "memory"
+    },
+    "n8n-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@czlonkowski/n8n-mcp"],
+      "disabled": false,
+      "description": "n8n MCP - AI workflow builder. Access 1,084 n8n nodes (537 core + 547 community). Natural language workflow construction.",
+      "category": "automation"
+    },
+    "mcp-memory-service": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-memory-service"],
+      "env": {
+        "MCP_MAX_RESPONSE_CHARS": "30000"
+      },
+      "disabled": false,
+      "description": "Memory Service MCP - Automatic context memory for AI. 75% token reduction, graph DB with 30x query performance.",
+      "category": "memory"
+    },
+    "amazon-marketplace": {
+      "type": "stdio",
+      "command": "C:/Program Files/Microsoft/jdk-17.0.18.8-hotspot/bin/java.exe",
+      "args": [
+        "-jar",
+        "C:/Users/tomic/amazon-marketplace-mcp-server-by-cdata/target/CDataMCP-jar-with-dependencies.jar",
+        "C:/Users/tomic/amazon-marketplace-mcp-server-by-cdata/amazon-marketplace.prp"
+      ],
+      "disabled": false,
+      "description": "Amazon Marketplace MCP - Query Amazon Seller data via CData JDBC. Requires CData driver license and Amazon credentials.",
+      "category": "ecommerce"
+    }
+  }
+}

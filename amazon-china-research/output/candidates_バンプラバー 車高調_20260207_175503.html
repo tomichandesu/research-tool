@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "バンプラバー 車高調", "generated_at": "2026-02-07 17:55:03", "products": [{"amazon": {"asin": "B0FLQ32FX3", "title": "ルボナリエ ラバースペーサー 2個セット 車高調整用 スプリングゴム 2個 セット (レッド C 27mm)", "price": 1880, "image_url": "https://m.media-amazon.com/images/I/61LQw7vwvzL._AC_SX679_.jpg", "bsr": 23609, "category": "車＆バイク", "review_count": 9, "is_fba": true, "product_url": "https://www.amazon.co.jp/dp/B0FLQ32FX3", "rating": 4.2, "seller_name": "四十代目夢時★適格請求書発行事業者★【商標登録第6197809号】", "variation_count": 2, "dimensions": [10.0, 10.0, 1.0], "weight_kg": 0.5}, "estimated_monthly_sales": 46, "estimated_monthly_revenue": 86480, "candidates": [{"alibaba": {"price_cny": 9.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01KNJNCt1ogqHc2xnCS_!!2216630175255-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/795945553478.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "メーカー直販赤色自動車ダンパー緩衝ゴム免震スプリング緩衝ゴム自動車強力緩衝器改造"}, "profit": {"amazon_price": 1880, "cost_1688_jpy": 218, "shipping": 115, "customs": 33, "referral_fee": 282, "fba_fee": 318, "total_cost": 1018, "profit": 862, "profit_rate": 0.45851063829787236, "is_profitable": true, "profit_rate_percentage": 45.9}}, {"alibaba": {"price_cny": 9.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01uw1KC91XWuLKc5Yb7_!!2206616932932-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/958660431524.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "厂家直销汽车改装红色弹簧避震胶 缓冲器减震器减震胶 缓冲避震胶"}, "profit": {"amazon_price": 1880, "cost_1688_jpy": 227, "shipping": 115, "customs": 34, "referral_fee": 282, "fba_fee": 318, "total_cost": 1028, "profit": 852, "profit_rate": 0.4531914893617021, "is_profitable": true, "profit_rate_percentage": 45.3}}, {"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01R2q5BE1u3LdCfgLvI_!!2213337335981-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/676254036874.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "自動車は赤いスプリングの防振ゴムの緩衝器のダンパーのダンパーの緩衝ゴムの防振ゴムのスプリングのクッションを改造します。"}, "profit": {"amazon_price": 1880, "cost_1688_jpy": 230, "shipping": 115, "customs": 34, "referral_fee": 282, "fba_fee": 318, "total_cost": 1031, "profit": 849, "profit_rate": 0.45159574468085106, "is_profitable": true, "profit_rate_percentage": 45.2}}, {"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Aqus6c22eSgLkiLqs_!!2211265607145-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/691292519037.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "自動車ダンパーamt赤色緩衝ゴム免震スプリング緩衝ゴムパッド高シャシーメーカー直販"}, "profit": {"amazon_price": 1880, "cost_1688_jpy": 230, "shipping": 115, "customs": 34, "referral_fee": 282, "fba_fee": 318, "total_cost": 1031, "profit": 849, "profit_rate": 0.45159574468085106, "is_profitable": true, "profit_rate_percentage": 45.2}}, {"alibaba": {"price_cny": 20.0, "image_url": "https://cbu01.alicdn.com/img/ibank/22527831767_1000966143.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/630794592344.html", "shop_name": null, "shop_url": null, "min_order": null, "title": "メーカーはAMT自動車のスプリングクッションを供給しています。"}, "profit": {"amazon_price": 1880, "cost_1688_jpy": 460, "shipping": 115, "customs": 57, "referral_fee": 282, "fba_fee": 318, "total_cost": 1291, "profit": 589, "profit_rate": 0.31329787234042555, "is_profitable": true, "profit_rate_percentage": 31.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

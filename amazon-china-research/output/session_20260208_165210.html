@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Research Session Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.dashboard{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.dashboard h1{font-size:22px;color:#1a1a2e;margin-bottom:12px}
+.dashboard .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:16px}
+.stat-card{background:#f8f9fa;border-radius:8px;padding:16px;text-align:center}
+.stat-card .label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-card .value{font-size:24px;font-weight:bold;color:#1a1a2e}
+.top-keywords{font-size:13px;color:#666;margin-top:12px}
+.top-keywords span{display:inline-block;background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:12px;margin:2px 4px;font-size:12px}
+
+.kw-section{background:#fff;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden}
+.kw-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee;user-select:none}
+.kw-header:hover{background:#f8f9fa}
+.kw-header .arrow{transition:transform .2s;font-size:12px;color:#888}
+.kw-header .arrow.open{transform:rotate(90deg)}
+.kw-header .kw-name{font-size:16px;font-weight:bold;color:#1a1a2e;flex:1}
+.kw-header .kw-meta{font-size:12px;color:#888}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:bold;margin-right:8px}
+.badge-3{background:#c8e6c9;color:#2e7d32}
+.badge-2{background:#fff9c4;color:#f57f17}
+.badge-1{background:#ffccbc;color:#bf360c}
+.badge-0{background:#f5f5f5;color:#999}
+.kw-body{display:none;padding:16px 20px}
+.kw-body.open{display:block}
+
+.product-card{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #f0f0f0}
+.product-card:last-child{border-bottom:none}
+.amazon-img{width:100px;height:100px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:13px;color:#333;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:18px;font-weight:bold;color:#B12704;margin-bottom:4px}
+.amazon-details{font-size:11px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:10px}
+.amazon-link{font-size:11px;color:#0066c0;text-decoration:none}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.candidate{border:2px solid #e0e0e0;border-radius:8px;padding:8px;width:150px;background:#fff}
+.candidate:hover{border-color:#90CAF9;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.candidate-img{width:100%;height:120px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-price{font-size:14px;font-weight:bold;color:#c62828;margin:6px 0 2px}
+.candidate-profit{font-size:12px;font-weight:bold;margin-bottom:2px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:10px;color:#888;margin-bottom:2px}
+.candidate-link{font-size:10px;color:#1565C0;text-decoration:none;word-break:break-all}
+.candidate-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="dashboard" id="dashboard"></div>
+<div id="kwSections"></div>
+
+<script>
+var DATA = JSON.parse('{"generated_at": "2026-02-08 16:52:10", "stats": {"total_keywords": 3, "total_candidates": 4, "elapsed_seconds": 600, "elapsed_str": "0時間10分00秒"}, "keywords": [{"keyword": "うさぎ チモシー入れ", "products": [{"amazon": {"asin": "B002", "title": "うさぎ チモシー入れ 木製", "price": 2480, "image_url": "", "url": "https://amazon.co.jp/dp/B002", "rating": 4.5, "review_count": 200, "sales_rank": 300, "category": "ペット"}, "estimated_monthly_sales": 150, "estimated_monthly_revenue": 372000, "candidates": [{"alibaba": {"title": "兔子草架", "price_cny": 20.0, "url": "https://1688.com/2", "image_url": ""}, "profit": {"profit": 1200, "profit_rate": 0.48, "profit_rate_percentage": 48.0, "selling_price": 2480, "total_cost": 1280}}]}, {"amazon": {"asin": "B003", "title": "チモシー入れ ケージ固定", "price": 1580, "image_url": "", "url": "https://amazon.co.jp/dp/B003", "rating": 4.0, "review_count": 80, "sales_rank": 700, "category": "ペット"}, "estimated_monthly_sales": 80, "estimated_monthly_revenue": 126400, "candidates": [{"alibaba": {"title": "兔子食盆", "price_cny": 12.0, "url": "https://1688.com/3", "image_url": ""}, "profit": {"profit": 600, "profit_rate": 0.38, "profit_rate_percentage": 38.0, "selling_price": 1580, "total_cost": 980}}]}], "score": 62.5, "total_searched": 50, "pass_count": 5}, {"keyword": "ハムスター 回し車", "products": [{"amazon": {"asin": "B004", "title": "ハムスター 回し車 静音", "price": 1280, "image_url": "", "url": "https://amazon.co.jp/dp/B004", "rating": 4.3, "review_count": 300, "sales_rank": 200, "category": "ペット"}, "estimated_monthly_sales": 200, "estimated_monthly_revenue": 256000, "candidates": [{"alibaba": {"title": "仓鼠跑轮", "price_cny": 8.0, "url": "https://1688.com/4", "image_url": ""}, "profit": {"profit": 500, "profit_rate": 0.39, "profit_rate_percentage": 39.0, "selling_price": 1280, "total_cost": 780}}]}], "score": 55.0, "total_searched": 45, "pass_count": 4}, {"keyword": "インコ おもちゃ", "products": [{"amazon": {"asin": "B001", "title": "インコ おもちゃ 木製", "price": 1980, "image_url": "", "url": "https://amazon.co.jp/dp/B001", "rating": 4.2, "review_count": 150, "sales_rank": 500, "category": "ペット"}, "estimated_monthly_sales": 100, "estimated_monthly_revenue": 198000, "candidates": [{"alibaba": {"title": "鹦鹉玩具", "price_cny": 15.0, "url": "https://1688.com/1", "image_url": ""}, "profit": {"profit": 800, "profit_rate": 0.4, "profit_rate_percentage": 40.0, "selling_price": 1980, "total_cost": 1180}}]}], "score": 45.2, "total_searched": 48, "pass_count": 3}]}');
+
+function init() {
+  renderDashboard();
+  renderKeywordSections();
+}
+
+function renderDashboard() {
+  var s = DATA.stats;
+  var totalProducts = 0;
+  DATA.keywords.forEach(function(kw) { totalProducts += kw.products.length; });
+
+  var topKws = DATA.keywords.slice(0, 5);
+  var topHtml = topKws.map(function(kw) {
+    return '<span>' + esc(kw.keyword) + ' (' + kw.score + ')</span>';
+  }).join('');
+
+  document.getElementById('dashboard').innerHTML =
+    '<h1>Auto Research Session Report</h1>' +
+    '<div class="stats-grid">' +
+      '<div class="stat-card"><div class="label">KW</div><div class="value">' + s.total_keywords + '</div></div>' +
+      '<div class="stat-card"><div class="label">Candidate KW</div><div class="value">' + DATA.keywords.length + '</div></div>' +
+      '<div class="stat-card"><div class="label">Products</div><div class="value">' + totalProducts + '</div></div>' +
+      '<div class="stat-card"><div class="label">Time</div><div class="value">' + esc(s.elapsed_str) + '</div></div>' +
+    '</div>' +
+    '<div class="top-keywords">Top: ' + topHtml + '</div>' +
+    '<div style="font-size:12px;color:#999;margin-top:8px">' + esc(DATA.generated_at) + '</div>';
+}
+
+function renderKeywordSections() {
+  var container = document.getElementById('kwSections');
+  DATA.keywords.forEach(function(kwData, ki) {
+    container.appendChild(buildKwSection(kwData, ki));
+  });
+}
+
+function buildKwSection(kwData, ki) {
+  var section = document.createElement('div');
+  section.className = 'kw-section';
+
+  var badge = scoreBadge(kwData.score);
+  var headerHtml =
+    '<div class="kw-header" onclick="toggleSection(this)">' +
+      '<span class="arrow">&#9654;</span>' +
+      badge +
+      '<span class="kw-name">' + esc(kwData.keyword) + '</span>' +
+      '<span class="kw-meta">Score: ' + kwData.score +
+        ' | ' + kwData.pass_count + '/' + kwData.total_searched +
+        ' | ' + kwData.products.length + ' items</span>' +
+    '</div>';
+
+  var bodyHtml = '<div class="kw-body">';
+  kwData.products.forEach(function(prod, pi) {
+    bodyHtml += buildProductCard(prod, pi);
+  });
+  bodyHtml += '</div>';
+
+  section.innerHTML = headerHtml + bodyHtml;
+  return section;
+}
+
+function buildProductCard(prod, pi) {
+  var am = prod.amazon;
+  var html = '<div class="product-card">';
+  html += '<img class="amazon-img" src="' + esc(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + esc(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>Review: ' + am.review_count + '</span>';
+  if (am.rating) html += '<span>&#9733;' + am.rating + '</span>';
+  html += '<span>' + (am.is_fba ? 'FBA' : 'FBM') + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>Monthly: ' + num(prod.estimated_monthly_sales) + 'units</span>';
+  html += '<span>&yen;' + num(prod.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + esc(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon &rarr;</a>';
+
+  // Candidates
+  html += '<div class="candidates-row">';
+  (prod.candidates || []).forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage || 0;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + esc(cand.alibaba.image_url) + '" onerror="this.style.display=\'none\'">';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '&yuan;</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">&yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">Cost: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.product_url) html += '<a class="candidate-link" href="' + esc(cand.alibaba.product_url) + '" target="_blank">1688 &rarr;</a>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '</div></div>';
+  return html;
+}
+
+function toggleSection(header) {
+  var arrow = header.querySelector('.arrow');
+  var body = header.nextElementSibling;
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    arrow.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    arrow.classList.add('open');
+  }
+}
+
+function scoreBadge(score) {
+  if (score >= 30) return '<span class="badge badge-3">&#9733;&#9733;&#9733;</span>';
+  if (score >= 15) return '<span class="badge badge-2">&#9733;&#9733;</span>';
+  if (score > 0)  return '<span class="badge badge-1">&#9733;</span>';
+  return '<span class="badge badge-0">&#9734;</span>';
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

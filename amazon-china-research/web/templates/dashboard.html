@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード{% endblock %}
+
+{% block content %}
+<h1>ダッシュボード</h1>
+
+{% if user.plan_expires_at %}
+    {% set now_ts = now().timestamp() %}
+    {% set exp_ts = user.plan_expires_at.timestamp() %}
+    {% set remaining_days = ((exp_ts - now_ts) / 86400) | int %}
+    {% if remaining_days <= 30 and remaining_days >= 0 %}
+    <div class="card" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 20px; margin-bottom: 16px;">
+        <strong>&#x26A0; プランの有効期限が近づいています</strong>
+        <p style="margin: 4px 0 0;">残り <strong>{{ remaining_days }}</strong> 日です（{{ user.plan_expires_at|jst }} まで）。
+            更新については管理者にお問い合わせください。
+        </p>
+    </div>
+    {% endif %}
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ user.candidate_count_monthly }} / {{ user.candidate_limit_monthly }}</div>
+        <div class="stat-label">今月のリサーチ数</div>
+    </div>
+    <div class="stat-card">
+        {% if service_label %}
+        <div style="font-size: 0.8em; color: #888; margin-bottom: 4px;">{{ service_label }}</div>
+        {% endif %}
+        <div class="stat-value">
+            <span class="badge {{ plan_info.color }}">{{ plan_info.label }}</span>
+            {% if user.plan_billing == 'annual' %}
+            <span style="font-size: 0.5em; color: #666; margin-left: 4px;">（年額）</span>
+            {% endif %}
+        </div>
+        <div class="stat-label">現在のプラン</div>
+        {% if user.plan_expires_at %}
+        {% set now_ts = now().timestamp() %}
+        {% set exp_ts = user.plan_expires_at.timestamp() %}
+        {% set remaining_days = ((exp_ts - now_ts) / 86400) | int %}
+        <div style="margin-top: 8px; font-size: 0.9em; color: #555;">
+            <div>有効期限: <strong>{{ user.plan_expires_at|jst }}</strong></div>
+            <div>残り: <strong {% if remaining_days <= 7 %}style="color: #dc3545;"{% elif remaining_days <= 30 %}style="color: #ffc107;"{% endif %}>{{ remaining_days }}日</strong></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-1">
+    <a href="/research/new" class="btn btn-primary">新規リサーチ</a>
+</div>
+
+{% if recent_jobs %}
+<div class="card mt-1">
+    <h2>リサーチ履歴</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>キーワード</th>
+                <th>ステータス</th>
+                <th>候補数</th>
+                <th>作成日時</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for j in recent_jobs %}
+            <tr>
+                <td>{{ j.keyword }}</td>
+                <td>
+                    <span class="badge badge-{{ j.status }}">
+                        {%- if j.status == 'pending' -%}順番待ち
+                        {%- elif j.status == 'running' -%}リサーチ中
+                        {%- elif j.status == 'completed' -%}完了
+                        {%- elif j.status == 'failed' -%}エラー
+                        {%- else -%}{{ j.status }}{%- endif -%}
+                    </span>
+                </td>
+                <td>
+                    {% if j.result_summary %}
+                    {% set s = j.result_summary | from_json %}
+                    {{ s.candidates_count if s else '-' }}
+                    {% else %}-{% endif %}
+                </td>
+                <td>{{ j.created_at|jst }}</td>
+                <td><a href="/research/{{ j.id }}" class="btn btn-sm btn-outline">詳細</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card mt-1">
+    <p>リサーチ履歴がありません。「新規リサーチ」から始めましょう。</p>
+</div>
+{% endif %}
+{% endblock %}

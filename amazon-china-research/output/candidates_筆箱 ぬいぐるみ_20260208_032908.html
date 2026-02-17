@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "筆箱 ぬいぐるみ", "generated_at": "2026-02-08 03:29:08", "products": [{"amazon": {"asin": "B0GGYHBDGQ", "title": "リラ ぬいぐるみ クマ ペンケース ペン付き 文房具 コリラ グッズ 筆箱 ふわふわ 可愛い 収納袋 大容量 通学 子供 誕生日 クリスマス プレゼント 男女兼用 (B) [並行輸入品]", "price": 2499, "image_url": "https://m.media-amazon.com/images/I/41PW7IdHPkL._AC_SY450_.jpg", "bsr": 6546, "category": "文房具・オフィス用品", "review_count": 3, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0GGYHBDGQ", "rating": 3.3, "seller_name": "東方あやかし", "variation_count": 2, "dimensions": [24.7, 19.5, 2.5], "weight_kg": 0.5}, "estimated_monthly_sales": 126, "estimated_monthly_revenue": 314874, "candidates": [{"alibaba": {"price_cny": 8.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN018iuSnz1VtgprbQsw0_!!1698702711-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/991569516134.html", "shop_name": null, "shop_url": "https://shop8702711.1688.com/", "min_order": 5, "title": "可爱软萌卡通小熊毛绒公仔笔袋大容量收纳文具铅笔袋女生礼物玩具"}, "orb_similarity": 0.1873, "hist_similarity": 0.9905, "combined_score": 0.6692, "profit": {"amazon_price": 2499, "cost_1688_jpy": 193, "shipping": 115, "customs": 30, "referral_fee": 374, "fba_fee": 318, "total_cost": 1081, "profit": 1418, "profit_rate": 0.5674269707883153, "is_profitable": true, "profit_rate_percentage": 56.7}}, {"alibaba": {"price_cny": 8.23, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CaMwyb1JyvxY59hqs_!!2215710691098-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/923311093872.html", "shop_name": null, "shop_url": "https://shop9823925.1688.com/", "min_order": 2, "title": "かわいい熊のぬいぐるみの筆袋の高い顔の値の熊の兄の熊の妹の学生の文房具は大容量のプレゼントのおもちゃを収納します。"}, "orb_similarity": 0.0228, "hist_similarity": 0.985, "combined_score": 0.6001, "profit": {"amazon_price": 2499, "cost_1688_jpy": 189, "shipping": 115, "customs": 30, "referral_fee": 374, "fba_fee": 318, "total_cost": 1077, "profit": 1422, "profit_rate": 0.5690276110444178, "is_profitable": true, "profit_rate_percentage": 56.9}}, {"alibaba": {"price_cny": 8.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01GowvOh2780z8oFjqc_!!2910137751-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/923768796715.html", "shop_name": null, "shop_url": "https://shop0137751.1688.com/", "min_order": 2, "title": "可爱软萌卡通小熊毛绒公仔笔袋大容量收纳文具铅笔袋女生礼物玩具"}, "orb_similarity": 0.0203, "hist_similarity": 0.985, "combined_score": 0.5991, "profit": {"amazon_price": 2499, "cost_1688_jpy": 204, "shipping": 115, "customs": 31, "referral_fee": 374, "fba_fee": 318, "total_cost": 1094, "profit": 1405, "profit_rate": 0.5622248899559824, "is_profitable": true, "profit_rate_percentage": 56.2}}, {"alibaba": {"price_cny": 13.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01nvVjSx1MkgV8o50np_!!2220318511473-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/984618011760.html", "shop_name": null, "shop_url": "https://shop1147340.1688.com/", "min_order": 1, "title": "新款小熊毛绒玩具大熊抱枕玩偶儿童睡觉公仔娃娃礼物跨境批发女生"}, "orb_similarity": 0.0138, "hist_similarity": 0.9828, "combined_score": 0.5952, "profit": {"amazon_price": 2499, "cost_1688_jpy": 312, "shipping": 115, "customs": 42, "referral_fee": 374, "fba_fee": 318, "total_cost": 1216, "profit": 1283, "profit_rate": 0.513405362144858, "is_profitable": true, "profit_rate_percentage": 51.3}}, {"alibaba": {"price_cny": 9.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01YMrVrN1rrmbnUmxG2_!!947855685-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/818994674956.html", "shop_name": null, "shop_url": null, "min_order": 1, "title": "かわいい学生はペンの文房具の漫画の筆筒を詰めます。"}, "orb_similarity": 0.0025, "hist_similarity": 0.9825, "combined_score": 0.5905, "profit": {"amazon_price": 2499, "cost_1688_jpy": 218, "shipping": 115, "customs": 33, "referral_fee": 374, "fba_fee": 318, "total_cost": 1110, "profit": 1389, "profit_rate": 0.5558223289315727, "is_profitable": true, "profit_rate_percentage": 55.6}}, {"alibaba": {"price_cny": 3.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01zdKfqz1IDvjACju9k_!!2215802770860-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1003657248709.html", "shop_name": null, "shop_url": "https://shop0860115.1688.com/", "min_order": 1, "title": "毛绒公仔熊定制企业IP吉祥物定做LOGO刺绣卡通玩偶来图来样制作"}, "orb_similarity": 0.0278, "hist_similarity": 0.9175, "combined_score": 0.5616, "profit": {"amazon_price": 2499, "cost_1688_jpy": 69, "shipping": 115, "customs": 18, "referral_fee": 374, "fba_fee": 318, "total_cost": 942, "profit": 1557, "profit_rate": 0.6230492196878752, "is_profitable": true, "profit_rate_percentage": 62.3}}, {"alibaba": {"price_cny": 1.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01epUbf71otD3fRb3fk_!!2217885855282-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/896205019288.html", "shop_name": null, "shop_url": "https://shop5528256.1688.com/", "min_order": 1, "title": "100枚の写実的な子猫シールネット赤猫かわいい猫装飾携帯ケースノート装飾小貼り画"}, "orb_similarity": 0.0051, "hist_similarity": 0.7153, "combined_score": 0.4312, "profit": {"amazon_price": 2499, "cost_1688_jpy": 41, "shipping": 115, "customs": 15, "referral_fee": 374, "fba_fee": 318, "total_cost": 910, "profit": 1589, "profit_rate": 0.6358543417366946, "is_profitable": true, "profit_rate_percentage": 63.6}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01n4yzZr1Hf7d2XdZCH_!!2221351910784-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1007388104887.html", "shop_name": null, "shop_url": "https://shop1078490.1688.com/", "min_order": 1, "title": "跨境新款 Dancing Dragon Plush 跳舞无牙仔毛绒玩具 玩偶"}, "orb_similarity": 0.0101, "hist_similarity": 0.6492, "combined_score": 0.3936, "profit": {"amazon_price": 2499, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 374, "fba_fee": 318, "total_cost": 1591, "profit": 908, "profit_rate": 0.3633453381352541, "is_profitable": true, "profit_rate_percentage": 36.3}}, {"alibaba": {"price_cny": 1.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01jbss8625Sxtgtc32W_!!2220523297526-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/995682834544.html", "shop_name": null, "shop_url": "https://shop3297526.1688.com/", "min_order": 1, "title": "新款卡通秋冬毛茸茸少女马尾大肠发圈甜美ins风发绳"}, "orb_similarity": 0.0051, "hist_similarity": 0.5555, "combined_score": 0.3353, "profit": {"amazon_price": 2499, "cost_1688_jpy": 43, "shipping": 115, "customs": 15, "referral_fee": 374, "fba_fee": 318, "total_cost": 912, "profit": 1587, "profit_rate": 0.6350540216086434, "is_profitable": true, "profit_rate_percentage": 63.5}}, {"alibaba": {"price_cny": 13.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01iCi3Dl1XNI3ZWqOKC_!!2218396842911-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/999060867637.html", "shop_name": null, "shop_url": "https://shop4291165.1688.com/", "min_order": 1, "title": "卡通防寒轻松保暖可爱围连帽玩偶批发熊毛绒玩具大头U型枕公仔"}, "orb_similarity": 0.0051, "hist_similarity": 0.2001, "combined_score": 0.1221, "profit": {"amazon_price": 2499, "cost_1688_jpy": 310, "shipping": 115, "customs": 42, "referral_fee": 374, "fba_fee": 318, "total_cost": 1214, "profit": 1285, "profit_rate": 0.5142056822729092, "is_profitable": true, "profit_rate_percentage": 51.4}}]}, {"amazon": {"asin": "B0FKXH4HR6", "title": "いちご しろくま ぬいぐるみ ペンケース 文房具袋 収納袋 大容量 ストラップ 子供リラックマ 二次元 グッズ 人気 可愛い 男女兼用 贈り物 記念品 プレゼント 日系 癒し 柔らかさ お祝い ブサイク 誕生日 抱き枕 (白いリラックマ)", "price": 2760, "image_url": "https://m.media-amazon.com/images/I/51qDxBbfsAL._AC_SX342_SY445_QL70_ML2_.jpg", "bsr": 37281, "category": "ホビー", "review_count": 7, "is_fba": false, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0FKXH4HR6", "rating": 3.4, "seller_name": "スターライトショップ（Starlight Shop）\n （12件の評価）", "variation_count": 2, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 32, "estimated_monthly_revenue": 88320, "candidates": [{"alibaba": {"price_cny": 8.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN018iuSnz1VtgprbQsw0_!!1698702711-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/991569516134.html", "shop_name": null, "shop_url": "https://shop8702711.1688.com/", "min_order": 5, "title": "可爱软萌卡通小熊毛绒公仔笔袋大容量收纳文具铅笔袋女生礼物玩具"}, "orb_similarity": 0.2642, "hist_similarity": 0.9816, "combined_score": 0.6946, "profit": {"amazon_price": 2760, "cost_1688_jpy": 193, "shipping": 115, "customs": 30, "referral_fee": 414, "fba_fee": 0, "total_cost": 803, "profit": 1957, "profit_rate": 0.7090579710144927, "is_profitable": true, "profit_rate_percentage": 70.9}}, {"alibaba": {"price_cny": 8.23, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CaMwyb1JyvxY59hqs_!!2215710691098-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/923311093872.html", "shop_name": null, "shop_url": "https://shop9823925.1688.com/", "min_order": 2, "title": "かわいい熊のぬいぐるみの筆袋の高い顔の値の熊の兄の熊の妹の学生の文房具は大容量のプレゼントのおもちゃを収納します。"}, "orb_similarity": 0.0323, "hist_similarity": 0.9663, "combined_score": 0.5927, "profit": {"amazon_price": 2760, "cost_1688_jpy": 189, "shipping": 115, "customs": 30, "referral_fee": 414, "fba_fee": 0, "total_cost": 799, "profit": 1961, "profit_rate": 0.7105072463768116, "is_profitable": true, "profit_rate_percentage": 71.1}}, {"alibaba": {"price_cny": 8.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01GowvOh2780z8oFjqc_!!2910137751-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/923768796715.html", "shop_name": null, "shop_url": "https://shop0137751.1688.com/", "min_order": 2, "title": "可爱软萌卡通小熊毛绒公仔笔袋大容量收纳文具铅笔袋女生礼物玩具"}, "orb_similarity": 0.0296, "hist_similarity": 0.9664, "combined_score": 0.5917, "profit": {"amazon_price": 2760, "cost_1688_jpy": 204, "shipping": 115, "customs": 31, "referral_fee": 414, "fba_fee": 0, "total_cost": 816, "profit": 1944, "profit_rate": 0.7043478260869566, "is_profitable": true, "profit_rate_percentage": 70.4}}, {"alibaba": {"price_cny": 7.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Z01T9q1Hf7d4HEJRJ_!!2221351910784-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1006126918162.html", "shop_name": null, "shop_url": "https://shop1078490.1688.com/", "min_order": 1, "title": "跨境新款 pou 毛绒周边玩具公仔 我的宠物外星人呆萌公仔娃娃"}, "orb_similarity": 0.027, "hist_similarity": 0.965, "combined_score": 0.5898, "profit": {"amazon_price": 2760, "cost_1688_jpy": 161, "shipping": 115, "customs": 27, "referral_fee": 414, "fba_fee": 0, "total_cost": 767, "profit": 1993, "profit_rate": 0.7221014492753624, "is_profitable": true, "profit_rate_percentage": 72.2}}, {"alibaba": {"price_cny": 13.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01nvVjSx1MkgV8o50np_!!2220318511473-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/984618011760.html", "shop_name": null, "shop_url": "https://shop1147340.1688.com/", "min_order": 1, "title": "新款小熊毛绒玩具大熊抱枕玩偶儿童睡觉公仔娃娃礼物跨境批发女生"}, "orb_similarity": 0.0069, "hist_similarity": 0.9644, "combined_score": 0.5814, "profit": {"amazon_price": 2760, "cost_1688_jpy": 312, "shipping": 115, "customs": 42, "referral_fee": 414, "fba_fee": 0, "total_cost": 938, "profit": 1822, "profit_rate": 0.6601449275362319, "is_profitable": true, "profit_rate_percentage": 66.0}}, {"alibaba": {"price_cny": 10.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01tNkcTI2JyTmH4dQcp_!!2218823069490-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1006941321797.html", "shop_name": null, "shop_url": "https://shop0694900.1688.com/", "min_order": 1, "title": "跨境趴姿肥宅小熊毛绒玩具可爱大尺寸伴睡抱枕生日礼物送女生玩偶"}, "orb_similarity": 0.0035, "hist_similarity": 0.9658, "combined_score": 0.5809, "profit": {"amazon_price": 2760, "cost_1688_jpy": 239, "shipping": 115, "customs": 35, "referral_fee": 414, "fba_fee": 0, "total_cost": 856, "profit": 1904, "profit_rate": 0.6898550724637681, "is_profitable": true, "profit_rate_percentage": 69.0}}, {"alibaba": {"price_cny": 12.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011gToQl1TX85WcxIzo_!!2214051702391-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/983955696646.html", "shop_name": null, "shop_url": "https://shop7023914.1688.com/", "min_order": 3, "title": "新款小熊毛绒玩具大熊抱枕玩偶儿童睡觉公仔娃娃礼物跨境批发女生"}, "orb_similarity": 0.0034, "hist_similarity": 0.9643, "combined_score": 0.5799, "profit": {"amazon_price": 2760, "cost_1688_jpy": 287, "shipping": 115, "customs": 40, "referral_fee": 414, "fba_fee": 0, "total_cost": 910, "profit": 1850, "profit_rate": 0.6702898550724637, "is_profitable": true, "profit_rate_percentage": 67.0}}, {"alibaba": {"price_cny": 100.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01TLgZKV1aKUShqI0WH_!!2218356993311-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/974252052357.html", "shop_name": null, "shop_url": "https://shop3311546.1688.com/", "min_order": 1, "title": "充气卡通气模定制大型发光花朵爱心云朵热气球毛绒卡皮巴拉吉祥物"}, "orb_similarity": 0.0189, "hist_similarity": 0.2219, "combined_score": 0.1407, "profit": {"amazon_price": 2760, "cost_1688_jpy": 2300, "shipping": 115, "customs": 241, "referral_fee": 414, "fba_fee": 0, "total_cost": 3185, "profit": -425, "profit_rate": -0.1539855072463768, "is_profitable": false, "profit_rate_percentage": -15.4}}, {"alibaba": {"price_cny": 13.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01iCi3Dl1XNI3ZWqOKC_!!2218396842911-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/999060867637.html", "shop_name": null, "shop_url": "https://shop4291165.1688.com/", "min_order": 1, "title": "卡通防寒轻松保暖可爱围连帽玩偶批发熊毛绒玩具大头U型枕公仔"}, "orb_similarity": 0.0054, "hist_similarity": 0.2141, "combined_score": 0.1306, "profit": {"amazon_price": 2760, "cost_1688_jpy": 310, "shipping": 115, "customs": 42, "referral_fee": 414, "fba_fee": 0, "total_cost": 936, "profit": 1824, "profit_rate": 0.6608695652173913, "is_profitable": true, "profit_rate_percentage": 66.1}}, {"alibaba": {"price_cny": 13.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ftoaOH1ZJHpa4I66I_!!2217076533173-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1007171883260.html", "shop_name": null, "shop_url": "https://shop6533173.1688.com/", "min_order": 1, "title": "连帽轻松公仔保暖围大头可爱卡通玩偶防寒批发U型枕熊毛绒玩具"}, "orb_similarity": 0.0054, "hist_similarity": 0.2141, "combined_score": 0.1306, "profit": {"amazon_price": 2760, "cost_1688_jpy": 310, "shipping": 115, "customs": 42, "referral_fee": 414, "fba_fee": 0, "total_cost": 936, "profit": 1824, "profit_rate": 0.6608695652173913, "is_profitable": true, "profit_rate_percentage": 66.1}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

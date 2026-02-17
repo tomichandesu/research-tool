@@ -1,0 +1,539 @@
+# Amazon-1688 中国製品リサーチシステム 設定ファイル
+# Version: 2.0.0
+
+# フィルタ設定
+filter:
+  min_price: 1500              # 最低価格（円）
+  max_price: 4000              # 最高価格（円）
+  max_reviews: 20              # 最大レビュー数
+  max_rating: 4.2              # 最大評価（4.2以下OK、4.3以上は除外）
+  min_bsr: 5000                # 最小BSRランキング（大カテゴリ）- これ以上売れている商品は対象外
+  max_bsr: 50000               # 最大BSRランキング（デフォルトフォールバック用）
+  max_variations: 5            # 最大バリエーション数（6個以上は対象外）
+  min_profit_rate: 20          # 最低利益率（%）- これ以下は除外
+
+  # カテゴリ別BSR合格ライン（FBA/FBM分離）
+  category_bsr_thresholds:
+    home_kitchen:        { fba: 80000, fbm: 200000 }
+    drugstore:           { fba: 50000, fbm: 120000 }
+    automotive:          { fba: 45000, fbm: 90000 }
+    pet_supplies:        { fba: 40000, fbm: 90000 }
+    toys:                { fba: 50000, fbm: 100000 }
+    office:              { fba: 50000, fbm: 100000 }
+    diy_tools:           { fba: 50000, fbm: 100000 }
+    sports:              { fba: 35000, fbm: 80000 }
+    industrial:          { fba: 20000, fbm: 50000 }
+    pc:                  { fba: 20000, fbm: 50000 }
+    musical_instruments: { fba: 12000, fbm: 30000 }
+    default:             { fba: 80000, fbm: 200000 }
+
+  # 除外カテゴリ（大カテゴリー名に含まれる場合NG）
+  excluded_categories:
+    # ファッション・アパレル系
+    - "ファッション"
+    - "服&ファッション小物"
+    - "シューズ&バッグ"
+    - "ジュエリー"
+    - "腕時計"
+    - "バッグ"
+    - "靴"
+    # ビューティー系
+    - "ビューティー"
+    - "コスメ"
+    - "化粧品"
+    # 飲食系
+    - "食品・飲料・お酒"
+    - "食品"
+    # ベビー・キッズ（食品衛生法）
+    - "ベビー&マタニティ"
+    # おもちゃは小学生以上・大人向けならOK（乳幼児向けはキーワードで除外）
+    # その他規制対象
+    - "大型家電"
+    - "本"
+    - "ミュージック"
+    - "DVD"
+    - "ゲーム"
+
+  # 禁止キーワード（商品タイトルに含まれる場合NG）
+  prohibited_keywords:
+    # ファッション・アクセサリー
+    - "ピアス"
+    - "イヤリング"
+    - "ネックレス"
+    - "ブレスレット"
+    - "指輪"
+    - "ダイヤ"
+    - "宝石"
+    - "ジュエリー"
+    - "バッグ"
+    - "カバン"
+    - "鞄"
+    - "ポーチ"
+    - "財布"
+    - "帽子"
+    - "靴"
+    - "サンダル"
+    - "スニーカー"
+    - "Tシャツ"
+    - "パンツ"
+    - "スカート"
+    - "ドレス"
+    - "コート"
+    - "ジャケット"
+    # 飲食系
+    - "食品"
+    - "お菓子"
+    - "飲料"
+    - "サプリ"
+    - "サプリメント"
+    - "プロテイン"
+    - "ビタミン"
+    # 食品衛生法対象（口に触れるもの）
+    - "食器"
+    - "お皿"
+    - "茶碗"
+    - "コップ"
+    - "グラス"
+    - "マグカップ"
+    - "箸"
+    - "スプーン"
+    - "フォーク"
+    - "ナイフ"
+    - "弁当箱"
+    - "水筒"
+    - "哺乳瓶"
+    - "おしゃぶり"
+    - "歯固め"
+    - "ベビー食器"
+    # PSE対象（電気用品）
+    - "充電器"
+    - "ACアダプター"
+    - "電源アダプター"
+    - "コンセント"
+    - "延長コード"
+    - "電源タップ"
+    - "モバイルバッテリー"
+    - "バッテリー充電"
+    - "USB充電"
+    - "ワイヤレス充電"
+    # 乳幼児向けおもちゃ（食品衛生法）
+    - "乳児"
+    - "幼児"
+    - "0歳"
+    - "1歳"
+    - "2歳"
+    - "3歳"
+    - "ベビー玩具"
+    - "赤ちゃん用"
+    - "ベビー用"
+    - "知育玩具"
+    # 日本製（中国仕入れ不可）
+    - "日本製"
+    - "MADE IN JAPAN"
+    - "国産"
+    - "日本産"
+    - "日本国内生産"
+    - "日本国内製造"
+    # アダルト系（禁止）
+    - "アダルト"
+    - "大人のおもちゃ"
+    - "セクシー"
+    - "ランジェリー"
+    - "下着"
+    - "コスプレ衣装"
+    # その他規制対象
+    - "医療"
+    - "薬"
+    - "レーザー"
+    - "電子タバコ"
+    - "vape"
+    - "CBD"
+    # 季節性商品（防寒・冬物）
+    - "防寒"
+    - "暖房"
+    - "ヒーター"
+    - "こたつ"
+    - "湯たんぽ"
+    - "ネックウォーマー"
+    - "イヤーマフ"
+    - "耳当て"
+    - "裏起毛"
+    - "発熱"
+    - "電気毛布"
+    - "ホットカーペット"
+    - "ストーブ"
+    - "ファンヒーター"
+    - "加湿器"
+    - "雪かき"
+    - "除雪"
+    - "霜取り"
+    - "結露"
+    - "スキー"
+    - "スノーボード"
+    - "スノー"
+    # 季節性商品（冷却・夏物）
+    - "冷却"
+    - "冷感"
+    - "冷風"
+    - "涼感"
+    - "ひんやり"
+    - "扇風機"
+    - "サーキュレーター"
+    - "熱中症"
+    - "日焼け止め"
+    - "日傘"
+    - "虫除け"
+    - "虫よけ"
+    - "蚊取り"
+    - "殺虫"
+    - "蚊帳"
+    - "浮き輪"
+    - "ビーチ"
+    - "かき氷"
+    - "制汗"
+    - "氷嚢"
+    - "クールマット"
+    # 季節性商品（年中行事・イベント）
+    - "クリスマス"
+    - "ハロウィン"
+    - "バレンタイン"
+    - "ホワイトデー"
+    - "ひな祭り"
+    - "雛人形"
+    - "五月人形"
+    - "こいのぼり"
+    - "鯉のぼり"
+    - "七夕"
+    - "正月"
+    - "お年玉"
+    - "年賀"
+    - "門松"
+    - "しめ縄"
+    - "おせち"
+    - "鏡餅"
+    - "福袋"
+    # 季節性商品（花粉・入卒シーズン）
+    - "花粉"
+    - "入学"
+    - "入園"
+    - "卒業"
+    - "卒園"
+    - "ランドセル"
+
+  # 除外ブランド（タイトルに含まれる場合NG）
+  # 偽物リスク・著作権・商標権のあるブランド
+  excluded_brands:
+    # スポーツブランド
+    - "Nike"
+    - "ナイキ"
+    - "adidas"
+    - "アディダス"
+    - "PUMA"
+    - "プーマ"
+    - "New Balance"
+    - "ニューバランス"
+    - "UNDER ARMOUR"
+    - "アンダーアーマー"
+    - "Reebok"
+    - "リーボック"
+    - "ASICS"
+    - "アシックス"
+    - "MIZUNO"
+    - "ミズノ"
+    - "FILA"
+    - "フィラ"
+    - "Converse"
+    - "コンバース"
+    - "VANS"
+    - "バンズ"
+    # ラグジュアリー・ファッションブランド
+    - "GUCCI"
+    - "グッチ"
+    - "Louis Vuitton"
+    - "ルイヴィトン"
+    - "CHANEL"
+    - "シャネル"
+    - "HERMES"
+    - "エルメス"
+    - "PRADA"
+    - "プラダ"
+    - "COACH"
+    - "コーチ"
+    - "Burberry"
+    - "バーバリー"
+    - "Supreme"
+    - "シュプリーム"
+    - "THE NORTH FACE"
+    - "ノースフェイス"
+    - "Patagonia"
+    - "パタゴニア"
+    - "Columbia"
+    - "コロンビア"
+    - "RALPH LAUREN"
+    - "ラルフローレン"
+    - "Calvin Klein"
+    - "カルバンクライン"
+    - "Tommy Hilfiger"
+    - "トミーヒルフィガー"
+    # キャラクター・著作権
+    - "Disney"
+    - "ディズニー"
+    - "ミッキー"
+    - "ミニー"
+    - "プーさん"
+    - "アナと雪の女王"
+    - "Marvel"
+    - "マーベル"
+    - "アベンジャーズ"
+    - "スパイダーマン"
+    - "DC Comics"
+    - "バットマン"
+    - "スーパーマン"
+    - "POKEMON"
+    - "ポケモン"
+    - "ピカチュウ"
+    - "Nintendo"
+    - "任天堂"
+    - "マリオ"
+    - "ゼルダ"
+    - "Sanrio"
+    - "サンリオ"
+    - "ハローキティ"
+    - "キティちゃん"
+    - "すみっコぐらし"
+    - "リラックマ"
+    - "ドラえもん"
+    - "ワンピース"
+    - "鬼滅の刃"
+    - "呪術廻戦"
+    - "進撃の巨人"
+    - "ドラゴンボール"
+    - "NARUTO"
+    - "ナルト"
+    - "スヌーピー"
+    - "ムーミン"
+    - "トミカ"
+    - "プラレール"
+    - "LEGO"
+    - "レゴ"
+    - "Barbie"
+    - "バービー"
+    - "Star Wars"
+    - "スターウォーズ"
+    - "ジブリ"
+    - "トトロ"
+    # 文具・日用品ブランド
+    - "KOKUYO"
+    - "コクヨ"
+    - "PILOT"
+    - "パイロット"
+    - "三菱鉛筆"
+    - "uni"
+    - "ZEBRA"
+    - "ゼブラ"
+    - "ぺんてる"
+    - "Pentel"
+    - "STAEDTLER"
+    - "ステッドラー"
+    - "FABER-CASTELL"
+    - "ファーバーカステル"
+    # 家電・テックブランド
+    - "Apple"
+    - "アップル"
+    - "iPhone"
+    - "iPad"
+    - "Samsung"
+    - "サムスン"
+    - "SONY"
+    - "ソニー"
+    - "Panasonic"
+    - "パナソニック"
+    - "SHARP"
+    - "シャープ"
+    - "TOSHIBA"
+    - "東芝"
+    - "Dyson"
+    - "ダイソン"
+    - "BOSE"
+    - "ボーズ"
+    # その他有名ブランド
+    - "IKEA"
+    - "イケア"
+    - "無印良品"
+    - "MUJI"
+    - "Nitori"
+    - "ニトリ"
+    - "DAISO"
+    - "ダイソー"
+    - "3M"
+    - "Coleman"
+    - "コールマン"
+
+# 販売価格設定
+pricing:
+  competitor_adjustment: -10   # ライバル価格からの調整（円）
+
+# 画像マッチング設定
+matcher:
+  phash_threshold: 5           # pHashの許容差分（レガシー）
+  orb_min_similarity: 0.10     # ORB最低類似度 (0.0-1.0)
+  orb_garbage_threshold: 0.005 # ORBゴミ除去閾値（これ未満は明らかに別商品）
+  orb_n_features: 500          # ORB特徴点数
+  orb_ratio_threshold: 0.75    # Lowe's ratio test閾値
+  min_price_cny: 0.5           # 1688最低価格（元）- これ以下はスキップ
+  max_profit_rate: 999         # 無効化（利益率による候補除外を行わない）
+  max_candidates: 10           # HTML候補表示数
+
+# 利益計算設定
+profit:
+  exchange_rate: 23.0          # 1元 = X円（現在レート+1円）
+  china_domestic_shipping: 2   # 中国国内送料（元）
+  agent_fee_rate: 0.03         # 代行手数料率（3%）
+  international_shipping_per_kg: 10  # 国際送料（元/kg）※容積重量で計算
+  customs_rate: 0.10           # 関税率（10%）
+  default_dimensions:          # デフォルト寸法（cm）
+    length: 20
+    width: 15
+    height: 10
+  default_weight: 0.5          # デフォルト重量（kg）
+
+# ブラウザ設定
+browser:
+  headless: true               # ヘッドレスモード
+  request_delay: 1.0           # リクエスト間隔（秒）
+  timeout: 60000               # タイムアウト（ミリ秒）
+
+# 出力設定
+output:
+  csv_encoding: "cp932"         # CSV文字コード（日本語Excel対応）
+  log_level: "INFO"
+
+# 検索設定
+search:
+  max_pages: 1                 # 検索ページ数（1ページ目のみ）
+  alibaba_results: 30          # 1688検索結果取得数
+  max_concurrent_keywords: 5   # 並列処理するキーワード数
+  organic_only: true           # スポンサー広告を除外（オーガニックのみ）
+
+# BSR→販売数推定テーブル
+sales_estimation:
+  table:
+    - bsr_max: 3000
+      units_min: 300
+    - bsr_max: 10000
+      units_min: 100
+    - bsr_max: 30000
+      units_min: 30
+    - bsr_max: 100000
+      units_min: 10
+    - bsr_max: 300000
+      units_min: 3
+    - bsr_max: 1000000
+      units_min: 1
+  category_coefficients:
+    home_kitchen:
+      a: 5000
+      b: 0.75
+    toys:
+      a: 3500
+      b: 0.80
+    beauty:
+      a: 8000
+      b: 0.70
+    electronics:
+      a: 2500
+      b: 0.85
+    default:
+      a: 4000
+      b: 0.78
+
+# FBA手数料テーブル（サイズ・重量別）
+fba_fees:
+  # 小型（25×18×2cm以下、250g以下）
+  small:
+    max_dimensions_sum: 45     # 縦+横+高さの合計(cm)
+    max_weight: 0.25           # kg
+    fee: 288
+  # 標準サイズ
+  standard:
+    - name: "standard_1"
+      max_dimensions_sum: 68   # 35+30+3.3
+      max_weight: 1.0
+      fee: 318
+    - name: "standard_2"
+      max_dimensions_sum: 60
+      max_weight: 2.0
+      fee: 434
+    - name: "standard_3"
+      max_dimensions_sum: 80
+      max_weight: 5.0
+      fee: 514
+    - name: "standard_4"
+      max_dimensions_sum: 100
+      max_weight: 9.0
+      fee: 603
+  # 大型サイズ
+  large:
+    - name: "large_1"
+      max_dimensions_sum: 60
+      max_weight: 2.0
+      fee: 589
+    - name: "large_2"
+      max_dimensions_sum: 80
+      max_weight: 5.0
+      fee: 712
+    - name: "large_3"
+      max_dimensions_sum: 100
+      max_weight: 10.0
+      fee: 815
+    - name: "large_4"
+      max_dimensions_sum: 120
+      max_weight: 15.0
+      fee: 975
+    - name: "large_5"
+      max_dimensions_sum: 140
+      max_weight: 20.0
+      fee: 1020
+    - name: "large_6"
+      max_dimensions_sum: 160
+      max_weight: 25.0
+      fee: 1100
+    - name: "large_7"
+      max_dimensions_sum: 180
+      max_weight: 30.0
+      fee: 1532
+    - name: "large_8"
+      max_dimensions_sum: 200
+      max_weight: 40.0
+      fee: 1756
+  # デフォルト（不明な場合）
+  default: 434
+
+# 自動リサーチ設定
+auto:
+  state_file: "output/auto_state.json"   # 状態保存先
+  max_depth: 3                            # BFS探索の最大深さ
+  max_suggests_per_seed: 10               # シードあたりの最大サジェスト数
+  max_big_keywords_per_expand: 5          # 1回の展開で追加するビッグKWの最大数
+  keyword_cooldown_days: 7                # 同じキーワードの再リサーチ間隔（日）
+  max_keywords: 80                        # 最大KW数（0=無制限）
+  max_duration_minutes: 60                # 最大時間（分、0=無制限）
+  dry_run_threshold: 5                    # 連続N回ゼロヒットで枝刈り
+  max_title_keywords: 3                   # タイトルから抽出する新シードの上限
+
+# カテゴリ別紹介料率（Amazon販売手数料）
+# 価格帯による段階制を反映（1500円以上の商品向け）
+referral_rates:
+  toys_hobbies: 0.10           # おもちゃ・ホビー
+  diy_tools: 0.15              # DIY・工具
+  home_kitchen: 0.15           # ホーム＆キッチン
+  electronics: 0.08            # エレクトロニクス
+  electronics_accessories: 0.10 # 家電アクセサリ
+  beauty: 0.10                 # ビューティー（1500円超）
+  sports: 0.10                 # スポーツ＆アウトドア
+  pet_supplies: 0.15           # ペット用品
+  garden: 0.15                 # ガーデン
+  office: 0.15                 # 文房具・オフィス用品
+  automotive: 0.10             # 車＆バイク
+  baby: 0.15                   # ベビー＆マタニティ
+  default: 0.15                # その他

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "250系", "generated_at": "2026-02-10 17:29:54", "products": [{"amazon": {"asin": "B0F7QM7Q9F", "title": "トヨタ プリウス 60系 TV テレビキャンセラー ノア ヴォクシー 90系 ランドクルーザー 250系 ナビキャンセラー テレビキット ナビキット 走行中tv視聴 ナビ操作可能 ディスプレーオーディオ 便利 カプラーON 車種専用 アクセサリー カスタムパーツ 1set", "price": 3980, "image_url": "https://m.media-amazon.com/images/I/61+CaxOzNmL._SX522_.jpg", "bsr": 34864, "category": "車＆バイク", "review_count": 8, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0F7QM7Q9F", "rating": 4.1, "seller_name": "HUIWEILAI JP", "variation_count": 1, "dimensions": [14.0, 10.1, 3.2], "weight_kg": 0.5}, "estimated_monthly_sales": 34, "estimated_monthly_revenue": 135320, "candidates": [{"alibaba": {"price_cny": 0.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ZEd2nf1doD0QcxC3q_!!4256463782-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/586429739350.html", "shop_name": null, "shop_url": "https://shop6463782.1688.com/", "min_order": 2, "title": "306600 306300拖车制动控制器线束适用于16-222款GLE GLS AMG"}, "orb_similarity": 0.0441, "hist_similarity": 0.9996, "combined_score": 0.6174, "profit": {"amazon_price": 3980, "cost_1688_jpy": 18, "shipping": 115, "customs": 13, "referral_fee": 597, "fba_fee": 318, "total_cost": 1107, "profit": 2873, "profit_rate": 0.7218592964824121, "is_profitable": true, "profit_rate_percentage": 72.2}}, {"alibaba": {"price_cny": 9.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01whzSvg2BSOy24R9D4_!!2890358337-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/567888417430.html", "shop_name": null, "shop_url": "https://shop0358337.1688.com/", "min_order": 1, "title": "海賊船電源rm 1000xモジュールラインcpu 8pモジュールラインcpuモジュールライン"}, "orb_similarity": 0.0378, "hist_similarity": 0.9993, "combined_score": 0.6147, "profit": {"amazon_price": 3980, "cost_1688_jpy": 218, "shipping": 115, "customs": 33, "referral_fee": 597, "fba_fee": 318, "total_cost": 1333, "profit": 2647, "profit_rate": 0.6650753768844221, "is_profitable": true, "profit_rate_percentage": 66.5}}, {"alibaba": {"price_cny": 24.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01RoDHTJ1THYR5qVeLA_!!2212647092357-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/660250020152.html", "shop_name": null, "shop_url": "https://shop9235796.1688.com/", "min_order": 1, "title": "3Dプリンタ1メートル延長線4本の断材検査線延長ケーブルはEnder3/CR10シリーズに適している"}, "orb_similarity": 0.0237, "hist_similarity": 0.9991, "combined_score": 0.609, "profit": {"amazon_price": 3980, "cost_1688_jpy": 552, "shipping": 115, "customs": 66, "referral_fee": 597, "fba_fee": 318, "total_cost": 1710, "profit": 2270, "profit_rate": 0.5703517587939698, "is_profitable": true, "profit_rate_percentage": 57.0}}, {"alibaba": {"price_cny": 890.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Lx21ab2B2kmF3j5ux_!!2217759098281-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/796135939281.html", "shop_name": null, "shop_url": "https://shop9098281.1688.com/", "min_order": 1, "title": "トヨタ車のワンタッチスタート、携帯電話による車の遠隔操作、キーレスエントリー、工場直販に適しています。"}, "orb_similarity": 0.0237, "hist_similarity": 0.9991, "combined_score": 0.6089, "profit": {"amazon_price": 3980, "cost_1688_jpy": 20470, "shipping": 115, "customs": 2058, "referral_fee": 597, "fba_fee": 318, "total_cost": 24218, "profit": -20238, "profit_rate": -5.084924623115578, "is_profitable": false, "profit_rate_percentage": -508.5}}, {"alibaba": {"price_cny": 45.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01cfH8681dJytExE7Mr_!!2219773923716-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1000704734989.html", "shop_name": null, "shop_url": "https://shop3923716.1688.com/", "min_order": 1, "title": "95882-C3000 适用于现代索九 Sonata LF 胎压电脑线束"}, "orb_similarity": 0.0216, "hist_similarity": 0.9997, "combined_score": 0.6084, "profit": {"amazon_price": 3980, "cost_1688_jpy": 1046, "shipping": 115, "customs": 116, "referral_fee": 597, "fba_fee": 318, "total_cost": 2269, "profit": 1711, "profit_rate": 0.42989949748743717, "is_profitable": true, "profit_rate_percentage": 43.0}}, {"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01PhI8ia1p5ZkRc5InT_!!2477885309-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/889306850697.html", "shop_name": null, "shop_url": "https://shop7885309.1688.com/", "min_order": 5, "title": "トヨタのフットライトを適用してハーネスの自動ヘッドライトを取り付けて電線の雰囲気ランプを取って電線を取る"}, "orb_similarity": 0.0209, "hist_similarity": 0.9996, "combined_score": 0.6081, "profit": {"amazon_price": 3980, "cost_1688_jpy": 230, "shipping": 115, "customs": 34, "referral_fee": 597, "fba_fee": 318, "total_cost": 1346, "profit": 2634, "profit_rate": 0.6618090452261306, "is_profitable": true, "profit_rate_percentage": 66.2}}, {"alibaba": {"price_cny": 8.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JSkEfO2BSOy2uRLWl_!!2890358337-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/743199282581.html", "shop_name": null, "shop_url": "https://shop0358337.1688.com/", "min_order": 1, "title": "8pin 6 + 2 pci-eオスメス延長線黒色編組ネットワークケーブル18awg全銅線テープ理線櫛"}, "orb_similarity": 0.0207, "hist_similarity": 0.9992, "combined_score": 0.6078, "profit": {"amazon_price": 3980, "cost_1688_jpy": 184, "shipping": 115, "customs": 29, "referral_fee": 597, "fba_fee": 318, "total_cost": 1294, "profit": 2686, "profit_rate": 0.6748743718592964, "is_profitable": true, "profit_rate_percentage": 67.5}}, {"alibaba": {"price_cny": 18.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kNJOPY2CWo7Eu0lVj_!!3102888482-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/648632063988.html", "shop_name": null, "shop_url": "https://shop8884827.1688.com/", "min_order": 1, "title": "車載用 Bluetooth 5.0 AUX ケーブル マイクアダプター ルノー 05-2011 AUX ラジオ対応"}, "orb_similarity": 0.0172, "hist_similarity": 0.9997, "combined_score": 0.6067, "profit": {"amazon_price": 3980, "cost_1688_jpy": 414, "shipping": 115, "customs": 52, "referral_fee": 597, "fba_fee": 318, "total_cost": 1554, "profit": 2426, "profit_rate": 0.6095477386934673, "is_profitable": true, "profit_rate_percentage": 61.0}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01VihUuJ1z9N0eGTuNF_!!3983266671-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/574627750777.html", "shop_name": null, "shop_url": "https://shop3266671.1688.com/", "min_order": 1, "title": "一分四コンピュータケーブルpwm温度制御放熱ファン拡張ケーブルはナイロンネットの筐体をカバーしています。"}, "orb_similarity": 0.0181, "hist_similarity": 0.9974, "combined_score": 0.6057, "profit": {"amazon_price": 3980, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 597, "fba_fee": 318, "total_cost": 1112, "profit": 2868, "profit_rate": 0.7206030150753768, "is_profitable": true, "profit_rate_percentage": 72.1}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kNH8DN29SHhlkcAHD_!!2219382708066-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/895742566595.html", "shop_name": null, "shop_url": "https://shop7080660.1688.com/", "min_order": 1, "title": "自動車電動シート改造スイッチ2モータ調整スイッチ2項目の改造電動シート専用部品"}, "orb_similarity": 0.0151, "hist_similarity": 0.9977, "combined_score": 0.6047, "profit": {"amazon_price": 3980, "cost_1688_jpy": 345, "shipping": 115, "customs": 46, "referral_fee": 597, "fba_fee": 318, "total_cost": 1477, "profit": 2503, "profit_rate": 0.6288944723618091, "is_profitable": true, "profit_rate_percentage": 62.9}}]}, {"amazon": {"asin": "B0DX1GR9KD", "title": "トヨタ ランクル 250系 専用 スクリーンの後ろのトレイ 車内収納ボックス ランドクルーザー 250用 ダッシュボードトレイ コンソールオーガナイザー ランクル250 センターコンソールトレイ 3Dトレイ 小物入れ 収納用品 車内収納 内装 パーツ カー用品 アクセサリー 純正 カスタムパーツ（ランドクルーザー ランクル 250系 2024年-現行）", "price": 1899, "image_url": "https://m.media-amazon.com/images/I/71PK6dXmnbL._AC_SY300_SX300_QL70_ML2_.jpg", "bsr": 28345, "category": "車＆バイク", "review_count": 4, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0DX1GR9KD", "rating": 4.2, "seller_name": "mipicarjp", "variation_count": 1, "dimensions": [30.4, 16.3, 5.4], "weight_kg": 0.5}, "estimated_monthly_sales": 40, "estimated_monthly_revenue": 75960, "candidates": [{"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qbI98Y1Nfw0s9ovs6_!!2213128761598-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/850511748212.html", "shop_name": null, "shop_url": "https://shop9802223.1688.com/", "min_order": 1, "title": "24-25年式トヨタプラド用センタースクリーン収納ボックス、ランドクルーザーLC250車用品改造アクセサリー"}, "orb_similarity": 0.045, "hist_similarity": 1.0, "combined_score": 0.618, "profit": {"amazon_price": 1899, "cost_1688_jpy": 598, "shipping": 115, "customs": 71, "referral_fee": 284, "fba_fee": 318, "total_cost": 1449, "profit": 450, "profit_rate": 0.23696682464454977, "is_profitable": true, "profit_rate_percentage": 23.7}}, {"alibaba": {"price_cny": 25.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01DOFxkb1URSkEQxv7K_!!4121022514-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/846273154960.html", "shop_name": null, "shop_url": "https://shop0225142.1688.com/", "min_order": 1, "title": "24種類のプラドシリカゲルスクリーンボックスの下に収納する物置ケース自動車収納ケース車内仕切りケースに適しています"}, "orb_similarity": 0.045, "hist_similarity": 1.0, "combined_score": 0.618, "profit": {"amazon_price": 1899, "cost_1688_jpy": 575, "shipping": 115, "customs": 69, "referral_fee": 284, "fba_fee": 318, "total_cost": 1424, "profit": 475, "profit_rate": 0.25013164823591366, "is_profitable": true, "profit_rate_percentage": 25.0}}, {"alibaba": {"price_cny": 16.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01lgRx9C1PQwCmcERKg_!!953321836-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/845640712911.html", "shop_name": null, "shop_url": null, "min_order": 10, "title": "24種類のプラドシリコンスクリーン後方収納ボックス自動車収納ボックス陸巡LC250収納ボックスに適しています"}, "orb_similarity": 0.045, "hist_similarity": 1.0, "combined_score": 0.618, "profit": {"amazon_price": 1899, "cost_1688_jpy": 379, "shipping": 115, "customs": 49, "referral_fee": 284, "fba_fee": 318, "total_cost": 1202, "profit": 697, "profit_rate": 0.3670352817272249, "is_profitable": true, "profit_rate_percentage": 36.7}}, {"alibaba": {"price_cny": 22.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01lgRx9C1PQwCmcERKg_!!953321836-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/883433571464.html", "shop_name": null, "shop_url": "https://shop1372593.1688.com/", "min_order": 5, "title": "24種類のプラドシリコンスクリーン後方収納ボックス自動車収納ボックス陸巡LC250収納ボックスに適しています"}, "orb_similarity": 0.045, "hist_similarity": 1.0, "combined_score": 0.618, "profit": {"amazon_price": 1899, "cost_1688_jpy": 506, "shipping": 115, "customs": 62, "referral_fee": 284, "fba_fee": 318, "total_cost": 1346, "profit": 553, "profit_rate": 0.29120589784096895, "is_profitable": true, "profit_rate_percentage": 29.1}}, {"alibaba": {"price_cny": 16.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01sUPWjt2Hv9fQbuikk_!!2209111729212-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1002099584832.html", "shop_name": null, "shop_url": "https://shop9212315.1688.com/", "min_order": 10, "title": "适用于24款普拉多硅胶屏幕后方储物盒汽车收纳盒陆巡LC250收纳盒"}, "orb_similarity": 0.045, "hist_similarity": 1.0, "combined_score": 0.618, "profit": {"amazon_price": 1899, "cost_1688_jpy": 379, "shipping": 115, "customs": 49, "referral_fee": 284, "fba_fee": 318, "total_cost": 1202, "profit": 697, "profit_rate": 0.3670352817272249, "is_profitable": true, "profit_rate_percentage": 36.7}}, {"alibaba": {"price_cny": 40.89, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN019YgdWh2JGVg9dw4AW_!!2213504469394-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/892947855284.html", "shop_name": null, "shop_url": "https://shop4469394.1688.com/", "min_order": 1000, "title": "多功能切菜套装多用途高效率安全卫生切沙拉刀具易收纳厨房小工具"}, "orb_similarity": 0.0106, "hist_similarity": 0.9993, "combined_score": 0.6038, "profit": {"amazon_price": 1899, "cost_1688_jpy": 940, "shipping": 115, "customs": 105, "referral_fee": 284, "fba_fee": 318, "total_cost": 1836, "profit": 63, "profit_rate": 0.03317535545023697, "is_profitable": true, "profit_rate_percentage": 3.3}}, {"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01NeQmpU1CxNI5prte9_!!2201439730147-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/946082611041.html", "shop_name": null, "shop_url": "https://shop9730147.1688.com/", "min_order": 1, "title": "适用于24-25款丰田普拉多屏幕后储物盒硅胶中控仪表台收纳盒用品"}, "orb_similarity": 0.0026, "hist_similarity": 0.9995, "combined_score": 0.6008, "profit": {"amazon_price": 1899, "cost_1688_jpy": 598, "shipping": 115, "customs": 71, "referral_fee": 284, "fba_fee": 318, "total_cost": 1449, "profit": 450, "profit_rate": 0.23696682464454977, "is_profitable": true, "profit_rate_percentage": 23.7}}, {"alibaba": {"price_cny": 50.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN019wCcJc1OTOjIiJZbh_!!2216902781706-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/901567519981.html", "shop_name": null, "shop_url": "https://shop7817060.1688.com/", "min_order": 1, "title": "吉利星願のセンターコンソールの下にある二重層収納ボックスフリップカバーシリコンインテリア収納アクセサリーに適しています。"}, "orb_similarity": 0.0159, "hist_similarity": 0.982, "combined_score": 0.5955, "profit": {"amazon_price": 1899, "cost_1688_jpy": 1150, "shipping": 115, "customs": 126, "referral_fee": 284, "fba_fee": 318, "total_cost": 2073, "profit": -174, "profit_rate": -0.09162717219589257, "is_profitable": false, "profit_rate_percentage": -9.2}}, {"alibaba": {"price_cny": 4.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01k7PoL72ICYjEbpNA4_!!2221583859250-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1016127870146.html", "shop_name": null, "shop_url": "https://shop8592502.1688.com/", "min_order": 1000, "title": "冲压钣金电脑机柜支架外壳 挡板铆钉铆压 电源外壳配件风扇孔散热"}, "orb_similarity": 0.0079, "hist_similarity": 0.9814, "combined_score": 0.592, "profit": {"amazon_price": 1899, "cost_1688_jpy": 92, "shipping": 115, "customs": 20, "referral_fee": 284, "fba_fee": 318, "total_cost": 877, "profit": 1022, "profit_rate": 0.5381779884149552, "is_profitable": true, "profit_rate_percentage": 53.8}}, {"alibaba": {"price_cny": 14.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01MfYWYd1NfvikOfU0F_!!2213128761598-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/699082722750.html", "shop_name": null, "shop_url": "https://shop9802223.1688.com/", "min_order": 1, "title": "極クリプトン009中控無線充シリコンパッド置物収納滑り止め自動車内装改造部品に適用します。"}, "orb_similarity": 0.0106, "hist_similarity": 0.9684, "combined_score": 0.5853, "profit": {"amazon_price": 1899, "cost_1688_jpy": 322, "shipping": 115, "customs": 43, "referral_fee": 284, "fba_fee": 318, "total_cost": 1137, "profit": 762, "profit_rate": 0.40126382306477093, "is_profitable": true, "profit_rate_percentage": 40.1}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

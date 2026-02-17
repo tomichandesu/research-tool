@@ -1,0 +1,29 @@
+# Amazon-1688 中国製品リサーチシステム 依存ライブラリ
+# Version: 1.0.0
+
+# ブラウザ自動化
+playwright>=1.40.0
+
+# 画像処理・ハッシュ
+imagehash>=4.3.1
+Pillow>=10.0.0
+
+# ORB特徴量マッチング
+opencv-python-headless>=4.8.0
+
+# 設定ファイル
+PyYAML>=6.0
+
+# HTTP クライアント
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# テスト
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+
+# データ処理
+dataclasses-json>=0.6.0
+
+# Excel出力
+openpyxl>=3.1.0

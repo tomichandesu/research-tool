@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "左右セット", "generated_at": "2026-02-10 17:00:56", "products": [{"amazon": {"asin": "B09NFSPCFV", "title": "■じゃんけんミラー■ チョキ （ブラック） 左右セット 8mm 正ネジ JK-BK-H", "price": 1750, "image_url": "https://m.media-amazon.com/images/I/616sbZ4jc+L._AC_SX679_.jpg", "bsr": 31219, "category": "車＆バイク", "review_count": 17, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B09NFSPCFV", "rating": 4.0, "seller_name": "バイクパーツMASH", "variation_count": 1, "dimensions": [31.2, 11.7, 5.3], "weight_kg": 0.5}, "estimated_monthly_sales": 37, "estimated_monthly_revenue": 64750, "candidates": [{"alibaba": {"price_cny": 0.65, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01oDYGJB29OADUH1O3S_!!2201242868057-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1001060695407.html", "shop_name": null, "shop_url": "https://shop2868057.1688.com/", "min_order": 3, "title": "伸缩石头剪刀布手海绵食指阅读手势模型泡沫指挥棒手指棒教学教鞭"}, "orb_similarity": 0.0219, "hist_similarity": 0.7794, "combined_score": 0.4764, "profit": {"amazon_price": 1750, "cost_1688_jpy": 14, "shipping": 115, "customs": 12, "referral_fee": 262, "fba_fee": 318, "total_cost": 767, "profit": 983, "profit_rate": 0.5617142857142857, "is_profitable": true, "profit_rate_percentage": 56.2}}, {"alibaba": {"price_cny": 13.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01f8J3sL2F8wiOTFlqp_!!2219631708836-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/957864486511.html", "shop_name": null, "shop_url": "https://shop8836292.1688.com/", "min_order": 1, "title": "摩托车电动车通用后视镜石头手反光镜小牛拳头倒车镜改装九号车"}, "orb_similarity": 0.0183, "hist_similarity": 0.4405, "combined_score": 0.2716, "profit": {"amazon_price": 1750, "cost_1688_jpy": 299, "shipping": 115, "customs": 41, "referral_fee": 262, "fba_fee": 318, "total_cost": 1089, "profit": 661, "profit_rate": 0.3777142857142857, "is_profitable": true, "profit_rate_percentage": 37.8}}, {"alibaba": {"price_cny": 14.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01VWeHcM2F8wiitW2Ss_!!2219631708836-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/938000941334.html", "shop_name": null, "shop_url": "https://shop8836292.1688.com/", "min_order": 1, "title": "オートバイ・電動車両兼用バックミラー、シザーハンドタイプの反射鏡、電動車両用反転ミラー、改造車用、多色"}, "orb_similarity": 0.0148, "hist_similarity": 0.3931, "combined_score": 0.2418, "profit": {"amazon_price": 1750, "cost_1688_jpy": 322, "shipping": 115, "customs": 43, "referral_fee": 262, "fba_fee": 318, "total_cost": 1115, "profit": 635, "profit_rate": 0.3628571428571429, "is_profitable": true, "profit_rate_percentage": 36.3}}, {"alibaba": {"price_cny": 19.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01WxaW5u1dKRD2wwzFN_!!2207664383717-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/885922967865.html", "shop_name": null, "shop_url": "https://shop3717996.1688.com/", "min_order": 5, "title": "電動車のペダル車は反射鏡のオートバイのバックミラーを改造します。"}, "orb_similarity": 0.0105, "hist_similarity": 0.0702, "combined_score": 0.0463, "profit": {"amazon_price": 1750, "cost_1688_jpy": 448, "shipping": 115, "customs": 56, "referral_fee": 262, "fba_fee": 318, "total_cost": 1258, "profit": 492, "profit_rate": 0.28114285714285714, "is_profitable": true, "profit_rate_percentage": 28.1}}, {"alibaba": {"price_cny": 18.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011CxVmi248WacEcp0U_!!2219813227346-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/950608426804.html", "shop_name": null, "shop_url": "https://shop2734620.1688.com/", "min_order": 1, "title": "跨境热销10厘正牙摩托车电动车通用后视镜倒车镜铝合金圆形反光镜"}, "orb_similarity": 0.0137, "hist_similarity": 0.0298, "combined_score": 0.0233, "profit": {"amazon_price": 1750, "cost_1688_jpy": 414, "shipping": 115, "customs": 52, "referral_fee": 262, "fba_fee": 318, "total_cost": 1219, "profit": 531, "profit_rate": 0.30342857142857144, "is_profitable": true, "profit_rate_percentage": 30.3}}, {"alibaba": {"price_cny": 4.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01IAC2Nu1dKtTFwjFLp_!!2216880043718-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/749816519273.html", "shop_name": null, "shop_url": "https://shop1866660.1688.com/", "min_order": 1, "title": "東を指して西を指して結婚式のPU小さな手石はさみ布いいねゲーム挿入ポールおもちゃ銃手人差し指小道具トリック"}, "orb_similarity": 0.0243, "hist_similarity": 0.0226, "combined_score": 0.0232, "profit": {"amazon_price": 1750, "cost_1688_jpy": 112, "shipping": 115, "customs": 22, "referral_fee": 262, "fba_fee": 318, "total_cost": 878, "profit": 872, "profit_rate": 0.4982857142857143, "is_profitable": true, "profit_rate_percentage": 49.8}}, {"alibaba": {"price_cny": 5.2, "image_url": "https://cbu01.alicdn.com/img/ibank/13784209779_2092169221.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/594717754170.html", "shop_name": null, "shop_url": "https://shop9905945.1688.com/", "min_order": 1, "title": "新しいクロスボーダー爆発健康リハビリテーション手袋スポーツトレーニングハーフフィンガーノンスリップ通気性圧力看護手袋卸売"}, "orb_similarity": 0.0275, "hist_similarity": 0.0195, "combined_score": 0.0227, "profit": {"amazon_price": 1750, "cost_1688_jpy": 119, "shipping": 115, "customs": 23, "referral_fee": 262, "fba_fee": 318, "total_cost": 886, "profit": 864, "profit_rate": 0.4937142857142857, "is_profitable": true, "profit_rate_percentage": 49.4}}, {"alibaba": {"price_cny": 8.0, "image_url": "https://cbu01.alicdn.com/img/ibank/12517585627_419059900.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/604122970743.html", "shop_name": null, "shop_url": "https://shop0480212.1688.com/", "min_order": 6, "title": "Enlee恩利山地自転車通用牛角副将死飛車騎乗把握自転車部品装備"}, "orb_similarity": 0.0114, "hist_similarity": 0.0245, "combined_score": 0.0193, "profit": {"amazon_price": 1750, "cost_1688_jpy": 184, "shipping": 115, "customs": 29, "referral_fee": 262, "fba_fee": 318, "total_cost": 959, "profit": 791, "profit_rate": 0.452, "is_profitable": true, "profit_rate_percentage": 45.2}}, {"alibaba": {"price_cny": 4.1, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ctNZlJ1dmpq6gK0Mh_!!2207966343779-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/995995067342.html", "shop_name": null, "shop_url": "https://shop4377962.1688.com/", "min_order": 1, "title": "锅把手防滑支撑架燃气灶煤气灶具防移动固定器锅把支架防滑锅神器"}, "orb_similarity": 0.0069, "hist_similarity": 0.0226, "combined_score": 0.0163, "profit": {"amazon_price": 1750, "cost_1688_jpy": 94, "shipping": 115, "customs": 20, "referral_fee": 262, "fba_fee": 318, "total_cost": 857, "profit": 893, "profit_rate": 0.5102857142857142, "is_profitable": true, "profit_rate_percentage": 51.0}}, {"alibaba": {"price_cny": 14.45, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01mCgxIB1gGGWukTZVp_!!3294924114-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1009333665375.html", "shop_name": null, "shop_url": "https://shop1422650.1688.com/", "min_order": 1, "title": "掠鲨|浮水雷蛙路亚饵钓鱼饵水面系双钩仿生饵硅胶钓鱼雷蛙饵跨境"}, "orb_similarity": 0.0092, "hist_similarity": 0.0123, "combined_score": 0.011, "profit": {"amazon_price": 1750, "cost_1688_jpy": 332, "shipping": 115, "customs": 44, "referral_fee": 262, "fba_fee": 318, "total_cost": 1126, "profit": 624, "profit_rate": 0.3565714285714286, "is_profitable": true, "profit_rate_percentage": 35.7}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

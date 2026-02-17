@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "置物 馬", "generated_at": "2026-02-11 03:33:46", "products": [{"amazon": {"asin": "B0D7X33QF4", "title": "Ｍｉｌａｇｅｔｏ シックなホームスタイリング 優雅な馬の置物 2026年 干支 置き物 コンパクト 午 馬 うま 正月飾り 開運 金彩跳ね午 工芸品 縁起物 インテリア オフィス 車 家 玄関 装飾品, ホワイト", "price": 2360, "image_url": "https://m.media-amazon.com/images/I/61OBO6IGP2L._AC_SX679_.jpg", "bsr": 151150, "category": "ホーム＆キッチン", "review_count": 10, "is_fba": false, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0D7X33QF4", "rating": 4.0, "seller_name": "shenzhen zhongyi keyi youxian gongsi\n （1179件の評価）", "variation_count": 5, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 19, "estimated_monthly_revenue": 44840, "candidates": [{"alibaba": {"price_cny": 7.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01SGgKfg1XvBDKUSOaa_!!2316132985-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/649912409344.html", "shop_name": null, "shop_url": "https://shop6132985.1688.com/", "min_order": 1, "title": "現代的なシンプルで贅沢な装飾品クリエイティブな家庭用キャビネット装飾リビングルームのテレビキャビネットのオフィス工芸品飾り物"}, "orb_similarity": 0.0106, "hist_similarity": 0.9949, "combined_score": 0.6012, "profit": {"amazon_price": 2360, "cost_1688_jpy": 165, "shipping": 115, "customs": 28, "referral_fee": 354, "fba_fee": 0, "total_cost": 712, "profit": 1648, "profit_rate": 0.6983050847457627, "is_profitable": true, "profit_rate_percentage": 69.8}}, {"alibaba": {"price_cny": 0.75, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN015hm2EL24Z5a3XImR5_!!2221188737404-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1001878928559.html", "shop_name": null, "shop_url": "https://shop7374042.1688.com/", "min_order": 1, "title": "跨境金色华丽奔腾的马亚克力装饰挂件节日送人礼物背包钥匙扣吊坠"}, "orb_similarity": 0.0041, "hist_similarity": 0.9967, "combined_score": 0.5997, "profit": {"amazon_price": 2360, "cost_1688_jpy": 17, "shipping": 115, "customs": 13, "referral_fee": 354, "fba_fee": 0, "total_cost": 545, "profit": 1815, "profit_rate": 0.7690677966101694, "is_profitable": true, "profit_rate_percentage": 76.9}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN019VL16y1NodYCl7vJq_!!2207524761617-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1004999465509.html", "shop_name": null, "shop_url": "https://shop1744399.1688.com/", "min_order": 1, "title": "新款国潮珐琅红白骏马胸针马到成功礼赠佳选锌合金镶钻别针胸花"}, "orb_similarity": 0.0082, "hist_similarity": 0.9803, "combined_score": 0.5915, "profit": {"amazon_price": 2360, "cost_1688_jpy": 115, "shipping": 115, "customs": 23, "referral_fee": 354, "fba_fee": 0, "total_cost": 656, "profit": 1704, "profit_rate": 0.7220338983050848, "is_profitable": true, "profit_rate_percentage": 72.2}}, {"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN0185ifAL1we7089ti2X_!!2219377126332-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/971656663370.html", "shop_name": null, "shop_url": "https://shop7126332.1688.com/", "min_order": 1, "title": "新中式马上有钱摆件礼盒装招财客厅玄关办公室装饰品开业乔迁送礼"}, "orb_similarity": 0.0042, "hist_similarity": 0.9286, "combined_score": 0.5588, "profit": {"amazon_price": 2360, "cost_1688_jpy": 230, "shipping": 115, "customs": 34, "referral_fee": 354, "fba_fee": 0, "total_cost": 785, "profit": 1575, "profit_rate": 0.6673728813559322, "is_profitable": true, "profit_rate_percentage": 66.7}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01gxKt931P9XEXnHKB6_!!2213607431798-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/885251980628.html", "shop_name": null, "shop_url": "https://shop4317984.1688.com/", "min_order": 1, "title": "陶磁器はすぐにお金があって、新しい中国式のリビングルームのテレビの玄関の事務室の装飾品を飾って、開業して贈り物を移転します。"}, "orb_similarity": 0.0021, "hist_similarity": 0.928, "combined_score": 0.5576, "profit": {"amazon_price": 2360, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 354, "fba_fee": 0, "total_cost": 1253, "profit": 1107, "profit_rate": 0.4690677966101695, "is_profitable": true, "profit_rate_percentage": 46.9}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CZg2IM1P9XBiraJXh_!!2213607431798-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/930951396483.html", "shop_name": null, "shop_url": "https://shop4317984.1688.com/", "min_order": 1, "title": "新しい中国風の富と馬の装飾品、リビングルーム、玄関、オフィス、ライトラグジュアリー、ハイエンドの装飾、新しい家の引っ越しギフト"}, "orb_similarity": 0.0042, "hist_similarity": 0.9044, "combined_score": 0.5443, "profit": {"amazon_price": 2360, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 354, "fba_fee": 0, "total_cost": 1253, "profit": 1107, "profit_rate": 0.4690677966101695, "is_profitable": true, "profit_rate_percentage": 46.9}}, {"alibaba": {"price_cny": 28.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01CZg2IM1P9XBiraJXh_!!2213607431798-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/765872431860.html", "shop_name": null, "shop_url": "https://shop4317984.1688.com/", "min_order": 1, "title": "唐はすぐに金持ちになる装飾品、オフィスのリビングルームの家の装飾、新築祝いの贈り物、玄関ホールのテレビキャビネット"}, "orb_similarity": 0.0042, "hist_similarity": 0.9044, "combined_score": 0.5443, "profit": {"amazon_price": 2360, "cost_1688_jpy": 644, "shipping": 115, "customs": 75, "referral_fee": 354, "fba_fee": 0, "total_cost": 1253, "profit": 1107, "profit_rate": 0.4690677966101695, "is_profitable": true, "profit_rate_percentage": 46.9}}, {"alibaba": {"price_cny": 42.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01j2IpE21we6wpNMFdl_!!2219377126332-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/934402872490.html", "shop_name": null, "shop_url": "https://shop7126332.1688.com/", "min_order": 1, "title": "新しい中国風の唐馬はすぐにお金が入ります、オフィスのボスのデスク、すぐに成功する装飾、新築祝い、リビングルーム、玄関ホールのオープニング"}, "orb_similarity": 0.0042, "hist_similarity": 0.9044, "combined_score": 0.5443, "profit": {"amazon_price": 2360, "cost_1688_jpy": 966, "shipping": 115, "customs": 108, "referral_fee": 354, "fba_fee": 0, "total_cost": 1617, "profit": 743, "profit_rate": 0.3148305084745763, "is_profitable": true, "profit_rate_percentage": 31.5}}, {"alibaba": {"price_cny": 6.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Nz9myd1WgEfUgJd1J_!!2213299802817-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/780440683844.html", "shop_name": null, "shop_url": "https://shop1727672.1688.com/", "min_order": 16, "title": "国境を越えた売れ筋ライト高級樹脂ランニング馬装飾品ホームリビングルームオフィスデスクラッキー工芸品装飾"}, "orb_similarity": 0.0103, "hist_similarity": 0.6589, "combined_score": 0.3994, "profit": {"amazon_price": 2360, "cost_1688_jpy": 156, "shipping": 115, "customs": 27, "referral_fee": 354, "fba_fee": 0, "total_cost": 702, "profit": 1658, "profit_rate": 0.7025423728813559, "is_profitable": true, "profit_rate_percentage": 70.3}}, {"alibaba": {"price_cny": 6.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Y1a70m1WgEkcOChaE_!!2213299802817-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/888009941230.html", "shop_name": null, "shop_url": "https://shop1727672.1688.com/", "min_order": 16, "title": "クロスボーダー高級住宅フェンス駿馬樹脂工芸品置物リビングルームテレビキャビネットワインキャビネット馬像装飾品"}, "orb_similarity": 0.0062, "hist_similarity": 0.6422, "combined_score": 0.3878, "profit": {"amazon_price": 2360, "cost_1688_jpy": 156, "shipping": 115, "customs": 27, "referral_fee": 354, "fba_fee": 0, "total_cost": 702, "profit": 1658, "profit_rate": 0.7025423728813559, "is_profitable": true, "profit_rate_percentage": 70.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

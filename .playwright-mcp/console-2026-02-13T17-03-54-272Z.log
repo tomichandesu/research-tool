@@ -1,0 +1,4 @@
+[     525ms] SyntaxError: Bad control character in string literal in JSON at position 16110 (line 1 column 16111)
+    at JSON.parse (<anonymous>)
+    at https://hottarakashi.xvps.jp/static/test_report.html:69:17
+[     547ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://hottarakashi.xvps.jp/favicon.ico:0

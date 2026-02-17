@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "筆箱 おしゃれ", "generated_at": "2026-02-09 03:32:35", "products": [{"amazon": {"asin": "B0F4DZD1H8", "title": "ペンケース 大容量 かわいい 中学生女子 筆箱 ふでばこ おしゃれ 人気 女の子 3層 (パープル) [並行輸入品]", "price": 1590, "image_url": "https://m.media-amazon.com/images/I/71rO5FGqa7L._AC_SY450_.jpg", "bsr": 13222, "category": "文房具・オフィス用品", "review_count": 13, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0F4DZD1H8", "rating": 3.2, "seller_name": "JVILEX", "variation_count": 2, "dimensions": [21.9, 12.9, 3.6], "weight_kg": 0.5}, "estimated_monthly_sales": 73, "estimated_monthly_revenue": 116070, "candidates": [{"alibaba": {"price_cny": 10.84, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN017vDoWG22RBGGrDFQr_!!3878437116-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/728595980724.html", "shop_name": null, "shop_url": "https://shop4371160.1688.com/", "min_order": 3, "title": "カバ熊のかばん型の筆袋の女の子の小学生の子供の大容量の高い顔の値のシンプルでかわいい女の子の文房具"}, "orb_similarity": 0.0236, "hist_similarity": 0.9449, "combined_score": 0.5764, "profit": {"amazon_price": 1590, "cost_1688_jpy": 249, "shipping": 115, "customs": 36, "referral_fee": 238, "fba_fee": 318, "total_cost": 1009, "profit": 581, "profit_rate": 0.3654088050314465, "is_profitable": true, "profit_rate_percentage": 36.5}}, {"alibaba": {"price_cny": 10.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01v2wAsg2B486avRRH6_!!2220735098284-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/984249027062.html", "shop_name": null, "shop_url": "https://shop0982849.1688.com/", "min_order": 2, "title": "咔巴熊书包型笔袋女孩小学生儿童大容量高颜值简约可爱女生款文具"}, "orb_similarity": 0.0164, "hist_similarity": 0.9481, "combined_score": 0.5754, "profit": {"amazon_price": 1590, "cost_1688_jpy": 248, "shipping": 115, "customs": 36, "referral_fee": 238, "fba_fee": 318, "total_cost": 1008, "profit": 582, "profit_rate": 0.3660377358490566, "is_profitable": true, "profit_rate_percentage": 36.6}}, {"alibaba": {"price_cny": 10.84, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01c5wtRm29Vwh0IcvfZ_!!2211505128074-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/729112594359.html", "shop_name": null, "shop_url": "https://shop1280749.1688.com/", "min_order": 1, "title": "少女学生児童大容量高颜値かばん型筆袋シンプルでかわいい女子児童文房具鉛筆ケース"}, "orb_similarity": 0.0091, "hist_similarity": 0.9239, "combined_score": 0.558, "profit": {"amazon_price": 1590, "cost_1688_jpy": 249, "shipping": 115, "customs": 36, "referral_fee": 238, "fba_fee": 318, "total_cost": 1009, "profit": 581, "profit_rate": 0.3654088050314465, "is_profitable": true, "profit_rate_percentage": 36.5}}, {"alibaba": {"price_cny": 13.24, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN016Cta7b29Vwv9QHPJJ_!!2211505128074-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/968343299812.html", "shop_name": null, "shop_url": "https://shop1280749.1688.com/", "min_order": 1, "title": "咔巴熊大容量书包笔袋高颜值小学生开学文具盒可视痛窗魔术贴笔袋"}, "orb_similarity": 0.0022, "hist_similarity": 0.8916, "combined_score": 0.5358, "profit": {"amazon_price": 1590, "cost_1688_jpy": 304, "shipping": 115, "customs": 41, "referral_fee": 238, "fba_fee": 318, "total_cost": 1071, "profit": 519, "profit_rate": 0.3264150943396226, "is_profitable": true, "profit_rate_percentage": 32.6}}, {"alibaba": {"price_cny": 9.62, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01od7V2j22RBUPMSK5N_!!3878437116-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/969559877088.html", "shop_name": null, "shop_url": "https://shop4371160.1688.com/", "min_order": 3, "title": "咔巴熊手提书包笔袋文具盒铅笔盒高颜值ins风文具袋2025新款超火"}, "orb_similarity": 0.0022, "hist_similarity": 0.489, "combined_score": 0.2943, "profit": {"amazon_price": 1590, "cost_1688_jpy": 221, "shipping": 115, "customs": 33, "referral_fee": 238, "fba_fee": 318, "total_cost": 977, "profit": 613, "profit_rate": 0.3855345911949686, "is_profitable": true, "profit_rate_percentage": 38.6}}, {"alibaba": {"price_cny": 10.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01c6zUi51bDRztpidbM_!!2219480903431-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/984253945505.html", "shop_name": null, "shop_url": "https://shop0903431.1688.com/", "min_order": 1, "title": "跨境热卖书包笔袋儿童大容量高颜值简约可爱女生款文具铅笔盒批发"}, "orb_similarity": 0.0109, "hist_similarity": 0.3962, "combined_score": 0.2421, "profit": {"amazon_price": 1590, "cost_1688_jpy": 230, "shipping": 115, "customs": 34, "referral_fee": 238, "fba_fee": 318, "total_cost": 987, "profit": 603, "profit_rate": 0.37924528301886795, "is_profitable": true, "profit_rate_percentage": 37.9}}, {"alibaba": {"price_cny": 14.68, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qeSSnO2NKPYFVqrM7_!!2219551429944-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/965005265825.html", "shop_name": null, "shop_url": "https://shop8275478.1688.com/", "min_order": 1, "title": "手提书包笔袋大容量文具袋初中女生笔盒小学生多功能新款"}, "orb_similarity": 0.0132, "hist_similarity": 0.3097, "combined_score": 0.1911, "profit": {"amazon_price": 1590, "cost_1688_jpy": 337, "shipping": 115, "customs": 45, "referral_fee": 238, "fba_fee": 318, "total_cost": 1109, "profit": 481, "profit_rate": 0.30251572327044024, "is_profitable": true, "profit_rate_percentage": 30.3}}, {"alibaba": {"price_cny": 12.45, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qeSSnO2NKPYFVqrM7_!!2219551429944-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/997094574419.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "手提书包笔袋大容量文具袋初中女生笔盒小学生多功能新款"}, "orb_similarity": 0.0132, "hist_similarity": 0.3097, "combined_score": 0.1911, "profit": {"amazon_price": 1590, "cost_1688_jpy": 286, "shipping": 115, "customs": 40, "referral_fee": 238, "fba_fee": 318, "total_cost": 1051, "profit": 539, "profit_rate": 0.3389937106918239, "is_profitable": true, "profit_rate_percentage": 33.9}}, {"alibaba": {"price_cny": 12.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qeSSnO2NKPYFVqrM7_!!2219551429944-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/952975864657.html", "shop_name": null, "shop_url": "https://shop2994487.1688.com/", "min_order": 1, "title": "手提书包笔袋大容量文具袋初中女生笔盒小学生多功能2025新款批发"}, "orb_similarity": 0.0132, "hist_similarity": 0.3097, "combined_score": 0.1911, "profit": {"amazon_price": 1590, "cost_1688_jpy": 276, "shipping": 115, "customs": 39, "referral_fee": 238, "fba_fee": 318, "total_cost": 1040, "profit": 550, "profit_rate": 0.34591194968553457, "is_profitable": true, "profit_rate_percentage": 34.6}}, {"alibaba": {"price_cny": 14.68, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qeSSnO2NKPYFVqrM7_!!2219551429944-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/958035795604.html", "shop_name": null, "shop_url": "https://shop8275478.1688.com/", "min_order": 1, "title": "手提书包笔袋大容量文具袋初中女生笔盒小学生多功能新款"}, "orb_similarity": 0.0132, "hist_similarity": 0.3097, "combined_score": 0.1911, "profit": {"amazon_price": 1590, "cost_1688_jpy": 337, "shipping": 115, "customs": 45, "referral_fee": 238, "fba_fee": 318, "total_cost": 1109, "profit": 481, "profit_rate": 0.30251572327044024, "is_profitable": true, "profit_rate_percentage": 30.3}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

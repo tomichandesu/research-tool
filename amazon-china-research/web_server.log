@@ -1,0 +1,11 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\tomic\\OneDrive\\dev\\リサーチツール\\amazon-china-research']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [20172] using StatReload
+INFO:     Started server process [22388]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'web\config.py'. Reloading...
+ 1688 session expiring in 21.1 hours. Plan to re-login soon.
+1688 session expiring in 20.1 hours. Plan to re-login soon.
+1688 session expiring in 19.1 hours. Plan to re-login soon.
+1688 session expiring in 18.1 hours. Plan to re-login soon.

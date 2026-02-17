@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "ダルマ", "generated_at": "2026-02-11 04:41:02", "products": [{"amazon": {"asin": "B0CHBD6FNP", "title": "NOELAMOUR だるま 達磨 置物 ミニ 5個 セラミック 商売繁盛 可愛い 装飾 車内飾り 外国人 ギフト 贈り物", "price": 1998, "image_url": "https://m.media-amazon.com/images/I/71+2lzeNUuL._AC_SX679_.jpg", "bsr": 60012, "category": "ホーム＆キッチン", "review_count": 17, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0CHBD6FNP", "rating": 4.0, "seller_name": "NOELAMOUR ●適格請求書発行事業者●【商標登録第6681024号】", "variation_count": 1, "dimensions": [28.5, 7.0, 4.9], "weight_kg": 0.24}, "estimated_monthly_sales": 39, "estimated_monthly_revenue": 77922, "candidates": [{"alibaba": {"price_cny": 8.99, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01b42qIo1Bs2raa3FLk_!!0-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/730705640324.html", "shop_name": null, "shop_url": "https://shop1954246.1688.com/", "min_order": 5, "title": "日本式達摩招き猫置物陶磁器金色達摩文創市集置物対外貿易陶磁器工芸"}, "orb_similarity": 0.0084, "hist_similarity": 0.9923, "combined_score": 0.5988, "profit": {"amazon_price": 1998, "cost_1688_jpy": 206, "shipping": 55, "customs": 26, "referral_fee": 299, "fba_fee": 288, "total_cost": 926, "profit": 1072, "profit_rate": 0.5365365365365365, "is_profitable": true, "profit_rate_percentage": 53.7}}, {"alibaba": {"price_cny": 4.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01UII9XJ1YsGSXfoZVw_!!2220589413114-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/999010701605.html", "shop_name": null, "shop_url": "https://shop9413114.1688.com/", "min_order": 2, "title": "跨境日系梦幻猫眼铃铛财猫手机挂饰挂件御守水音铃铛装饰送礼好物"}, "orb_similarity": 0.0022, "hist_similarity": 0.992, "combined_score": 0.5961, "profit": {"amazon_price": 1998, "cost_1688_jpy": 110, "shipping": 55, "customs": 16, "referral_fee": 299, "fba_fee": 288, "total_cost": 817, "profit": 1181, "profit_rate": 0.591091091091091, "is_profitable": true, "profit_rate_percentage": 59.1}}, {"alibaba": {"price_cny": 3.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01HMxezG1YsGSXqCr3X_!!2220589413114-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/998207054744.html", "shop_name": null, "shop_url": "https://shop9413114.1688.com/", "min_order": 2, "title": "跨境日系清水寺达摩水音铃健康厄除御守纯铜水音铃手机挂件铜制"}, "orb_similarity": 0.0, "hist_similarity": 0.9901, "combined_score": 0.5941, "profit": {"amazon_price": 1998, "cost_1688_jpy": 87, "shipping": 55, "customs": 14, "referral_fee": 299, "fba_fee": 288, "total_cost": 791, "profit": 1207, "profit_rate": 0.6041041041041041, "is_profitable": true, "profit_rate_percentage": 60.4}}, {"alibaba": {"price_cny": 15.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01x4hdkx23UDdum1bMl_!!946547258-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/646831771363.html", "shop_name": null, "shop_url": null, "min_order": 7, "title": "楽喵陶磁器貯金箱工芸品置物会社の店舗料理店の装飾達摩開運置物"}, "orb_similarity": 0.0063, "hist_similarity": 0.9851, "combined_score": 0.5936, "profit": {"amazon_price": 1998, "cost_1688_jpy": 345, "shipping": 55, "customs": 40, "referral_fee": 299, "fba_fee": 288, "total_cost": 1083, "profit": 915, "profit_rate": 0.45795795795795796, "is_profitable": true, "profit_rate_percentage": 45.8}}, {"alibaba": {"price_cny": 2.28, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01MJst1T1njImSaqNsE_!!2206790515125-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/740993048917.html", "shop_name": null, "shop_url": "https://shop1512597.1688.com/", "min_order": 1, "title": "工場卸売子供用DIY有名人京劇フェイシャルメイクアップ幼稚園親子手作り絵画手描きマスクおもちゃ"}, "orb_similarity": 0.0148, "hist_similarity": 0.9436, "combined_score": 0.5721, "profit": {"amazon_price": 1998, "cost_1688_jpy": 52, "shipping": 55, "customs": 10, "referral_fee": 299, "fba_fee": 288, "total_cost": 751, "profit": 1247, "profit_rate": 0.6241241241241241, "is_profitable": true, "profit_rate_percentage": 62.4}}, {"alibaba": {"price_cny": 5.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01AjGRXz2Mmye624eiY_!!942589871-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/823761274763.html", "shop_name": null, "shop_url": null, "min_order": 1000, "title": "23 和風レッドゴーストマスク新アニメデーモンスレイヤー cos ステージ小道具曲がった口少年マスクキツネの顔"}, "orb_similarity": 0.0042, "hist_similarity": 0.8236, "combined_score": 0.4958, "profit": {"amazon_price": 1998, "cost_1688_jpy": 115, "shipping": 55, "customs": 17, "referral_fee": 299, "fba_fee": 288, "total_cost": 823, "profit": 1175, "profit_rate": 0.5880880880880881, "is_profitable": true, "profit_rate_percentage": 58.8}}, {"alibaba": {"price_cny": 4.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01sdbsuj1hEiSDTfkJZ_!!2210181954246-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/647592513154.html", "shop_name": null, "shop_url": "https://shop1954246.1688.com/", "min_order": 6, "title": "招き猫達摩陶磁器置物創意文創小贈り物市集置物対外貿易輸出陶磁器工芸品"}, "orb_similarity": 0.0084, "hist_similarity": 0.7802, "combined_score": 0.4715, "profit": {"amazon_price": 1998, "cost_1688_jpy": 112, "shipping": 55, "customs": 16, "referral_fee": 299, "fba_fee": 288, "total_cost": 819, "profit": 1179, "profit_rate": 0.5900900900900901, "is_profitable": true, "profit_rate_percentage": 59.0}}, {"alibaba": {"price_cny": 20.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN017f6B2H1Zmb0xnrM2w_!!2214357573237-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/679276435391.html", "shop_name": null, "shop_url": "https://shop5732373.1688.com/", "min_order": 1, "title": "達摩祖師達摩卵の中の小さいサイズの多色は陶磁器の貯金箱の日系の装飾達摩の置物の卸売りを選びます。"}, "orb_similarity": 0.0063, "hist_similarity": 0.1473, "combined_score": 0.0909, "profit": {"amazon_price": 1998, "cost_1688_jpy": 471, "shipping": 55, "customs": 52, "referral_fee": 299, "fba_fee": 288, "total_cost": 1225, "profit": 773, "profit_rate": 0.3868868868868869, "is_profitable": true, "profit_rate_percentage": 38.7}}, {"alibaba": {"price_cny": 26.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01i3zsgw2IT2sy9AfvL_!!2210937009286-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/865243646206.html", "shop_name": null, "shop_url": "https://shop0092869.1688.com/", "min_order": 1, "title": "景徳鎮陶器達磨 日本風装飾品 陶器製家庭用小物 卓上装飾品 開運カラー達磨"}, "orb_similarity": 0.0127, "hist_similarity": 0.0291, "combined_score": 0.0226, "profit": {"amazon_price": 1998, "cost_1688_jpy": 598, "shipping": 55, "customs": 65, "referral_fee": 299, "fba_fee": 288, "total_cost": 1368, "profit": 630, "profit_rate": 0.3153153153153153, "is_profitable": true, "profit_rate_percentage": 31.5}}, {"alibaba": {"price_cny": 7.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01fiTrI71CD7FsdMIPZ_!!2214599290046-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/892559325608.html", "shop_name": null, "shop_url": "https://shop9290046.1688.com/", "min_order": 1, "title": "和風だるま 招福飾り 店舗開店祝い 陶器置物 日本装飾 手描き置物"}, "orb_similarity": 0.0084, "hist_similarity": 0.0166, "combined_score": 0.0134, "profit": {"amazon_price": 1998, "cost_1688_jpy": 181, "shipping": 55, "customs": 23, "referral_fee": 299, "fba_fee": 288, "total_cost": 897, "profit": 1101, "profit_rate": 0.551051051051051, "is_profitable": true, "profit_rate_percentage": 55.1}}]}, {"amazon": {"asin": "B005EP78PQ", "title": "高崎だるま 福だるま3号　赤", "price": 3718, "image_url": "https://m.media-amazon.com/images/I/51DZ1UZohhL._AC_.jpg", "bsr": 61664, "category": "おもちゃ", "review_count": 19, "is_fba": false, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B005EP78PQ", "rating": 4.1, "seller_name": "ショップネクスト\n （429件の評価）", "variation_count": 1, "dimensions": [23.0, 19.0, 21.5], "weight_kg": 0.5}, "estimated_monthly_sales": 15, "estimated_monthly_revenue": 55770, "candidates": [{"alibaba": {"price_cny": 20.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN017f6B2H1Zmb0xnrM2w_!!2214357573237-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/679276435391.html", "shop_name": null, "shop_url": "https://shop5732373.1688.com/", "min_order": 1, "title": "達摩祖師達摩卵の中の小さいサイズの多色は陶磁器の貯金箱の日系の装飾達摩の置物の卸売りを選びます。"}, "orb_similarity": 0.0062, "hist_similarity": 0.1482, "combined_score": 0.0914, "profit": {"amazon_price": 3718, "cost_1688_jpy": 471, "shipping": 360, "customs": 83, "referral_fee": 557, "fba_fee": 0, "total_cost": 1531, "profit": 2187, "profit_rate": 0.5882194728348574, "is_profitable": true, "profit_rate_percentage": 58.8}}, {"alibaba": {"price_cny": 7.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QdiC1l1CD7FtzsE10_!!2214599290046-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/892559325608.html", "shop_name": null, "shop_url": "https://shop9290046.1688.com/", "min_order": 1, "title": "和風だるま 招福飾り 店舗開店祝い 陶器置物 日本装飾 手描き置物"}, "orb_similarity": 0.0062, "hist_similarity": 0.0919, "combined_score": 0.0576, "profit": {"amazon_price": 3718, "cost_1688_jpy": 181, "shipping": 360, "customs": 54, "referral_fee": 557, "fba_fee": 0, "total_cost": 1203, "profit": 2515, "profit_rate": 0.6764389456697149, "is_profitable": true, "profit_rate_percentage": 67.6}}, {"alibaba": {"price_cny": 11.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01wyvHBl23UDP0lXxGn_!!946547258-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/675601055543.html", "shop_name": null, "shop_url": null, "min_order": 7, "title": "楽喵福縁達摩卵招財強運招福陶磁器工芸装飾品貯金箱寿司店置物プレゼント"}, "orb_similarity": 0.0062, "hist_similarity": 0.0832, "combined_score": 0.0524, "profit": {"amazon_price": 3718, "cost_1688_jpy": 264, "shipping": 360, "customs": 62, "referral_fee": 557, "fba_fee": 0, "total_cost": 1296, "profit": 2422, "profit_rate": 0.6514254975793438, "is_profitable": true, "profit_rate_percentage": 65.1}}, {"alibaba": {"price_cny": 8.99, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01fA4nhx1hEiYk47e4T_!!2210181954246-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/730705640324.html", "shop_name": null, "shop_url": "https://shop1954246.1688.com/", "min_order": 5, "title": "日本式達摩招き猫置物陶磁器金色達摩文創市集置物対外貿易陶磁器工芸"}, "orb_similarity": 0.0103, "hist_similarity": 0.0621, "combined_score": 0.0414, "profit": {"amazon_price": 3718, "cost_1688_jpy": 206, "shipping": 360, "customs": 56, "referral_fee": 557, "fba_fee": 0, "total_cost": 1231, "profit": 2487, "profit_rate": 0.6689080150618613, "is_profitable": true, "profit_rate_percentage": 66.9}}, {"alibaba": {"price_cny": 2.4, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01W5Wqmu1ng64UPFBxQ_!!2218748535118-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/849477862873.html", "shop_name": null, "shop_url": "https://shop5351181.1688.com/", "min_order": 5, "title": "京劇マスク手作り diy 材料パッケージ国家トレンド着色フックライン手描き四川オペラオペラステージ装飾"}, "orb_similarity": 0.0103, "hist_similarity": 0.0608, "combined_score": 0.0406, "profit": {"amazon_price": 3718, "cost_1688_jpy": 55, "shipping": 360, "customs": 41, "referral_fee": 557, "fba_fee": 0, "total_cost": 1060, "profit": 2658, "profit_rate": 0.7149004841312534, "is_profitable": true, "profit_rate_percentage": 71.5}}, {"alibaba": {"price_cny": 34.3, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qIPMDS2D5ADozodZq_!!2220649238557-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/971090166731.html", "shop_name": null, "shop_url": "https://shop5578728.1688.com/", "min_order": 1, "title": "日本创意达摩寿司料理店铺家居装饰品开业玄关招财桌面客厅摆件"}, "orb_similarity": 0.0062, "hist_similarity": 0.0616, "combined_score": 0.0394, "profit": {"amazon_price": 3718, "cost_1688_jpy": 788, "shipping": 360, "customs": 114, "referral_fee": 557, "fba_fee": 0, "total_cost": 1888, "profit": 1830, "profit_rate": 0.492200107584723, "is_profitable": true, "profit_rate_percentage": 49.2}}, {"alibaba": {"price_cny": 4.88, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01uNlFjp1hEiYX2OvD8_!!2210181954246-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/647592513154.html", "shop_name": null, "shop_url": "https://shop1954246.1688.com/", "min_order": 6, "title": "招き猫達摩陶磁器置物創意文創小贈り物市集置物対外貿易輸出陶磁器工芸品"}, "orb_similarity": 0.0124, "hist_similarity": 0.0515, "combined_score": 0.0359, "profit": {"amazon_price": 3718, "cost_1688_jpy": 112, "shipping": 360, "customs": 47, "referral_fee": 557, "fba_fee": 0, "total_cost": 1125, "profit": 2593, "profit_rate": 0.6974179666487359, "is_profitable": true, "profit_rate_percentage": 69.7}}, {"alibaba": {"price_cny": 14.03, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JeV2Qa1sRxb4KHuIZ_!!2206824345764-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/976879308520.html", "shop_name": null, "shop_url": "https://shop8275478.1688.com/", "min_order": 1, "title": "招财猫套件 可爱迷你小号陶瓷招财猫汽车平安摆件 家居桌面装饰品"}, "orb_similarity": 0.0084, "hist_similarity": 0.0311, "combined_score": 0.022, "profit": {"amazon_price": 3718, "cost_1688_jpy": 322, "shipping": 360, "customs": 68, "referral_fee": 557, "fba_fee": 0, "total_cost": 1362, "profit": 2356, "profit_rate": 0.633674018289403, "is_profitable": true, "profit_rate_percentage": 63.4}}, {"alibaba": {"price_cny": 12.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JeV2Qa1sRxb4KHuIZ_!!2206824345764-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/608479705458.html", "shop_name": null, "shop_url": "https://shop4345764.1688.com/", "min_order": 1, "title": "招き猫セットかわいいミニ小型陶磁器招き猫自動車無事置物ホームデスクトップ装飾品"}, "orb_similarity": 0.0084, "hist_similarity": 0.0311, "combined_score": 0.022, "profit": {"amazon_price": 3718, "cost_1688_jpy": 287, "shipping": 360, "customs": 64, "referral_fee": 557, "fba_fee": 0, "total_cost": 1322, "profit": 2396, "profit_rate": 0.6444324905863368, "is_profitable": true, "profit_rate_percentage": 64.4}}, {"alibaba": {"price_cny": 14.03, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01JeV2Qa1sRxb4KHuIZ_!!2206824345764-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/945609175343.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "招财猫套件 可爱迷你小号陶瓷招财猫汽车平安摆件 家居桌面装饰品"}, "orb_similarity": 0.0084, "hist_similarity": 0.0311, "combined_score": 0.022, "profit": {"amazon_price": 3718, "cost_1688_jpy": 322, "shipping": 360, "customs": 68, "referral_fee": 557, "fba_fee": 0, "total_cost": 1362, "profit": 2356, "profit_rate": 0.633674018289403, "is_profitable": true, "profit_rate_percentage": 63.4}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

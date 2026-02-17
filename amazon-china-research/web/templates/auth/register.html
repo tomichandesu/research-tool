@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}新規登録{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>新規登録</h1>
+        <p class="auth-subtitle">招待コードが必要です</p>
+
+        {% if invalid %}
+        <div class="alert alert-error">{{ error }}</div>
+        <p><a href="/login">ログイン</a></p>
+        {% else %}
+
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        {% if errors %}
+        <div class="alert alert-error">
+            <ul>
+            {% for e in errors %}
+                <li>{{ e }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" action="/register/{{ token }}">
+            <div class="form-group">
+                <label for="email">メールアドレス</label>
+                <input type="email" id="email" name="email" required
+                       value="{{ form_email or invite_email or '' }}"
+                       {% if invite_email %}readonly{% endif %}
+                       placeholder="your@email.com">
+                {% if invite_email %}
+                <small>この招待は {{ invite_email }} 宛です</small>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="display_name">表示名</label>
+                <input type="text" id="display_name" name="display_name" required
+                       value="{{ form_display_name or '' }}"
+                       placeholder="例：山田太郎">
+            </div>
+            <div class="form-group">
+                <label for="password">パスワード（8文字以上）</label>
+                <input type="password" id="password" name="password" required
+                       minlength="8" placeholder="パスワード">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">登録</button>
+        </form>
+
+        <p class="auth-footer">アカウントをお持ちですか？ <a href="/login">ログイン</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

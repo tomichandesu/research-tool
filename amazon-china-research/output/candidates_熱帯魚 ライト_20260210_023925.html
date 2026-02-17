@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "熱帯魚 ライト", "generated_at": "2026-02-10 02:39:25", "products": [{"amazon": {"asin": "B0FGDMW31G", "title": "AQQA 水槽ライト 小型水槽ライト タイマー付き 10段階の明るさ調整 3色切替可能 USB給電 16H自動調光モード 小型水槽向け メダカライト 熱帯魚ライト 水槽led アクアリウムライト 観賞魚飼育 水草育成 省エネ 日本語説明書付き (ブラック, 20-30cm水槽用(8W))", "price": 2180, "image_url": "https://m.media-amazon.com/images/I/81Oaxszvd3L._AC_SX522_.jpg", "bsr": 7425, "category": "ペット用品", "review_count": 47, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0FGDMW31G", "rating": 4.2, "seller_name": "AQQA専門店【公式】", "variation_count": 1, "dimensions": [10.0, 10.0, 35.0], "weight_kg": 0.5}, "estimated_monthly_sales": 114, "estimated_monthly_revenue": 248520, "candidates": [{"alibaba": {"price_cny": 37.45, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01PxB5KV1xIrzp2SNK6_!!1713936421-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/39277702452.html", "shop_name": null, "shop_url": "https://shop3936421.1688.com/", "min_order": 7, "title": "金魚鉢専用スタンドライト植物スペクトル水族LED魚鉢ライトリモコンサンゴランプ水草ランプ海水ランプ"}, "orb_similarity": 0.0105, "hist_similarity": 0.9942, "combined_score": 0.6007, "profit": {"amazon_price": 2180, "cost_1688_jpy": 861, "shipping": 134, "customs": 99, "referral_fee": 327, "fba_fee": 318, "total_cost": 1810, "profit": 370, "profit_rate": 0.16972477064220184, "is_profitable": true, "profit_rate_percentage": 17.0}}, {"alibaba": {"price_cny": 18.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QVjXOn1kdOoVe6hJP_!!2216627804706-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/769658244293.html", "shop_name": null, "shop_url": "https://shop7804706.1688.com/", "min_order": 1, "title": "カード収納ボックス展示用品アクリルカードボックスビジネス展示注文名刺ボックス透明投票ボックス名刺ボックス"}, "orb_similarity": 0.0048, "hist_similarity": 0.9916, "combined_score": 0.5968, "profit": {"amazon_price": 2180, "cost_1688_jpy": 414, "shipping": 134, "customs": 54, "referral_fee": 327, "fba_fee": 318, "total_cost": 1305, "profit": 875, "profit_rate": 0.4013761467889908, "is_profitable": true, "profit_rate_percentage": 40.1}}, {"alibaba": {"price_cny": 3.18, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01FEpEj11R1rTpvQL7F_!!2206936282052-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/673977910289.html", "shop_name": null, "shop_url": "https://shop2052045.1688.com/", "min_order": 3, "title": "水草の魚のかめの藻の刀の小型の死角がないブラシは長い柄をきれいにして神器のツールの藻の刀を洗います。"}, "orb_similarity": 0.0021, "hist_similarity": 0.9933, "combined_score": 0.5968, "profit": {"amazon_price": 2180, "cost_1688_jpy": 73, "shipping": 134, "customs": 20, "referral_fee": 327, "fba_fee": 318, "total_cost": 920, "profit": 1260, "profit_rate": 0.5779816513761468, "is_profitable": true, "profit_rate_percentage": 57.8}}, {"alibaba": {"price_cny": 1.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01waTGh42MUCHnXfcPK_!!2217726999830-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/799431119131.html", "shop_name": null, "shop_url": "https://shop6999830.1688.com/", "min_order": 1, "title": "水槽の背景シールPVCシリンダーの外に厚い黒いフロスト装飾壁紙水槽専用ガラスフィルム"}, "orb_similarity": 0.0063, "hist_similarity": 0.9887, "combined_score": 0.5958, "profit": {"amazon_price": 2180, "cost_1688_jpy": 34, "shipping": 134, "customs": 16, "referral_fee": 327, "fba_fee": 318, "total_cost": 876, "profit": 1304, "profit_rate": 0.5981651376146789, "is_profitable": true, "profit_rate_percentage": 59.8}}, {"alibaba": {"price_cny": 13.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN011fx55t1R1rqEARtxO_!!2206936282052-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1006717767512.html", "shop_name": null, "shop_url": "https://shop2052045.1688.com/", "min_order": 3, "title": "yee全光谱鱼缸灯水草灯鱼缸夹灯水族箱专用増艳造景照明观赏灯"}, "orb_similarity": 0.0, "hist_similarity": 0.9824, "combined_score": 0.5894, "profit": {"amazon_price": 2180, "cost_1688_jpy": 319, "shipping": 134, "customs": 45, "referral_fee": 327, "fba_fee": 318, "total_cost": 1198, "profit": 982, "profit_rate": 0.4504587155963303, "is_profitable": true, "profit_rate_percentage": 45.0}}, {"alibaba": {"price_cny": 16.9, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01QUQl211RcxoIEcAL6_!!2543052133-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/845635813320.html", "shop_name": null, "shop_url": "https://shop3052133.1688.com/", "min_order": 1, "title": "Yee全スペクトル魚筒灯水草灯水槽挟み灯水槽専用造景照明鑑賞灯用品"}, "orb_similarity": 0.0042, "hist_similarity": 0.9767, "combined_score": 0.5877, "profit": {"amazon_price": 2180, "cost_1688_jpy": 388, "shipping": 134, "customs": 52, "referral_fee": 327, "fba_fee": 318, "total_cost": 1276, "profit": 904, "profit_rate": 0.41467889908256883, "is_profitable": true, "profit_rate_percentage": 41.5}}, {"alibaba": {"price_cny": 14.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01kUYcOI2Jyw4eEDJ1x_!!2206904719491-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/857382341852.html", "shop_name": null, "shop_url": "https://shop1949149.1688.com/", "min_order": 1, "title": "金魚鉢led高点灯防水全スペクトル水草灯草筒灯架保護眼伸縮高透過潜水灯架"}, "orb_similarity": 0.0128, "hist_similarity": 0.971, "combined_score": 0.5877, "profit": {"amazon_price": 2180, "cost_1688_jpy": 322, "shipping": 134, "customs": 45, "referral_fee": 327, "fba_fee": 318, "total_cost": 1201, "profit": 979, "profit_rate": 0.44908256880733943, "is_profitable": true, "profit_rate_percentage": 44.9}}, {"alibaba": {"price_cny": 569.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01ozsUq31rRDd3zwkFt_!!2216591335627-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/754128471673.html", "shop_name": null, "shop_url": "https://shop1335627.1688.com/", "min_order": 1, "title": "欧米CE認証取得済みのステンレス製噴霧式暖炉、民宿や別荘向け埋め込み型噴霧式模擬炎暖炉"}, "orb_similarity": 0.0043, "hist_similarity": 0.9725, "combined_score": 0.5852, "profit": {"amazon_price": 2180, "cost_1688_jpy": 13087, "shipping": 134, "customs": 1322, "referral_fee": 327, "fba_fee": 318, "total_cost": 15626, "profit": -13446, "profit_rate": -6.167889908256881, "is_profitable": false, "profit_rate_percentage": -616.8}}, {"alibaba": {"price_cny": 10.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01YF1Wbw2NYbs24OuVI_!!2200592779975-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/797304067628.html", "shop_name": null, "shop_url": "https://shop7586187.1688.com/", "min_order": 1, "title": "魚筒灯ledランプ草筒灯防水小型省エネ照明灯ミニ小クリップ灯水槽水草灯"}, "orb_similarity": 0.0063, "hist_similarity": 0.9598, "combined_score": 0.5784, "profit": {"amazon_price": 2180, "cost_1688_jpy": 248, "shipping": 134, "customs": 38, "referral_fee": 327, "fba_fee": 318, "total_cost": 1118, "profit": 1062, "profit_rate": 0.4871559633027523, "is_profitable": true, "profit_rate_percentage": 48.7}}, {"alibaba": {"price_cny": 16.84, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01BiHA0B1K5ntmSqsFO_!!2217782561113-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/958179416760.html", "shop_name": null, "shop_url": "https://shop2561113.1688.com/", "min_order": 1, "title": "LED鱼缸夹灯水族箱架灯水草灯植物自然光补光变色可调节工厂批发"}, "orb_similarity": 0.0022, "hist_similarity": 0.9592, "combined_score": 0.5764, "profit": {"amazon_price": 2180, "cost_1688_jpy": 387, "shipping": 134, "customs": 52, "referral_fee": 327, "fba_fee": 318, "total_cost": 1275, "profit": 905, "profit_rate": 0.4151376146788991, "is_profitable": true, "profit_rate_percentage": 41.5}}]}, {"amazon": {"asin": "B0CHJRPNPR", "title": "DEWEL 水槽用ライト 水槽 照明 led ライト アクアリウムライト usb 4色 タイマー付き 10段階調光 水草育成 熱帯魚 海水魚 観賞魚飼育 光合成 小型 軽量 アルミニウム製 (30cmの水槽に対応)", "price": 1858, "image_url": "https://m.media-amazon.com/images/I/61qwjvxYXhL._AC_SY450_.jpg", "bsr": 18353, "category": "ペット用品", "review_count": 40, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0CHJRPNPR", "rating": 3.8, "seller_name": "ディウェル本社", "variation_count": 1, "dimensions": [20, 15, 10], "weight_kg": 0.5}, "estimated_monthly_sales": 56, "estimated_monthly_revenue": 104048, "candidates": [{"alibaba": {"price_cny": 140.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01YNMkAl28Fd4wi6ieh_!!2218229687903-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/815182808763.html", "shop_name": null, "shop_url": "https://shop9687903.1688.com/", "min_order": 2, "title": "家庭用ハイエンド滝洗面器蛇口全銅クリエイティブライト高級温冷バスルームバスルームキャビネット防沫ライト高級スタイル"}, "orb_similarity": 0.0438, "hist_similarity": 0.9886, "combined_score": 0.6107, "profit": {"amazon_price": 1858, "cost_1688_jpy": 3220, "shipping": 115, "customs": 333, "referral_fee": 278, "fba_fee": 318, "total_cost": 4406, "profit": -2548, "profit_rate": -1.3713670613562972, "is_profitable": false, "profit_rate_percentage": -137.1}}, {"alibaba": {"price_cny": 20.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01scFPHK1ZwfZZdlNBY_!!2215030623259-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/986962794148.html", "shop_name": null, "shop_url": "https://shop6232591.1688.com/", "min_order": 15, "title": "桌边水杯架多功能免打孔铁制360度旋转耳机支架托厂家批发水杯托"}, "orb_similarity": 0.0197, "hist_similarity": 0.9897, "combined_score": 0.6017, "profit": {"amazon_price": 1858, "cost_1688_jpy": 478, "shipping": 115, "customs": 59, "referral_fee": 278, "fba_fee": 318, "total_cost": 1308, "profit": 550, "profit_rate": 0.2960172228202368, "is_profitable": true, "profit_rate_percentage": 29.6}}, {"alibaba": {"price_cny": 260.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01tVVx7y1KxOFZsbTm5_!!6000000001230-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/893513021893.html", "shop_name": null, "shop_url": "https://shop0898251.1688.com/", "min_order": 2, "title": "適用19-24鈴木ジムニーjimny渉水器高位渉水喉頭車頂吸気管呼吸管"}, "orb_similarity": 0.0172, "hist_similarity": 0.99, "combined_score": 0.6009, "profit": {"amazon_price": 1858, "cost_1688_jpy": 5980, "shipping": 115, "customs": 609, "referral_fee": 278, "fba_fee": 318, "total_cost": 7525, "profit": -5667, "profit_rate": -3.05005382131324, "is_profitable": false, "profit_rate_percentage": -305.0}}, {"alibaba": {"price_cny": 908.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01hzcXR71G8Jbc8IWwI_!!320130577.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1009817510243.html", "shop_name": null, "shop_url": "https://shop7658112.1688.com/", "min_order": 1, "title": "钻石型淋浴房隔洗澡间浴室屏风卫生间玻璃门家用浴屏简易沐浴房"}, "orb_similarity": 0.0172, "hist_similarity": 0.9889, "combined_score": 0.6002, "profit": {"amazon_price": 1858, "cost_1688_jpy": 20884, "shipping": 115, "customs": 2099, "referral_fee": 278, "fba_fee": 318, "total_cost": 24366, "profit": -22508, "profit_rate": -12.114101184068891, "is_profitable": false, "profit_rate_percentage": -1211.4}}, {"alibaba": {"price_cny": 33.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01MA1UrO1e9HAYZXZGj_!!2217899753828-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/879297680718.html", "shop_name": null, "shop_url": "https://shop7538286.1688.com/", "min_order": 2, "title": "保連横梁二爪馬軸受解体ツール二爪コード抜輪器多機能小型万能解体グリップ"}, "orb_similarity": 0.0172, "hist_similarity": 0.9889, "combined_score": 0.6002, "profit": {"amazon_price": 1858, "cost_1688_jpy": 759, "shipping": 115, "customs": 87, "referral_fee": 278, "fba_fee": 318, "total_cost": 1625, "profit": 233, "profit_rate": 0.12540365984930033, "is_profitable": true, "profit_rate_percentage": 12.5}}, {"alibaba": {"price_cny": 33.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01vuC9gz20L6x1tDQRW_!!2208792666832-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/879322232230.html", "shop_name": null, "shop_url": "https://shop2666832.1688.com/", "min_order": 2, "title": "保連横梁二爪馬軸受解体ツール二爪コード抜輪器多機能小型万能解体グリップ"}, "orb_similarity": 0.0172, "hist_similarity": 0.9889, "combined_score": 0.6002, "profit": {"amazon_price": 1858, "cost_1688_jpy": 759, "shipping": 115, "customs": 87, "referral_fee": 278, "fba_fee": 318, "total_cost": 1625, "profit": 233, "profit_rate": 0.12540365984930033, "is_profitable": true, "profit_rate_percentage": 12.5}}, {"alibaba": {"price_cny": 47.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01NTmhi92MjllhOvfhm_!!1010659864-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/819315179110.html", "shop_name": null, "shop_url": null, "min_order": 2, "title": "越境直販トレーラーアーム2インチ4インチ6inch 8inch牽引フックボールヘッドアームオフロードヨット牽引スクエアチューブサブマージョンアーム"}, "orb_similarity": 0.0117, "hist_similarity": 0.9913, "combined_score": 0.5995, "profit": {"amazon_price": 1858, "cost_1688_jpy": 1081, "shipping": 115, "customs": 119, "referral_fee": 278, "fba_fee": 318, "total_cost": 1989, "profit": -131, "profit_rate": -0.07050592034445641, "is_profitable": false, "profit_rate_percentage": -7.1}}, {"alibaba": {"price_cny": 0.62, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01emxsNu1IRfNzcQ66t_!!2216530980890-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/743594530279.html", "shop_name": null, "shop_url": "https://shop9056442.1688.com/", "min_order": 2, "title": "360度回転美工刀craftカッティングツールカッティングツール手持ち学生美工刀"}, "orb_similarity": 0.0154, "hist_similarity": 0.9875, "combined_score": 0.5987, "profit": {"amazon_price": 1858, "cost_1688_jpy": 14, "shipping": 115, "customs": 12, "referral_fee": 278, "fba_fee": 318, "total_cost": 783, "profit": 1075, "profit_rate": 0.5785791173304629, "is_profitable": true, "profit_rate_percentage": 57.9}}, {"alibaba": {"price_cny": 37.45, "image_url": "https://cbu01.alicdn.com/img/ibank/12353209243_1751559494.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/39277702452.html", "shop_name": null, "shop_url": "https://shop3936421.1688.com/", "min_order": 7, "title": "金魚鉢専用スタンドライト植物スペクトル水族LED魚鉢ライトリモコンサンゴランプ水草ランプ海水ランプ"}, "orb_similarity": 0.0074, "hist_similarity": 0.9913, "combined_score": 0.5977, "profit": {"amazon_price": 1858, "cost_1688_jpy": 861, "shipping": 115, "customs": 97, "referral_fee": 278, "fba_fee": 318, "total_cost": 1740, "profit": 118, "profit_rate": 0.06350914962325081, "is_profitable": true, "profit_rate_percentage": 6.4}}, {"alibaba": {"price_cny": 6.8, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01BqhqSZ2E2hcAzbRlj_!!976078687-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/835667130285.html", "shop_name": null, "shop_url": null, "min_order": 1, "title": "旧式のプラスチック窓の取っ手の伝動のハンドルはドアの窓の取っ手の部品の大全のアルミニウム合金の扉と窓の取っ手をロックします。"}, "orb_similarity": 0.0126, "hist_similarity": 0.9832, "combined_score": 0.595, "profit": {"amazon_price": 1858, "cost_1688_jpy": 156, "shipping": 115, "customs": 27, "referral_fee": 278, "fba_fee": 318, "total_cost": 944, "profit": 914, "profit_rate": 0.49192680301399355, "is_profitable": true, "profit_rate_percentage": 49.2}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

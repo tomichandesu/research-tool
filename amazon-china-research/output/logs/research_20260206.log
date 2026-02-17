@@ -1,0 +1,363 @@
+2026-02-06 01:22:01 [INFO] __main__: === リサーチ開始: '貯金箱' ===
+2026-02-06 01:22:01 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 01:22:03 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 01:22:03 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 01:22:05 [INFO] src.utils.browser: 認証済みセッションを使用します
+2026-02-06 01:22:07 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 01:22:07 [INFO] __main__: Step 1/6: Amazon検索中...
+2026-02-06 01:22:08 [INFO] src.modules.amazon.searcher: 検索中: '貯金箱' - ページ 1/1
+2026-02-06 01:22:10 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/s?k=%E8%B2%AF%E9%87%91%E7%AE%B1&page=1
+2026-02-06 01:22:30 [INFO] src.modules.amazon.searcher: ページ 1: 60件取得
+2026-02-06 01:22:30 [INFO] src.modules.amazon.searcher: 検索完了: 合計 60件
+2026-02-06 01:22:30 [INFO] __main__: 検索結果: 60件
+2026-02-06 01:22:30 [INFO] __main__: Step 2/6: 商品詳細取得中...
+2026-02-06 01:22:31 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FJ6RHN6R
+2026-02-06 01:22:33 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FJ6RHN6R
+2026-02-06 01:22:39 [INFO] src.output.logger: 商品詳細取得: [░░░░░░░░░░░░░░░░░░░░] 1/60 (1%) - B0FJ6RHN6R
+2026-02-06 01:22:40 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0BRXFNRWK
+2026-02-06 01:22:42 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0BRXFNRWK
+2026-02-06 01:22:47 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FF1SP9XL
+2026-02-06 01:22:49 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FF1SP9XL
+2026-02-06 01:22:55 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DGPBPGK7
+2026-02-06 01:22:57 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DGPBPGK7
+2026-02-06 01:23:05 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B001875NTC
+2026-02-06 01:23:07 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B001875NTC
+2026-02-06 01:23:14 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DLGBS2YJ
+2026-02-06 01:23:16 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DLGBS2YJ
+2026-02-06 01:23:21 [INFO] src.output.logger: 商品詳細取得: [██░░░░░░░░░░░░░░░░░░] 6/60 (10%) - B0DLGBS2YJ
+2026-02-06 01:23:22 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0GG5ZNBMT
+2026-02-06 01:23:24 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0GG5ZNBMT
+2026-02-06 01:23:29 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0F3HCQX7H
+2026-02-06 01:23:31 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0F3HCQX7H
+2026-02-06 01:23:37 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000QTJAZG
+2026-02-06 01:23:39 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000QTJAZG
+2026-02-06 01:23:45 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B08WZW57K5
+2026-02-06 01:23:47 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B08WZW57K5
+2026-02-06 01:23:53 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FPF37222
+2026-02-06 01:23:55 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FPF37222
+2026-02-06 01:24:01 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000WMKIUI
+2026-02-06 01:24:03 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000WMKIUI
+2026-02-06 01:24:10 [INFO] src.output.logger: 商品詳細取得: [████░░░░░░░░░░░░░░░░] 12/60 (20%) - B000WMKIUI
+2026-02-06 01:24:10 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000WMKIVC
+2026-02-06 01:24:12 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000WMKIVC
+2026-02-06 01:24:18 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000WMOD5Y
+2026-02-06 01:24:20 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000WMOD5Y
+2026-02-06 01:24:26 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0G9DF2CB3
+2026-02-06 01:24:28 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0G9DF2CB3
+2026-02-06 01:24:34 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DFM4Q1HM
+2026-02-06 01:24:36 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DFM4Q1HM
+2026-02-06 01:24:42 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B09YKS6GNZ
+2026-02-06 01:24:44 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B09YKS6GNZ
+2026-02-06 01:24:50 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000QTJAYW
+2026-02-06 01:24:52 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000QTJAYW
+2026-02-06 01:24:59 [INFO] src.output.logger: 商品詳細取得: [██████░░░░░░░░░░░░░░] 18/60 (30%) - B000QTJAYW
+2026-02-06 01:24:59 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DRXSWXRD
+2026-02-06 01:25:01 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DRXSWXRD
+2026-02-06 01:25:07 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FD7JSM4H
+2026-02-06 01:25:09 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FD7JSM4H
+2026-02-06 01:25:14 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DTP57ZN4
+2026-02-06 01:25:16 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DTP57ZN4
+2026-02-06 01:25:21 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FLXNM5HT
+2026-02-06 01:25:23 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FLXNM5HT
+2026-02-06 01:25:28 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000ZYL5NW
+2026-02-06 01:25:30 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000ZYL5NW
+2026-02-06 01:25:36 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B09V2M8FDL
+2026-02-06 01:25:38 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B09V2M8FDL
+2026-02-06 01:25:43 [INFO] src.output.logger: 商品詳細取得: [████████░░░░░░░░░░░░] 24/60 (40%) - B09V2M8FDL
+2026-02-06 01:25:44 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0BM6S8QVN
+2026-02-06 01:25:46 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0BM6S8QVN
+2026-02-06 01:25:51 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FFSQ58XT
+2026-02-06 01:25:53 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FFSQ58XT
+2026-02-06 01:25:59 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0F4QFXFRC
+2026-02-06 01:26:01 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0F4QFXFRC
+2026-02-06 01:26:06 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000ZYL5XM
+2026-02-06 01:26:08 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000ZYL5XM
+2026-02-06 01:26:14 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DLG64ZQN
+2026-02-06 01:26:16 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DLG64ZQN
+2026-02-06 01:26:21 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0054IOJL4
+2026-02-06 01:26:23 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0054IOJL4
+2026-02-06 01:26:28 [INFO] src.output.logger: 商品詳細取得: [██████████░░░░░░░░░░] 30/60 (50%) - B0054IOJL4
+2026-02-06 01:26:28 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FWQSPSS6
+2026-02-06 01:26:30 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FWQSPSS6
+2026-02-06 01:26:36 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B07Q9J1PTR
+2026-02-06 01:26:38 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B07Q9J1PTR
+2026-02-06 01:26:44 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B072J3FVR8
+2026-02-06 01:26:46 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B072J3FVR8
+2026-02-06 01:26:51 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DJ8RWC1S
+2026-02-06 01:26:53 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DJ8RWC1S
+2026-02-06 01:26:59 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DFJCN77B
+2026-02-06 01:27:01 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DFJCN77B
+2026-02-06 01:27:07 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0B2W9W5M1
+2026-02-06 01:27:09 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0B2W9W5M1
+2026-02-06 01:27:14 [INFO] src.output.logger: 商品詳細取得: [████████████░░░░░░░░] 36/60 (60%) - B0B2W9W5M1
+2026-02-06 01:27:14 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B07JFH61J1
+2026-02-06 01:27:16 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B07JFH61J1
+2026-02-06 01:27:23 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B09TND669H
+2026-02-06 01:27:25 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B09TND669H
+2026-02-06 01:27:32 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B08HL68PR1
+2026-02-06 01:27:34 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B08HL68PR1
+2026-02-06 01:27:39 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0D4QJRXWG
+2026-02-06 01:27:41 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0D4QJRXWG
+2026-02-06 01:27:47 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B06ZZMZ2SB
+2026-02-06 01:27:49 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B06ZZMZ2SB
+2026-02-06 01:27:55 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0BZTWBSSF
+2026-02-06 01:27:57 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0BZTWBSSF
+2026-02-06 01:28:03 [INFO] src.output.logger: 商品詳細取得: [██████████████░░░░░░] 42/60 (70%) - B0BZTWBSSF
+2026-02-06 01:28:03 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DFM4JQSY
+2026-02-06 01:28:05 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DFM4JQSY
+2026-02-06 01:28:11 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B095S3HD11
+2026-02-06 01:28:13 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B095S3HD11
+2026-02-06 01:28:19 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DSPMLZN8
+2026-02-06 01:28:21 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DSPMLZN8
+2026-02-06 01:28:27 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0F9KVQKWL
+2026-02-06 01:28:29 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0F9KVQKWL
+2026-02-06 01:28:35 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0177IUGQK
+2026-02-06 01:28:37 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0177IUGQK
+2026-02-06 01:28:43 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0824T9HLC
+2026-02-06 01:28:45 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0824T9HLC
+2026-02-06 01:28:50 [INFO] src.output.logger: 商品詳細取得: [████████████████░░░░] 48/60 (80%) - B0824T9HLC
+2026-02-06 01:28:50 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0BCFHNK13
+2026-02-06 01:28:52 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0BCFHNK13
+2026-02-06 01:28:58 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0B8YN4171
+2026-02-06 01:29:00 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0B8YN4171
+2026-02-06 01:29:06 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DHZ3QDWK
+2026-02-06 01:29:08 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DHZ3QDWK
+2026-02-06 01:29:13 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B07HJ52LKD
+2026-02-06 01:29:15 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B07HJ52LKD
+2026-02-06 01:29:21 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B000ZYODWM
+2026-02-06 01:29:23 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B000ZYODWM
+2026-02-06 01:29:28 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0BW2X3GGK
+2026-02-06 01:29:30 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0BW2X3GGK
+2026-02-06 01:29:35 [INFO] src.output.logger: 商品詳細取得: [██████████████████░░] 54/60 (90%) - B0BW2X3GGK
+2026-02-06 01:29:35 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0C4X8W5ND
+2026-02-06 01:29:37 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0C4X8W5ND
+2026-02-06 01:29:44 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0FX2P1DM3
+2026-02-06 01:29:46 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0FX2P1DM3
+2026-02-06 01:29:51 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0B39CZ6X7
+2026-02-06 01:29:53 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0B39CZ6X7
+2026-02-06 01:29:59 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0D83QG45X
+2026-02-06 01:30:01 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0D83QG45X
+2026-02-06 01:30:08 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0DVLS41W3
+2026-02-06 01:30:10 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0DVLS41W3
+2026-02-06 01:30:17 [DEBUG] src.modules.amazon.scraper: 商品詳細取得: B0CQKZRL52
+2026-02-06 01:30:19 [DEBUG] src.utils.browser: ページ移動: https://www.amazon.co.jp/dp/B0CQKZRL52
+2026-02-06 01:30:25 [INFO] src.output.logger: 商品詳細取得: [████████████████████] 60/60 (100%) - B0CQKZRL52
+2026-02-06 01:30:25 [INFO] src.output.logger: 商品詳細取得: [████████████████████] 60/60 (100%) - 完了
+2026-02-06 01:30:25 [INFO] __main__: 詳細取得完了: 60件
+2026-02-06 01:30:25 [INFO] __main__: Step 3/6: フィルタリング中...
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=11306, カテゴリ=default, テーブル=30, 係数=82, 結果=82
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=46257, カテゴリ=default, テーブル=10, 係数=27, 結果=27
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=81725, カテゴリ=default, テーブル=10, 係数=17, 結果=17
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=16818, カテゴリ=default, テーブル=30, 係数=60, 結果=60
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=145387, カテゴリ=default, テーブル=3, 係数=11, 結果=11
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=22496, カテゴリ=default, テーブル=30, 係数=48, 結果=48
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=131998, カテゴリ=default, テーブル=3, 係数=12, 結果=12
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=85518, カテゴリ=default, テーブル=10, 係数=17, 結果=17
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=37493, カテゴリ=default, テーブル=10, 係数=32, 結果=32
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=5709, カテゴリ=default, テーブル=100, 係数=140, 結果=140
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=45215, カテゴリ=default, テーブル=10, 係数=28, 結果=28
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=8702, カテゴリ=default, テーブル=100, 係数=101, 結果=101
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=16818, カテゴリ=default, テーブル=30, 係数=60, 結果=60
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=9827, カテゴリ=default, テーブル=100, 係数=92, 結果=100
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=9585, カテゴリ=default, テーブル=100, 係数=94, 結果=100
+2026-02-06 01:30:25 [DEBUG] src.modules.calculator.sales_estimator: 販売数推定: BSR=10457, カテゴリ=default, テーブル=30, 係数=87, 結果=87
+2026-02-06 01:30:25 [INFO] __main__: フィルタ通過: 16件
+2026-02-06 01:30:25 [INFO] __main__: Step 4-6/6: 1688検索・マッチング・利益計算中...
+2026-02-06 01:30:25 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61d-MKgjhcL._A...
+2026-02-06 01:30:25 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/61d-MKgjhcL._A...
+2026-02-06 01:30:28 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:30:34 [DEBUG] src.modules.alibaba.image_search: ファイル入力待機中... (1/3)
+2026-02-06 01:30:36 [DEBUG] src.modules.alibaba.image_search: ファイル入力待機中... (2/3)
+2026-02-06 01:30:38 [DEBUG] src.modules.alibaba.image_search: ファイル入力待機中... (3/3)
+2026-02-06 01:30:40 [WARNING] src.modules.alibaba.image_search: ファイル入力フィールドが見つかりません
+2026-02-06 01:30:40 [INFO] src.modules.alibaba.image_search: 1688検索完了: 0件取得
+2026-02-06 01:30:40 [INFO] src.output.logger: 1688マッチング: [█░░░░░░░░░░░░░░░░░░░] 1/16 (6%) - B0BRXFNRWK: マッチなし
+2026-02-06 01:30:40 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51puihW3qmL._A...
+2026-02-06 01:30:40 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/51puihW3qmL._A...
+2026-02-06 01:30:43 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:30:47 [DEBUG] src.modules.alibaba.image_search: 画像アップロード完了
+2026-02-06 01:30:49 [DEBUG] src.modules.alibaba.image_search: 検索ボタンクリック: .search-btn
+2026-02-06 01:30:54 [DEBUG] src.modules.alibaba.image_search: 検索結果ページURL: https://pages-fast.1688.com/wow/cbu/srch_rec/image_search/youyuan/index.html?tab=imageSearch&imageId=1155508681885515985&imageIdList=1155508681885515985&spm=a26352.b28411319/2508.imagesearch.upload
+2026-02-06 01:30:54 [DEBUG] src.modules.alibaba.image_search: 検索結果取得: div[class*="OfferItem"] (60件)
+2026-02-06 01:30:57 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:30:58 [DEBUG] src.modules.matcher.phash: pHash計算: eedb902d4bc2341e
+2026-02-06 01:30:59 [DEBUG] src.modules.matcher.phash: pHash計算: b80f05794ee5596c
+2026-02-06 01:30:59 [DEBUG] src.modules.matcher.phash: pHash計算: c41bf416e64b82fc
+2026-02-06 01:30:59 [DEBUG] src.modules.matcher.phash: pHash計算: e721399e5e43c136
+2026-02-06 01:31:00 [DEBUG] src.modules.matcher.phash: pHash計算: e299b4265a6b9ab4
+2026-02-06 01:31:00 [DEBUG] src.modules.matcher.phash: pHash計算: e3d8b4361a694ab6
+2026-02-06 01:31:01 [DEBUG] src.modules.matcher.phash: pHash計算: e299b4265a6b9ab4
+2026-02-06 01:31:01 [DEBUG] src.modules.matcher.phash: pHash計算: b18fc5b2e1c47874
+2026-02-06 01:31:01 [DEBUG] src.modules.matcher.phash: pHash計算: e3cdcc31e6b6b084
+2026-02-06 01:31:01 [DEBUG] src.modules.matcher.phash: pHash計算: e299b4265a6b9ab4
+2026-02-06 01:31:02 [DEBUG] src.modules.matcher.phash: pHash計算: 9126ef496d92964d
+2026-02-06 01:31:02 [INFO] src.output.logger: 1688マッチング: [██░░░░░░░░░░░░░░░░░░] 2/16 (12%) - B0GG5ZNBMT: 類似画像なし
+2026-02-06 01:31:02 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/81k0-NLDGWL._A...
+2026-02-06 01:31:02 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/81k0-NLDGWL._A...
+2026-02-06 01:31:04 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:31:07 [DEBUG] src.modules.alibaba.image_search: 画像アップロード完了
+2026-02-06 01:31:10 [DEBUG] src.modules.alibaba.image_search: 検索ボタンクリック: .search-btn
+2026-02-06 01:31:15 [DEBUG] src.modules.alibaba.image_search: 検索結果ページURL: https://pages-fast.1688.com/wow/cbu/srch_rec/image_search/youyuan/index.html?tab=imageSearch&imageId=1190208681886331267&imageIdList=1190208681886331267&spm=a26352.b28411319/2508.imagesearch.upload
+2026-02-06 01:31:15 [DEBUG] src.modules.alibaba.image_search: 検索結果取得: div[class*="OfferItem"] (60件)
+2026-02-06 01:31:17 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:31:18 [DEBUG] src.modules.matcher.phash: pHash計算: fad29dd696c28348
+2026-02-06 01:31:18 [DEBUG] src.modules.matcher.phash: pHash計算: ac99c3643dcb329a
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: be9bc1c692617b42
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: bf1f85848bc96872
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: b6cdc833255e3ec0
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: fe8bd1a144853a5e
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: bafa85850f87853a
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: fe9f91a187818387
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: ceb1b34615a9d299
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: bafa85850f87853a
+2026-02-06 01:31:19 [DEBUG] src.modules.matcher.phash: pHash計算: e35a9d8d729c7062
+2026-02-06 01:31:19 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51XjeLJABzL._A...
+2026-02-06 01:31:19 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/51XjeLJABzL._A...
+2026-02-06 01:31:21 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:31:25 [DEBUG] src.modules.alibaba.image_search: 画像アップロード完了
+2026-02-06 01:31:28 [DEBUG] src.modules.alibaba.image_search: 検索ボタンクリック: .search-btn
+2026-02-06 01:31:33 [DEBUG] src.modules.alibaba.image_search: 検索結果ページURL: https://pages-fast.1688.com/wow/cbu/srch_rec/image_search/youyuan/index.html?tab=imageSearch&imageId=1176608682215509650&imageIdList=1176608682215509650&spm=a26352.b28411319/2508.imagesearch.upload
+2026-02-06 01:31:33 [DEBUG] src.modules.alibaba.image_search: 検索結果取得: div[class*="OfferItem"] (60件)
+2026-02-06 01:31:35 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: bbc3e49fc095c21c
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: e979079e3aca0565
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: f3448cadd82335ec
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: f3c48cadd82b352c
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: bc93d20c6e64c7c3
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: f3c48cadd82b352c
+2026-02-06 01:31:36 [DEBUG] src.modules.matcher.phash: pHash計算: b30ee6b1cd36c0b1
+2026-02-06 01:31:37 [DEBUG] src.modules.matcher.phash: pHash計算: d10cae6b57d189aa
+2026-02-06 01:31:37 [DEBUG] src.modules.matcher.phash: pHash計算: b30ee6b1cd36c0b1
+2026-02-06 01:31:37 [DEBUG] src.modules.matcher.phash: pHash計算: bc93d20c6e64c7c3
+2026-02-06 01:31:37 [DEBUG] src.modules.matcher.phash: pHash計算: abf1dc0ed2b9242c
+2026-02-06 01:31:37 [INFO] src.output.logger: 1688マッチング: [█████░░░░░░░░░░░░░░░] 4/16 (25%) - B0DFM4Q1HM: 類似画像なし
+2026-02-06 01:31:37 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51tRBUtMUQL._A...
+2026-02-06 01:31:37 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/51tRBUtMUQL._A...
+2026-02-06 01:31:39 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:31:42 [DEBUG] src.modules.alibaba.image_search: 画像アップロード完了
+2026-02-06 01:31:45 [DEBUG] src.modules.alibaba.image_search: 検索ボタンクリック: .search-btn
+2026-02-06 01:31:50 [DEBUG] src.modules.alibaba.image_search: 検索結果ページURL: https://pages-fast.1688.com/wow/cbu/srch_rec/image_search/youyuan/index.html?tab=imageSearch&imageId=1405908681684808694&imageIdList=1405908681684808694&spm=a26352.b28411319/2508.imagesearch.upload
+2026-02-06 01:31:50 [DEBUG] src.modules.alibaba.image_search: 検索結果取得: div[class*="OfferItem"] (60件)
+2026-02-06 01:31:52 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: ae40c986a78c9d3f
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: bb67c498c1366a99
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: 9187629ae0619f7d
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: bc87873c2b692cc6
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: bc87873c2b692cc6
+2026-02-06 01:31:53 [DEBUG] src.modules.matcher.phash: pHash計算: be6bc19496717862
+2026-02-06 01:31:53 [INFO] src.output.logger: 1688マッチング: [██████░░░░░░░░░░░░░░] 5/16 (31%) - B0DRXSWXRD: 類似画像なし
+2026-02-06 01:31:53 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61AoS3HGdJL._A...
+2026-02-06 01:31:54 [DEBUG] src.modules.alibaba.image_search: 画像ダウンロード中: https://m.media-amazon.com/images/I/61AoS3HGdJL._A...
+2026-02-06 01:31:56 [DEBUG] src.utils.browser: ページ移動: https://s.1688.com/youyuan/index.htm
+2026-02-06 01:31:59 [DEBUG] src.modules.alibaba.image_search: 画像アップロード完了
+2026-02-06 01:32:02 [DEBUG] src.modules.alibaba.image_search: 検索ボタンクリック: .search-btn
+2026-02-06 01:33:39 [INFO] __main__: === リサーチ開始: '貯金箱' ===
+2026-02-06 01:33:39 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 01:33:41 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 01:33:41 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 01:33:43 [INFO] src.utils.browser: 認証済みセッションを使用します
+2026-02-06 01:33:44 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 01:33:44 [INFO] __main__: Step 1/6: Amazon検索中...
+2026-02-06 01:33:45 [INFO] src.modules.amazon.searcher: 検索中: '貯金箱' - ページ 1/1
+2026-02-06 01:34:03 [INFO] src.modules.amazon.searcher: ページ 1: 60件取得
+2026-02-06 01:34:03 [INFO] src.modules.amazon.searcher: 検索完了: 合計 60件
+2026-02-06 01:34:03 [INFO] __main__: 検索結果: 60件
+2026-02-06 01:34:03 [INFO] __main__: Step 2/6: 商品詳細取得中...
+2026-02-06 01:34:10 [INFO] src.output.logger: 商品詳細取得: [--------------------] 1/60 (1%) - B0FJ6RHN6R
+2026-02-06 01:34:41 [INFO] src.output.logger: 商品詳細取得: [##------------------] 6/60 (10%) - B0F3HCQX7H
+2026-02-06 01:35:23 [INFO] src.output.logger: 商品詳細取得: [####----------------] 12/60 (20%) - B0FZJCYRTV
+2026-02-06 01:36:02 [INFO] src.output.logger: 商品詳細取得: [######--------------] 18/60 (30%) - B09V2M8FDL
+2026-02-06 01:36:41 [INFO] src.output.logger: 商品詳細取得: [########------------] 24/60 (40%) - B09YKS6GNZ
+2026-02-06 01:37:20 [INFO] src.output.logger: 商品詳細取得: [##########----------] 30/60 (50%) - B0DLG64ZQN
+2026-02-06 01:38:00 [INFO] src.output.logger: 商品詳細取得: [############--------] 36/60 (60%) - B09TND669H
+2026-02-06 01:38:39 [INFO] src.output.logger: 商品詳細取得: [##############------] 42/60 (70%) - B0F9KVQKWL
+2026-02-06 01:39:21 [INFO] src.output.logger: 商品詳細取得: [################----] 48/60 (80%) - B0DSPMLZN8
+2026-02-06 01:39:59 [INFO] src.output.logger: 商品詳細取得: [##################--] 54/60 (90%) - B0D83QG45X
+2026-02-06 01:40:37 [INFO] src.output.logger: 商品詳細取得: [####################] 60/60 (100%) - B0FX2P1DM3
+2026-02-06 01:40:37 [INFO] src.output.logger: 商品詳細取得: [####################] 60/60 (100%) - 完了
+2026-02-06 01:40:37 [INFO] __main__: 詳細取得完了: 60件
+2026-02-06 01:40:37 [INFO] __main__: Step 3/6: フィルタリング中...
+2026-02-06 01:40:37 [INFO] __main__: フィルタ通過: 14件
+2026-02-06 01:40:37 [INFO] __main__: Step 4-6/6: 1688検索・マッチング・利益計算中...
+2026-02-06 01:40:37 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/81k0-NLDGWL._A...
+2026-02-06 01:40:55 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:40:57 [INFO] src.output.logger: 1688マッチング: [#-------------------] 1/14 (7%) - B0FPF37222: 類似画像なし
+2026-02-06 01:40:57 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/81bTvYxqrPL._A...
+2026-02-06 01:41:14 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:41:18 [INFO] src.output.logger: 1688マッチング: [##------------------] 2/14 (14%) - B0FZJCYRTV: 類似画像なし
+2026-02-06 01:41:18 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51puihW3qmL._A...
+2026-02-06 01:41:34 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:41:36 [INFO] src.output.logger: 1688マッチング: [####----------------] 3/14 (21%) - B0GG5ZNBMT: 類似画像なし
+2026-02-06 01:41:36 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61AoS3HGdJL._A...
+2026-02-06 01:41:52 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:41:53 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61O7x-8L7+L._A...
+2026-02-06 01:42:08 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:42:09 [INFO] src.output.logger: 1688マッチング: [#######-------------] 5/14 (35%) - B0DRXYX56K: 類似画像なし
+2026-02-06 01:42:09 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51XjeLJABzL._A...
+2026-02-06 01:42:25 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:42:26 [INFO] src.output.logger: 1688マッチング: [########------------] 6/14 (42%) - B0DFM4Q1HM: 類似画像なし
+2026-02-06 01:42:26 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/71Ko9e7SY+L._A...
+2026-02-06 01:42:42 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:42:44 [INFO] src.output.logger: 1688マッチング: [##########----------] 7/14 (50%) - B0B2W9W5M1: 類似画像なし
+2026-02-06 01:42:44 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/818nFrQKL7L._A...
+2026-02-06 01:42:59 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:43:00 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51MHCY2nO6L._A...
+2026-02-06 01:43:17 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:43:18 [INFO] src.output.logger: 1688マッチング: [############--------] 9/14 (64%) - B0DFM4JQSY: 類似画像なし
+2026-02-06 01:43:18 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/71IkYtxXVBL._A...
+2026-02-06 01:43:34 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 01:43:35 [INFO] src.output.logger: 1688マッチング: [##############------] 10/14 (71%) - B0D4QJRXWG: 類似画像なし
+2026-02-06 01:43:35 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51ZIaIMUkzL._A...
+2026-02-06 02:17:22 [INFO] __main__: === リサーチ開始: '貯金箱' ===
+2026-02-06 02:17:22 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 02:17:24 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 02:17:24 [INFO] src.utils.browser: ブラウザを起動中...
+2026-02-06 02:17:25 [INFO] src.utils.browser: 認証済みセッションを使用します
+2026-02-06 02:17:27 [INFO] src.utils.browser: ブラウザ起動完了
+2026-02-06 02:17:27 [INFO] __main__: Step 1/6: Amazon検索中...
+2026-02-06 02:17:27 [INFO] src.modules.amazon.searcher: 検索中: '貯金箱' - ページ 1/1
+2026-02-06 02:17:46 [INFO] src.modules.amazon.searcher: ページ 1: 60件取得
+2026-02-06 02:17:46 [INFO] src.modules.amazon.searcher: 検索完了: 合計 60件
+2026-02-06 02:17:46 [INFO] __main__: 検索結果: 60件
+2026-02-06 02:17:46 [INFO] __main__: Step 2/6: 商品詳細取得中...
+2026-02-06 02:17:54 [INFO] src.output.logger: 商品詳細取得: [--------------------] 1/60 (1%) - B0FJ6RHN6R
+2026-02-06 02:18:31 [INFO] src.output.logger: 商品詳細取得: [##------------------] 6/60 (10%) - B000ZYL5NW
+2026-02-06 02:19:19 [INFO] src.output.logger: 商品詳細取得: [####----------------] 12/60 (20%) - B000WMKIUI
+2026-02-06 02:20:09 [INFO] src.output.logger: 商品詳細取得: [######--------------] 18/60 (30%) - B0DJ8RWC1S
+2026-02-06 02:20:52 [INFO] src.output.logger: 商品詳細取得: [########------------] 24/60 (40%) - B0F3HCQX7H
+2026-02-06 02:21:33 [INFO] src.output.logger: 商品詳細取得: [##########----------] 30/60 (50%) - B0D4QJRXWG
+2026-02-06 02:22:17 [INFO] src.output.logger: 商品詳細取得: [############--------] 36/60 (60%) - B0DLG64ZQN
+2026-02-06 02:22:57 [INFO] src.output.logger: 商品詳細取得: [##############------] 42/60 (70%) - B09TND669H
+2026-02-06 02:23:43 [INFO] src.output.logger: 商品詳細取得: [################----] 48/60 (80%) - B0DSPMLZN8
+2026-02-06 02:24:28 [INFO] src.output.logger: 商品詳細取得: [##################--] 54/60 (90%) - B07JFH61J1
+2026-02-06 02:25:12 [INFO] src.output.logger: 商品詳細取得: [####################] 60/60 (100%) - B0BCFHNK13
+2026-02-06 02:25:12 [INFO] src.output.logger: 商品詳細取得: [####################] 60/60 (100%) - 完了
+2026-02-06 02:25:12 [INFO] __main__: 詳細取得完了: 60件
+2026-02-06 02:25:12 [INFO] __main__: Step 3/6: フィルタリング中...
+2026-02-06 02:25:12 [INFO] __main__: フィルタ通過: 15件
+2026-02-06 02:25:12 [INFO] __main__: Step 4-6/6: 1688検索・マッチング・利益計算中...
+2026-02-06 02:25:12 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61d-MKgjhcL._A...
+2026-02-06 02:25:31 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:25:33 [INFO] src.output.logger: 1688マッチング: [#-------------------] 1/15 (6%) - B0BRXFNRWK: 類似画像なし
+2026-02-06 02:25:33 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/81k0-NLDGWL._A...
+2026-02-06 02:25:50 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:25:51 [INFO] src.output.logger: 1688マッチング: [##------------------] 2/15 (13%) - B0FPF37222: 類似画像なし
+2026-02-06 02:25:51 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61O7x-8L7+L._A...
+2026-02-06 02:26:07 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:26:09 [INFO] src.output.logger: 1688マッチング: [####----------------] 3/15 (20%) - B0DRXYX56K: 類似画像なし
+2026-02-06 02:26:09 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61AoS3HGdJL._A...
+2026-02-06 02:26:25 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:26:26 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61IbcJDBq4L._A...
+2026-02-06 02:26:43 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:26:46 [INFO] src.output.logger: 1688マッチング: [######--------------] 5/15 (33%) - B0FLXNM5HT: 類似画像なし
+2026-02-06 02:26:46 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/61F4nLq24iL._A...
+2026-02-06 02:27:02 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:27:03 [INFO] src.output.logger: 1688マッチング: [########------------] 6/15 (40%) - B0DTP57ZN4: 類似画像なし
+2026-02-06 02:27:03 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/51XjeLJABzL._A...
+2026-02-06 02:27:19 [INFO] src.modules.alibaba.image_search: 1688検索完了: 10件取得
+2026-02-06 02:27:20 [INFO] src.modules.alibaba.image_search: 1688画像検索開始: https://m.media-amazon.com/images/I/818nFrQKL7L._A...

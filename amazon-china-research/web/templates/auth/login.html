@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}ログイン{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>ログイン</h1>
+        <p class="auth-subtitle">Amazon-1688 リサーチツール</p>
+
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/login">
+            <div class="form-group">
+                <label for="email">メールアドレス</label>
+                <input type="email" id="email" name="email" required autofocus
+                       placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required
+                       placeholder="パスワード">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">ログイン</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

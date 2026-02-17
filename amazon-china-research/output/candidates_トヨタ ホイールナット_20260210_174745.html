@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1688 商品マッチング候補ビューアー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2f5;color:#333;padding:20px}
+.header{text-align:center;margin-bottom:32px;padding:24px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.header h1{font-size:22px;color:#1a1a2e;margin-bottom:8px}
+.header .stats{font-size:14px;color:#666}
+.header .guide{font-size:13px;color:#888;margin-top:12px;line-height:1.6}
+
+.product-card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-num{display:inline-block;background:#1a1a2e;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-bottom:12px}
+
+.amazon-section{display:flex;gap:16px;padding-bottom:16px;border-bottom:1px solid #eee;margin-bottom:16px}
+.amazon-img{width:130px;height:130px;object-fit:contain;border:1px solid #eee;border-radius:8px;background:#fafafa;flex-shrink:0}
+.amazon-info{flex:1;min-width:0}
+.amazon-info h3{font-size:14px;color:#333;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amazon-price{font-size:20px;font-weight:bold;color:#B12704;margin-bottom:6px}
+.amazon-details{font-size:12px;color:#666;line-height:1.8}
+.amazon-details span{display:inline-block;margin-right:12px}
+.amazon-link{font-size:12px;color:#0066c0;text-decoration:none;margin-top:4px;display:inline-block}
+.amazon-link:hover{text-decoration:underline}
+
+.candidates-label{font-size:13px;font-weight:bold;color:#555;margin-bottom:12px}
+.candidates{display:flex;gap:12px;flex-wrap:wrap}
+
+.candidate{border:2px solid #e0e0e0;border-radius:10px;padding:10px;width:175px;transition:all .15s;background:#fff}
+.candidate:hover{border-color:#90CAF9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.candidate-img{width:100%;height:140px;object-fit:contain;border-radius:6px;background:#fafafa;display:block}
+.candidate-img-error{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:6px;color:#bbb;font-size:12px}
+.candidate-price{font-size:16px;font-weight:bold;color:#c62828;margin:8px 0 4px}
+.candidate-profit{font-size:13px;font-weight:bold;margin-bottom:4px}
+.candidate-profit.good{color:#2E7D32}
+.candidate-profit.mid{color:#F57F17}
+.candidate-profit.low{color:#c62828}
+.candidate-detail{font-size:11px;color:#888;margin-bottom:4px}
+.candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
+.candidate-link:hover{text-decoration:underline}
+.candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>1688 商品マッチング候補ビューアー</h1>
+  <div class="stats" id="statsLine"></div>
+  <div class="guide">
+    Amazon商品と1688候補の画像を比較して、同一商品があるか目視で確認できます。<br>
+    候補画像の下にあるリンクから1688の商品ページを直接開けます。
+  </div>
+</div>
+
+<div id="products"></div>
+
+<script>
+const DATA = JSON.parse('{"keyword": "トヨタ ホイールナット", "generated_at": "2026-02-10 17:47:45", "products": [{"amazon": {"asin": "B0G12SXW1Z", "title": "ハイエース ホイールナット 24個セット M12×P1.5 19HEX 60度テーパー座 トヨタ/ミツビシ/ホンダ/マツダ/ダイハツ対応 高耐食性 専用設計", "price": 2480, "image_url": "https://m.media-amazon.com/images/I/81lqDl2V72L._SX522_.jpg", "bsr": 30287, "category": "車＆バイク", "review_count": 15, "is_fba": true, "is_amazon_direct": false, "product_url": "https://www.amazon.co.jp/dp/B0G12SXW1Z", "rating": 4.0, "seller_name": "Sanquuqooメーカー直営店", "variation_count": 2, "dimensions": [14.0, 7.0, 7.0], "weight_kg": 0.5}, "estimated_monthly_sales": 38, "estimated_monthly_revenue": 94240, "candidates": [{"alibaba": {"price_cny": 18.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01jXwaVR1hB3UDuYF4Q_!!2452594238-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/908905984814.html", "shop_name": null, "shop_url": "https://shop6418488.1688.com/", "min_order": 1, "title": "自動車改造用タイヤナット M12x1.5 外側七角ナット ホイールナット"}, "orb_similarity": 0.0, "hist_similarity": 0.657, "combined_score": 0.3942, "profit": {"amazon_price": 2480, "cost_1688_jpy": 414, "shipping": 115, "customs": 52, "referral_fee": 372, "fba_fee": 318, "total_cost": 1329, "profit": 1151, "profit_rate": 0.46411290322580645, "is_profitable": true, "profit_rate_percentage": 46.4}}, {"alibaba": {"price_cny": 2.06, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Mny6Ws1uXZsCZT1lA_!!3997156047-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/730627706436.html", "shop_name": null, "shop_url": "https://shop1560471.1688.com/", "min_order": 1, "title": "Gねじ304エア継手PC8-G02ステンレス10-g 03シールリングPL6-G01気管クイック継手"}, "orb_similarity": 0.0041, "hist_similarity": 0.6542, "combined_score": 0.3941, "profit": {"amazon_price": 2480, "cost_1688_jpy": 47, "shipping": 115, "customs": 16, "referral_fee": 372, "fba_fee": 318, "total_cost": 915, "profit": 1565, "profit_rate": 0.6310483870967742, "is_profitable": true, "profit_rate_percentage": 63.1}}, {"alibaba": {"price_cny": 0.95, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01WtKhJT1peNo5dmUDL_!!2200824155385-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/836797579528.html", "shop_name": null, "shop_url": "https://shop5538511.1688.com/", "min_order": 1, "title": "19 # 35mm高さのタイヤナット、ホイールハブ改造用ホイールネジ、トヨタ、フォード、ジープ、日産に適しています"}, "orb_similarity": 0.0021, "hist_similarity": 0.6521, "combined_score": 0.3921, "profit": {"amazon_price": 2480, "cost_1688_jpy": 21, "shipping": 115, "customs": 13, "referral_fee": 372, "fba_fee": 318, "total_cost": 885, "profit": 1595, "profit_rate": 0.6431451612903226, "is_profitable": true, "profit_rate_percentage": 64.3}}, {"alibaba": {"price_cny": 1.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01MUNmau1hB3ZO14Nev_!!2452594238-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/720224303151.html", "shop_name": null, "shop_url": "https://shop2594238.1688.com/", "min_order": 1, "title": "LUGNUT 自動車部品改造ホイールナットネジ 19HEX35MM12-1.5 タイヤボルト改造"}, "orb_similarity": 0.0, "hist_similarity": 0.6529, "combined_score": 0.3917, "profit": {"amazon_price": 2480, "cost_1688_jpy": 34, "shipping": 115, "customs": 14, "referral_fee": 372, "fba_fee": 318, "total_cost": 900, "profit": 1580, "profit_rate": 0.6370967741935484, "is_profitable": true, "profit_rate_percentage": 63.7}}, {"alibaba": {"price_cny": 0.65, "image_url": "https://cbu01.alicdn.com/img/ibank/3112851585_1401185298.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/536771824712.html", "shop_name": null, "shop_url": null, "min_order": 1, "title": "タイヤナットm10 m 12*1.25 m 12*1.5細歯中歯ハブカバー母自動車クロムメッキナット"}, "orb_similarity": 0.0, "hist_similarity": 0.6528, "combined_score": 0.3917, "profit": {"amazon_price": 2480, "cost_1688_jpy": 14, "shipping": 115, "customs": 12, "referral_fee": 372, "fba_fee": 318, "total_cost": 877, "profit": 1603, "profit_rate": 0.6463709677419355, "is_profitable": true, "profit_rate_percentage": 64.6}}, {"alibaba": {"price_cny": 1.2, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01Wv5rXg1KCfs8DkOR5_!!2220908071128-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/1000721803066.html", "shop_name": null, "shop_url": "https://shop8071128.1688.com/", "min_order": 1, "title": "19# 轮毂法兰盘改装外六角螺母轮胎螺丝帽适用本丰田福特现代起亚"}, "orb_similarity": 0.0061, "hist_similarity": 0.6474, "combined_score": 0.3909, "profit": {"amazon_price": 2480, "cost_1688_jpy": 27, "shipping": 115, "customs": 14, "referral_fee": 372, "fba_fee": 318, "total_cost": 892, "profit": 1588, "profit_rate": 0.6403225806451613, "is_profitable": true, "profit_rate_percentage": 64.0}}, {"alibaba": {"price_cny": 1.0, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01qj9v7b2FO3TrVV9vT_!!3418698869-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/559921034612.html", "shop_name": null, "shop_url": "https://shop9886999.1688.com/", "min_order": 2, "title": "19 # ホイールハブフランジ修正された外部六角ナットタイヤスクリューキャップは、トヨタフォードの大きな価格に適しています"}, "orb_similarity": 0.0061, "hist_similarity": 0.6471, "combined_score": 0.3907, "profit": {"amazon_price": 2480, "cost_1688_jpy": 23, "shipping": 115, "customs": 13, "referral_fee": 372, "fba_fee": 318, "total_cost": 887, "profit": 1593, "profit_rate": 0.6423387096774194, "is_profitable": true, "profit_rate_percentage": 64.2}}, {"alibaba": {"price_cny": 2.5, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01c2V6AZ1KCfrJIa5Aj_!!2220908071128-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/984342863701.html", "shop_name": null, "shop_url": "https://shop8071128.1688.com/", "min_order": 1, "title": "适用于本田雅阁奥德赛锋范CR-V思铂睿冠道思域飞度思域轮胎螺母螺"}, "orb_similarity": 0.0041, "hist_similarity": 0.6482, "combined_score": 0.3906, "profit": {"amazon_price": 2480, "cost_1688_jpy": 57, "shipping": 115, "customs": 17, "referral_fee": 372, "fba_fee": 318, "total_cost": 926, "profit": 1554, "profit_rate": 0.6266129032258064, "is_profitable": true, "profit_rate_percentage": 62.7}}, {"alibaba": {"price_cny": 0.6, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01aCLgrY1uXa77srvwV_!!3997156047-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/618727928462.html", "shop_name": null, "shop_url": "https://shop1560471.1688.com/", "min_order": 1, "title": "3dプリンターリモートフィード管継手PC4-M6/01mmフィード口部品スルースルー空気圧継手"}, "orb_similarity": 0.0205, "hist_similarity": 0.6345, "combined_score": 0.3889, "profit": {"amazon_price": 2480, "cost_1688_jpy": 13, "shipping": 115, "customs": 12, "referral_fee": 372, "fba_fee": 318, "total_cost": 876, "profit": 1604, "profit_rate": 0.646774193548387, "is_profitable": true, "profit_rate_percentage": 64.7}}, {"alibaba": {"price_cny": 0.62, "image_url": "https://cbu01.alicdn.com/img/ibank/O1CN01zkBXwV1Y4LEeFMj0a_!!2219805483005-0-cib.jpg_460x460q100.jpg_", "product_url": "https://detail.1688.com/offer/943944981390.html", "shop_name": null, "shop_url": "https://shop8300564.1688.com/", "min_order": 1, "title": "タイヤナット、六角ホイールナット、クロームメッキ自動車部品、ネジキャップ、電動三輪車専用電気自動車タイヤ"}, "orb_similarity": 0.0082, "hist_similarity": 0.6424, "combined_score": 0.3887, "profit": {"amazon_price": 2480, "cost_1688_jpy": 14, "shipping": 115, "customs": 12, "referral_fee": 372, "fba_fee": 318, "total_cost": 877, "profit": 1603, "profit_rate": 0.6463709677419355, "is_profitable": true, "profit_rate_percentage": 64.6}}]}]}');
+
+function init() {
+  document.getElementById('statsLine').textContent =
+    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+  const container = document.getElementById('products');
+  DATA.products.forEach(function(product, pi) {
+    container.appendChild(buildCard(product, pi));
+  });
+}
+
+function buildCard(product, pi) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const am = product.amazon;
+  const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
+  const weight = am.weight_kg ? am.weight_kg+'kg' : '-';
+
+  let html = '<span class="product-num">#' + (pi+1) + '</span>';
+  html += '<div class="amazon-section">';
+  html += '<img class="amazon-img" src="' + escHtml(am.image_url) + '" onerror="this.style.display=\'none\'">';
+  html += '<div class="amazon-info">';
+  html += '<h3>' + escHtml(am.title) + '</h3>';
+  html += '<div class="amazon-price">&yen;' + num(am.price) + '</div>';
+  html += '<div class="amazon-details">';
+  html += '<span>ASIN: ' + am.asin + '</span>';
+  html += '<span>BSR: ' + num(am.bsr) + '</span>';
+  html += '<span>レビュー: ' + am.review_count + '件</span>';
+  if (am.rating) html += '<span>★' + am.rating + '</span>';
+  html += '<span>FBA: ' + (am.is_fba ? '○' : '×') + '</span>';
+  html += '<span>バリエ: ' + (am.variation_count || 1) + '</span>';
+  html += '<span>寸法: ' + dims + '</span>';
+  html += '<span>重量: ' + weight + '</span>';
+  html += '</div>';
+  html += '<div class="amazon-details"><span>月間販売: ' + num(product.estimated_monthly_sales) + '個</span>';
+  html += '<span>月間売上: &yen;' + num(product.estimated_monthly_revenue) + '</span></div>';
+  html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
+  html += '</div></div>';
+
+  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+  html += '<div class="candidates">';
+
+  product.candidates.forEach(function(cand) {
+    var profitPct = cand.profit.profit_rate_percentage;
+    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+    html += '<div class="candidate">';
+    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function num(n) {
+  if (n == null) return '-';
+  return Number(n).toLocaleString();
+}
+
+init();
+</script>
+</body>
+</html>

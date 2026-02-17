@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}管理ダッシュボード{% endblock %}
+
+{% block content %}
+<h1>管理ダッシュボード</h1>
+
+{% if session_status %}
+{% if not session_status.valid %}
+<div class="card" style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; margin-bottom: 1rem;">
+    <strong style="color: #dc3545;">1688セッション: {{ session_status.message }}</strong>
+    <p style="margin: 0.5rem 0 0 0;">リサーチが実行できません。サーバーで <code>python run_research.py --login</code> を実行してください。</p>
+</div>
+{% elif session_status.remaining_hours is not none and session_status.remaining_hours < 24 %}
+<div class="card" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1rem;">
+    <strong style="color: #856404;">1688セッション: {{ session_status.message }}</strong>
+    <p style="margin: 0.5rem 0 0 0;">自動延長を試みますが、失敗した場合は <code>python run_research.py --login</code> で再ログインしてください。</p>
+</div>
+{% else %}
+<div class="card" style="background: #d4edda; border-left: 4px solid #28a745; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+    <strong style="color: #155724;">1688セッション: {{ session_status.message }}</strong>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_users }}</div>
+        <div class="stat-label">総ユーザー数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.active_users }}</div>
+        <div class="stat-label">アクティブユーザー</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.jobs_today }}</div>
+        <div class="stat-label">本日のジョブ</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.pending_jobs }}</div>
+        <div class="stat-label">待機中ジョブ</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.running_jobs }}</div>
+        <div class="stat-label">実行中ジョブ</div>
+    </div>
+</div>
+
+{% if stats.plan_counts %}
+<div class="card mt-1">
+    <h2>プラン分布</h2>
+    <div class="stats-grid">
+        {% for plan_key, count in stats.plan_counts.items() %}
+        <div class="stat-card">
+            <div class="stat-value">{{ count }}</div>
+            <div class="stat-label">
+                <span class="badge {{ plan_display[plan_key].color }}">{{ plan_display[plan_key].label }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="admin-nav">
+    <a href="/admin/users" class="btn btn-primary">ユーザー管理</a>
+    <a href="/admin/jobs" class="btn btn-primary">全ジョブ</a>
+    <a href="/admin/excluded-keywords" class="btn btn-primary">除外キーワード</a>
+</div>
+{% endblock %}
