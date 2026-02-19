@@ -23,6 +23,7 @@ files = [
     ("web/templates/admin/invites.html", "/app/web/templates/admin/invites.html"),
     ("web/templates/admin/login.html", "/app/web/templates/admin/login.html"),
     ("web/templates/admin/excluded_keywords.html", "/app/web/templates/admin/excluded_keywords.html"),
+    ("web/templates/admin/reference_sellers.html", "/app/web/templates/admin/reference_sellers.html"),
     ("web/templates/admin/dashboard.html", "/app/web/templates/admin/dashboard.html"),
     ("web/templates/admin/users.html", "/app/web/templates/admin/users.html"),
     ("web/templates/admin/user_detail.html", "/app/web/templates/admin/user_detail.html"),
@@ -48,6 +49,7 @@ files = [
     ("web/services/usage_tracker.py", "/app/web/services/usage_tracker.py"),
     ("web/services/user_service.py", "/app/web/services/user_service.py"),
     ("web/services/ai_keyword_service.py", "/app/web/services/ai_keyword_service.py"),
+    ("web/services/seller_scraper.py", "/app/web/services/seller_scraper.py"),
     ("web/static/css/style.css", "/app/web/static/css/style.css"),
     ("web_requirements.txt", "/app/web_requirements.txt"),
     ("run_web.py", "/app/run_web.py"),
@@ -139,26 +141,31 @@ for local_rel, container_path in files:
 
 print(f"\n--- Results: {success_count} OK, {error_count} errors ---")
 
-# Install openai package in container (skip if already installed)
-print("\nChecking openai package...")
-stdin, stdout, stderr = ssh.exec_command(
-    f"docker exec {CONTAINER} python -c \"import openai; print(openai.__version__)\""
-)
-exit_code = stdout.channel.recv_exit_status()
-if exit_code != 0:
-    print("  Installing openai...")
+# Install required packages in container
+for pkg_name, pkg_import, pkg_spec in [
+    ("openai", "openai", "openai>=1.30.0"),
+    ("httpx", "httpx", "httpx>=0.27.0"),
+    ("beautifulsoup4", "bs4", "beautifulsoup4>=4.12.0"),
+]:
+    print(f"\nChecking {pkg_name} package...")
     stdin, stdout, stderr = ssh.exec_command(
-        f"docker exec {CONTAINER} pip install openai>=1.30.0"
+        f"docker exec {CONTAINER} python -c \"import {pkg_import}; print(getattr({pkg_import}, '__version__', 'ok'))\""
     )
     exit_code = stdout.channel.recv_exit_status()
-    if exit_code == 0:
-        print("  openai installed OK")
+    if exit_code != 0:
+        print(f"  Installing {pkg_name}...")
+        stdin, stdout, stderr = ssh.exec_command(
+            f"docker exec {CONTAINER} pip install '{pkg_spec}'"
+        )
+        exit_code = stdout.channel.recv_exit_status()
+        if exit_code == 0:
+            print(f"  {pkg_name} installed OK")
+        else:
+            err = stderr.read().decode().strip()
+            print(f"  {pkg_name} install error: {err}")
     else:
-        err = stderr.read().decode().strip()
-        print(f"  openai install error: {err}")
-else:
-    ver = stdout.read().decode().strip()
-    print(f"  openai already installed: v{ver}")
+        ver = stdout.read().decode().strip()
+        print(f"  {pkg_name} already installed: v{ver}")
 
 # Restart: kill the web process, Docker's restart policy will bring it back.
 # With reload=False (default in production), file copies above did NOT trigger

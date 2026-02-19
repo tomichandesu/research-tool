@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}参考セラー管理 - 管理{% endblock %}
+
+{% block content %}
+<h1>参考セラー管理</h1>
+<a href="/admin/" class="btn btn-sm btn-outline">&larr; 戻る</a>
+
+{% if error %}
+<div class="card mt-1" style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem;">
+    <strong style="color: #dc3545;">{{ error }}</strong>
+</div>
+{% endif %}
+
+{% if success %}
+<div class="card mt-1" style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem;">
+    <strong style="color: #155724;">{{ success }}</strong>
+</div>
+{% endif %}
+
+<div class="card mt-1">
+    <h2>セラー追加</h2>
+    <p style="color: #666; font-size: 0.9em; margin-bottom: 1rem;">
+        参考にする優秀な中国輸入セラーのURLを登録します。<br>
+        <strong>商品ページURL</strong>でもOK（自動的にセラーを特定します）。<br>
+        複数URLをまとめて貼り付けできます（1行1URL）。<br>
+        中国・アメリカ等の海外セラーは自動的に除外されます。<br>
+        登録後に「スクレイピング」で商品タイトルを自動取得できます。
+    </p>
+    <form method="post" action="/admin/reference-sellers">
+        <div style="margin-bottom: 0.75rem;">
+            <label style="font-weight: bold; display: block; margin-bottom: 4px;">Amazon セラーURL（1行1URL、複数可）</label>
+            <textarea name="urls" rows="5" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-family: monospace;" placeholder="https://www.amazon.co.jp/dp/B0XXXXX（商品ページURL）&#10;https://www.amazon.co.jp/s?me=YYYYY（セラーページURL）&#10;どちらの形式でもOK" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+</div>
+
+<div class="card mt-1">
+    <h2>登録済みセラー（{{ sellers|length }}件）</h2>
+    {% if sellers %}
+    <div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+        <label style="cursor: pointer; user-select: none;">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"> 全選択
+        </label>
+        <button type="button" class="btn btn-sm btn-primary" id="bulkScrapeBtn"
+                style="padding: 2px 12px; display: none;"
+                onclick="submitBulkScrape()">
+            一括スクレイピング（<span id="scrapeCount">0</span>件）
+        </button>
+        <button type="button" class="btn btn-sm" id="bulkDeleteBtn"
+                style="background: #d32f2f; color: #fff; border: none; padding: 2px 12px; cursor: pointer; display: none;"
+                onclick="submitBulkDelete()">
+            選択削除（<span id="selectedCount">0</span>件）
+        </button>
+    </div>
+    <div id="scrapeProgress" style="display: none; margin-bottom: 0.5rem; padding: 0.5rem 1rem; background: #e3f2fd; border-radius: 4px;">
+        <span id="scrapeStatus">処理中...</span>
+        <div style="background: #ccc; border-radius: 4px; height: 6px; margin-top: 4px;">
+            <div id="scrapeBar" style="background: #1976d2; height: 6px; border-radius: 4px; width: 0%; transition: width 0.3s;"></div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 30px;"></th>
+                <th>セラー名</th>
+                <th>URL</th>
+                <th>商品数</th>
+                <th>最終取得日</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in sellers %}
+            <tr{% if '[不明]' in s.name %} style="background: #fff3cd;"{% endif %}>
+                <td><input type="checkbox" data-id="{{ s.id }}" class="seller-cb" onchange="updateBulkBtn()"></td>
+                <td style="font-weight: bold;">
+                    {{ s.name }}
+                    {% if '[不明]' in s.name %}
+                    <span style="color: #856404; font-size: 0.8em;">（所在地未確認）</span>
+                    {% elif '[JP]' in s.name %}
+                    <span style="color: #155724; font-size: 0.8em;">🇯🇵</span>
+                    {% endif %}
+                </td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.url[:60] }}{% if s.url|length > 60 %}...{% endif %}</a>
+                </td>
+                <td>{{ s.product_count }}件</td>
+                <td>{{ s.scraped_at|jst if s.scraped_at else '未取得' }}</td>
+                <td style="white-space: nowrap;">
+                    <form method="post" action="/admin/reference-sellers/{{ s.id }}/scrape" style="display: inline;">
+                        <button class="btn btn-sm btn-primary" style="padding: 2px 8px;">スクレイピング</button>
+                    </form>
+                    <button type="button" class="btn btn-sm" style="background: #ff9800; color: #fff; border: none; padding: 2px 8px; cursor: pointer;"
+                            onclick="toggleManual({{ s.id }})">手動入力</button>
+                </td>
+            </tr>
+            <tr id="manual-{{ s.id }}" style="display: none;">
+                <td colspan="6">
+                    <form method="post" action="/admin/reference-sellers/{{ s.id }}/manual">
+                        <label style="font-weight: bold; display: block; margin-bottom: 4px;">商品タイトル（1行1タイトル）</label>
+                        <textarea name="titles" rows="6" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-family: monospace;" placeholder="商品タイトル1&#10;商品タイトル2&#10;商品タイトル3">{% if s.products_json %}{% for t in s.products_json|from_json %}{{ t }}{% if not loop.last %}&#10;{% endif %}{% endfor %}{% endif %}</textarea>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">保存</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: #888;">参考セラーはまだ登録されていません。</p>
+    {% endif %}
+</div>
+
+<script>
+function toggleManual(id) {
+    var row = document.getElementById('manual-' + id);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+function toggleSelectAll(el) {
+    var cbs = document.querySelectorAll('.seller-cb');
+    for (var i = 0; i < cbs.length; i++) { cbs[i].checked = el.checked; }
+    updateBulkBtn();
+}
+function updateBulkBtn() {
+    var checked = document.querySelectorAll('.seller-cb:checked').length;
+    document.getElementById('selectedCount').textContent = checked;
+    document.getElementById('scrapeCount').textContent = checked;
+    document.getElementById('bulkDeleteBtn').style.display = checked > 0 ? 'inline-block' : 'none';
+    document.getElementById('bulkScrapeBtn').style.display = checked > 0 ? 'inline-block' : 'none';
+    var all = document.querySelectorAll('.seller-cb').length;
+    document.getElementById('selectAll').checked = (checked === all && all > 0);
+}
+function submitBulkDelete() {
+    var cbs = document.querySelectorAll('.seller-cb:checked');
+    if (cbs.length === 0) return;
+    if (!confirm(cbs.length + '件のセラーを削除しますか？')) return;
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '/admin/reference-sellers/bulk-delete';
+    for (var i = 0; i < cbs.length; i++) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids';
+        input.value = cbs[i].getAttribute('data-id');
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+}
+async function submitBulkScrape() {
+    var cbs = document.querySelectorAll('.seller-cb:checked');
+    if (cbs.length === 0) return;
+    if (!confirm(cbs.length + '件のセラーを一括スクレイピングしますか？\n（1件ずつ順番に実行します）')) return;
+
+    var ids = [];
+    for (var i = 0; i < cbs.length; i++) { ids.push(cbs[i].getAttribute('data-id')); }
+
+    // Disable buttons
+    document.getElementById('bulkScrapeBtn').disabled = true;
+    document.getElementById('bulkDeleteBtn').disabled = true;
+    document.getElementById('selectAll').disabled = true;
+    document.querySelectorAll('.seller-cb').forEach(function(cb) { cb.disabled = true; });
+
+    // Show progress
+    var prog = document.getElementById('scrapeProgress');
+    var status = document.getElementById('scrapeStatus');
+    var bar = document.getElementById('scrapeBar');
+    prog.style.display = 'block';
+
+    var done = 0, ok = 0, fail = 0, deleted = 0;
+    for (var i = 0; i < ids.length; i++) {
+        status.textContent = '処理中... ' + (i+1) + '/' + ids.length;
+        bar.style.width = Math.round((i / ids.length) * 100) + '%';
+        try {
+            var resp = await fetch('/admin/reference-sellers/' + ids[i] + '/scrape', {
+                method: 'POST',
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            var text = await resp.text();
+            if (text.indexOf('自動削除') !== -1) { deleted++; }
+            else if (text.indexOf('スクレイピング失敗') !== -1) { fail++; }
+            else { ok++; }
+        } catch(e) { fail++; }
+        done++;
+    }
+
+    bar.style.width = '100%';
+    var msg = done + '件完了';
+    if (ok > 0) msg += ' / 成功: ' + ok + '件';
+    if (deleted > 0) msg += ' / 海外セラー削除: ' + deleted + '件';
+    if (fail > 0) msg += ' / 失敗: ' + fail + '件';
+    status.textContent = msg + ' — ページを再読み込みします...';
+
+    setTimeout(function() { location.reload(); }, 1500);
+}
+</script>
+{% endblock %}

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.dependencies import require_login
 from ..database import get_db
-from ..models import ResearchJob, SavedKeyword, User
+from ..models import ReferenceSeller, ResearchJob, SavedKeyword, User
 from ..services.ai_keyword_service import stream_keyword_chat
 from ..services.job_queue import job_queue
 from ..services.job_runner import cancel_job, check_1688_session
@@ -36,6 +36,9 @@ async def research_new(
 ):
     allowed, msg = await check_usage_limit(db, user)
 
+    # Check 1688 session status for display
+    session_ok, session_msg = check_1688_session()
+
     # Load saved keywords
     result = await db.execute(
         select(SavedKeyword)
@@ -53,6 +56,8 @@ async def research_new(
             "usage_allowed": allowed,
             "usage_message": msg,
             "saved_keywords": saved_keywords,
+            "session_ok": session_ok,
+            "session_msg": session_msg,
         },
     )
 
@@ -235,6 +240,7 @@ async def discovery_successful(
 async def discovery_ai_chat(
     request: Request,
     user: User = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
 ):
     """SSE endpoint for AI keyword discovery chat."""
     body = await request.json()
@@ -256,8 +262,23 @@ async def discovery_ai_chat(
             messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": message})
 
+    # Load reference seller products
+    reference_products: list[str] = []
+    result = await db.execute(
+        select(ReferenceSeller).where(ReferenceSeller.products_json.isnot(None))
+    )
+    for seller in result.scalars().all():
+        try:
+            titles = json.loads(seller.products_json)
+            if isinstance(titles, list):
+                reference_products.extend(titles)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
     async def event_stream():
-        async for chunk in stream_keyword_chat(messages):
+        async for chunk in stream_keyword_chat(
+            messages, reference_products=reference_products or None
+        ):
             escaped = json.dumps(chunk, ensure_ascii=False)
             yield f"data: {{\"chunk\": {escaped}}}\n\n"
         yield "data: {\"done\": true}\n\n"

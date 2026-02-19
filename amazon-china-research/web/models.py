@@ -169,6 +169,21 @@ class SavedKeyword(Base):
     user: Mapped[User] = relationship()
 
 
+class ReferenceSeller(Base):
+    """管理者が登録する参考セラー（AI提案の参考データ用）"""
+    __tablename__ = "reference_sellers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    url: Mapped[str] = mapped_column(String(500), nullable=False)
+    products_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    product_count: Mapped[int] = mapped_column(Integer, default=0)
+    scraped_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+
+
 class UsageLog(Base):
     __tablename__ = "usage_log"
 

@@ -4,6 +4,11 @@
 {% block content %}
 <h1>新規リサーチ</h1>
 
+{% if session_ok is defined and not session_ok %}
+<div class="alert alert-error" style="background: #fff3cd; border-left: 4px solid #ffc107; color: #856404;">
+    現在、1688リサーチ機能がメンテナンス中です。AIキーワードアシスタントは通常通りご利用いただけます。
+</div>
+{% endif %}
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>
 {% endif %}
@@ -57,9 +62,9 @@
         <div class="ai-chat-message ai-chat-assistant">
             <div class="ai-chat-avatar ai-avatar-ai">AI</div>
             <div class="ai-chat-bubble">
-                どんな商品に興味がありますか？<br>
-                例えば「キッチン用品」「アウトドア」など、ざっくりでOKです。<br>
-                完全におまかせもできます！
+                どんなジャンルに興味がある？<br>
+                たとえばインテリア系、ペット系、ガーデニング系…ざっくりでOK！<br>
+                完全におまかせもできるよ！
             </div>
         </div>
     </div>
@@ -274,9 +279,9 @@ function aiChatReset() {
     container.innerHTML = '<div class="ai-chat-message ai-chat-assistant">' +
         '<div class="ai-chat-avatar ai-avatar-ai">AI</div>' +
         '<div class="ai-chat-bubble">' +
-        'どんな商品に興味がありますか？<br>' +
-        '例えば「キッチン用品」「アウトドア」など、ざっくりでOKです。<br>' +
-        '完全におまかせもできます！' +
+        'どんなジャンルに興味がある？<br>' +
+        'たとえばインテリア系、ペット系、ガーデニング系…ざっくりでOK！<br>' +
+        '完全におまかせもできるよ！' +
         '</div></div>';
 }
 

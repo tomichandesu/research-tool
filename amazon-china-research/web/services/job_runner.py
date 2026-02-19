@@ -110,17 +110,19 @@ def check_1688_session() -> tuple[bool, str]:
     Returns:
         (is_valid, message) tuple.
     """
+    _SESSION_EXPIRED_MSG = "1688との接続が切れています。現在メンテナンス中です。しばらくお待ちください。"
+
     if not _AUTH_STORAGE_PATH.exists():
-        return False, "1688の認証データがありません。管理者が `python run_research.py --login` を実行してください。"
+        return False, _SESSION_EXPIRED_MSG
 
     try:
         data = json.loads(_AUTH_STORAGE_PATH.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
-        return False, "1688の認証データが破損しています。管理者に連絡してください。"
+        return False, _SESSION_EXPIRED_MSG
 
     cookies = data.get("cookies", [])
     if not cookies:
-        return False, "1688の認証Cookieが空です。管理者が再ログインしてください。"
+        return False, _SESSION_EXPIRED_MSG
 
     now = time.time()
 
@@ -131,12 +133,12 @@ def check_1688_session() -> tuple[bool, str]:
             # Also check .taobao.com domain
             matching = [c for c in cookies if c.get("name") == name and ".taobao.com" in (c.get("domain") or "")]
         if not matching:
-            return False, f"1688の認証Cookie ({name}) が見つかりません。管理者が再ログインしてください。"
+            return False, _SESSION_EXPIRED_MSG
 
         # Check if at least one is still valid
         valid = [c for c in matching if c.get("expires", -1) == -1 or c.get("expires", 0) > now]
         if not valid:
-            return False, "1688のセッションが期限切れです。管理者が `python run_research.py --login` で再ログインしてください。"
+            return False, _SESSION_EXPIRED_MSG
 
     return True, ""
 

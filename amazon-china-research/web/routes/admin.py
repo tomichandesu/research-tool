@@ -16,7 +16,7 @@ from ..auth.service import hash_password, verify_password
 from ..auth.session import create_session, delete_session
 from ..config import settings
 from ..database import get_db
-from ..models import ExcludedKeyword, ResearchJob, User, UsageLog
+from ..models import ExcludedKeyword, ReferenceSeller, ResearchJob, User, UsageLog
 from ..services.session_keeper import get_session_status
 from ..services.usage_tracker import PLAN_LIMITS
 from ..services.user_service import (
@@ -449,3 +449,320 @@ async def admin_delete_excluded_keyword(
         await db.delete(kw)
         await db.commit()
     return RedirectResponse("/admin/excluded-keywords", status_code=303)
+
+
+# --- Reference Sellers ---
+
+@router.get("/reference-sellers", response_class=HTMLResponse)
+async def admin_reference_sellers(
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+    )
+    sellers = list(result.scalars().all())
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "admin/reference_sellers.html",
+        {"request": request, "user": user, "sellers": sellers},
+    )
+
+
+@router.post("/reference-sellers")
+async def admin_add_reference_seller(
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    import asyncio
+    from ..services.seller_scraper import (
+        extract_seller_id,
+        check_seller_location, resolve_seller_from_page,
+    )
+
+    form = await request.form()
+    raw = (form.get("urls") or "").strip()
+    urls = [u.strip() for u in raw.split("\n") if u.strip()]
+
+    if not urls:
+        result = await db.execute(
+            select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+        )
+        sellers = list(result.scalars().all())
+        templates = request.app.state.templates
+        return templates.TemplateResponse(
+            "admin/reference_sellers.html",
+            {"request": request, "user": user, "sellers": sellers,
+             "error": "URLを入力してください。"},
+        )
+
+    # Check for duplicates (by seller ID)
+    existing_result = await db.execute(select(ReferenceSeller.url))
+    existing_urls = {row[0] for row in existing_result.all()}
+    existing_seller_ids: set[str] = set()
+    for eu in existing_urls:
+        sid = extract_seller_id(eu)
+        if sid:
+            existing_seller_ids.add(sid)
+
+    # Phase 1: Separate URLs — extract seller ID directly, or queue for HTTP resolution
+    seller_id_urls: list[str] = []  # already have seller ID
+    pages_to_resolve: list[str] = []  # need HTTP to resolve (product pages, brand stores, etc.)
+    skipped_non_jp_url = 0
+    errors: list[str] = []
+
+    for url in urls:
+        if "amazon.co.jp" not in url:
+            skipped_non_jp_url += 1
+            continue
+        sid = extract_seller_id(url)
+        if sid:
+            if sid not in existing_seller_ids and sid not in seller_id_urls:
+                seller_id_urls.append(sid)
+        else:
+            # Any Amazon URL (product page, brand store, storefront, etc.)
+            pages_to_resolve.append(url)
+
+    # Phase 2: Resolve unknown URLs → seller IDs by fetching pages (parallel, max 5)
+    sem = asyncio.Semaphore(5)
+
+    if pages_to_resolve:
+        async def resolve_one(purl: str) -> tuple[str, str | None]:
+            async with sem:
+                try:
+                    sid, _ = await resolve_seller_from_page(purl)
+                    return purl, sid
+                except Exception as e:
+                    return purl, None
+
+        resolve_results = await asyncio.gather(
+            *(resolve_one(u) for u in pages_to_resolve),
+            return_exceptions=True,
+        )
+        for res in resolve_results:
+            if isinstance(res, Exception):
+                errors.append(str(res))
+                continue
+            purl, sid = res
+            if not sid:
+                errors.append(f"セラー特定失敗: {purl[:80]}")
+                continue
+            if sid not in existing_seller_ids and sid not in seller_id_urls:
+                seller_id_urls.append(sid)
+
+    # Phase 3: Check locations in parallel (max 5 concurrent)
+    candidates = seller_id_urls
+    added = 0
+    skipped_foreign = 0
+    skipped_foreign_names: list[str] = []
+
+    if candidates:
+        async def check_one(sid: str) -> tuple[str, str]:
+            async with sem:
+                loc = await check_seller_location(sid)
+                return sid, loc
+
+        results = await asyncio.gather(
+            *(check_one(sid) for sid in candidates),
+            return_exceptions=True,
+        )
+
+        for res in results:
+            if isinstance(res, Exception):
+                errors.append(str(res))
+                continue
+            sid, location = res
+            if location not in ("JP", "不明"):
+                skipped_foreign += 1
+                skipped_foreign_names.append(f"{sid}({location})")
+                logger.info("Skipped foreign seller %s (%s)", sid, location)
+                continue
+
+            name = f"セラー {sid} [{location}]"
+            seller_url = f"https://www.amazon.co.jp/s?me={sid}"
+            db.add(ReferenceSeller(name=name, url=seller_url))
+            existing_seller_ids.add(sid)
+            added += 1
+
+    if added:
+        await db.commit()
+
+    result = await db.execute(
+        select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+    )
+    sellers = list(result.scalars().all())
+    templates = request.app.state.templates
+
+    success_msg = f"{added}件のセラーを追加しました。" if added else "新規セラーはありませんでした（重複）。"
+    if skipped_foreign:
+        foreign_detail = "、".join(skipped_foreign_names[:5])
+        if len(skipped_foreign_names) > 5:
+            foreign_detail += f" 他{len(skipped_foreign_names) - 5}件"
+        success_msg += f" （海外セラー {skipped_foreign}件を除外: {foreign_detail}）"
+    if skipped_non_jp_url:
+        success_msg += f" （日本以外のURL {skipped_non_jp_url}件を除外）"
+
+    return templates.TemplateResponse(
+        "admin/reference_sellers.html",
+        {"request": request, "user": user, "sellers": sellers,
+         "success": success_msg,
+         "error": " / ".join(errors) if errors else None},
+    )
+
+
+@router.post("/reference-sellers/{seller_id}/scrape")
+async def admin_scrape_reference_seller(
+    seller_id: int,
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    import json
+
+    seller = await db.get(ReferenceSeller, seller_id)
+    if not seller:
+        return RedirectResponse("/admin/reference-sellers", status_code=303)
+
+    try:
+        from ..services.seller_scraper import (
+            scrape_seller_products,
+            resolve_seller_from_page,
+            check_seller_location,
+            extract_seller_id,
+        )
+
+        # If URL doesn't have a seller ID, resolve from the page
+        sid = extract_seller_id(seller.url)
+        if not sid:
+            resolved_sid, seller_url = await resolve_seller_from_page(seller.url)
+            seller.url = seller_url
+            seller.name = f"セラー {resolved_sid}"
+
+        # Check location - auto-delete foreign sellers
+        sid = extract_seller_id(seller.url)
+        if sid:
+            location = await check_seller_location(sid)
+            logger.info("Seller %s location: %s", sid, location)
+
+            # Non-JP sellers are auto-deleted
+            if location not in ("JP", "不明"):
+                seller_name = seller.name
+                await db.delete(seller)
+                await db.commit()
+
+                result = await db.execute(
+                    select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+                )
+                sellers = list(result.scalars().all())
+                templates = request.app.state.templates
+                return templates.TemplateResponse(
+                    "admin/reference_sellers.html",
+                    {"request": request, "user": user, "sellers": sellers,
+                     "error": f"「{seller_name}」は日本以外のセラー（{location}）のため自動削除しました。"},
+                )
+
+            seller.name = f"セラー {sid} [{location}]"
+
+        titles = await scrape_seller_products(seller.url)
+
+        seller.products_json = json.dumps(titles, ensure_ascii=False)
+        seller.product_count = len(titles)
+        seller.scraped_at = datetime.utcnow()
+        await db.commit()
+
+        result = await db.execute(
+            select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+        )
+        sellers = list(result.scalars().all())
+        templates = request.app.state.templates
+        return templates.TemplateResponse(
+            "admin/reference_sellers.html",
+            {"request": request, "user": user, "sellers": sellers,
+             "success": f"「{seller.name}」から{len(titles)}件の商品タイトルを取得しました。"},
+        )
+
+    except Exception as e:
+        logger.exception("Scraping failed for seller %d", seller_id)
+        result = await db.execute(
+            select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+        )
+        sellers = list(result.scalars().all())
+        templates = request.app.state.templates
+        return templates.TemplateResponse(
+            "admin/reference_sellers.html",
+            {"request": request, "user": user, "sellers": sellers,
+             "error": f"スクレイピング失敗: {e}。手動入力をお試しください。"},
+        )
+
+
+@router.post("/reference-sellers/{seller_id}/manual")
+async def admin_manual_reference_seller(
+    seller_id: int,
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    import json
+
+    seller = await db.get(ReferenceSeller, seller_id)
+    if not seller:
+        return RedirectResponse("/admin/reference-sellers", status_code=303)
+
+    form = await request.form()
+    raw = (form.get("titles") or "").strip()
+    titles = [t.strip() for t in raw.split("\n") if t.strip()]
+
+    seller.products_json = json.dumps(titles, ensure_ascii=False)
+    seller.product_count = len(titles)
+    seller.scraped_at = datetime.utcnow()
+    await db.commit()
+
+    return RedirectResponse("/admin/reference-sellers", status_code=303)
+
+
+@router.post("/reference-sellers/bulk-delete")
+async def admin_bulk_delete_reference_sellers(
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    form = await request.form()
+    ids = form.getlist("ids")
+    deleted = 0
+    for sid in ids:
+        try:
+            seller = await db.get(ReferenceSeller, int(sid))
+            if seller:
+                await db.delete(seller)
+                deleted += 1
+        except (ValueError, TypeError):
+            pass
+    if deleted:
+        await db.commit()
+
+    result = await db.execute(
+        select(ReferenceSeller).order_by(ReferenceSeller.created_at.desc())
+    )
+    sellers = list(result.scalars().all())
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "admin/reference_sellers.html",
+        {"request": request, "user": user, "sellers": sellers,
+         "success": f"{deleted}件のセラーを削除しました。"},
+    )
+
+
+@router.post("/reference-sellers/{seller_id}/delete")
+async def admin_delete_reference_seller(
+    seller_id: int,
+    request: Request,
+    user: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    seller = await db.get(ReferenceSeller, seller_id)
+    if seller:
+        await db.delete(seller)
+        await db.commit()
+    return RedirectResponse("/admin/reference-sellers", status_code=303)
