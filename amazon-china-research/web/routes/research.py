@@ -2,16 +2,19 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.dependencies import require_login
 from ..database import get_db
 from ..models import ResearchJob, SavedKeyword, User
+from ..services.ai_keyword_service import stream_keyword_chat
 from ..services.job_queue import job_queue
 from ..services.job_runner import cancel_job, check_1688_session
 from ..services.keyword_discovery import (
@@ -32,7 +35,6 @@ async def research_new(
     db: AsyncSession = Depends(get_db),
 ):
     allowed, msg = await check_usage_limit(db, user)
-    session_ok, session_msg = check_1688_session()
 
     # Load saved keywords
     result = await db.execute(
@@ -50,8 +52,6 @@ async def research_new(
             "user": user,
             "usage_allowed": allowed,
             "usage_message": msg,
-            "session_ok": session_ok,
-            "session_msg": session_msg,
             "saved_keywords": saved_keywords,
         },
     )
@@ -81,8 +81,7 @@ async def research_submit(
         return templates.TemplateResponse(
             "research/new.html",
             {"request": request, "user": user, "error": session_msg,
-             "usage_allowed": True, "usage_message": "",
-             "session_ok": False, "session_msg": session_msg},
+             "usage_allowed": True, "usage_message": ""},
         )
 
     # Check usage limit
@@ -94,7 +93,24 @@ async def research_submit(
              "usage_allowed": False, "usage_message": msg},
         )
 
-    # Check if user already has a pending/running job
+    # Auto-cleanup stale jobs (running > 2 hours = definitely stuck)
+    stale_cutoff = datetime.now(timezone.utc) - timedelta(hours=2)
+    stale_result = await db.execute(
+        select(ResearchJob).where(
+            ResearchJob.user_id == user.id,
+            ResearchJob.status.in_(["pending", "running"]),
+        )
+    )
+    for stale_job in stale_result.scalars().all():
+        job_time = stale_job.started_at or stale_job.created_at
+        if job_time and job_time.replace(tzinfo=timezone.utc) < stale_cutoff:
+            stale_job.status = "failed"
+            stale_job.error_message = "タイムアウト（2時間以上経過のため自動終了）"
+            stale_job.completed_at = datetime.now(timezone.utc)
+
+    await db.flush()
+
+    # Check if user still has an active job after cleanup
     existing = await db.scalar(
         select(ResearchJob).where(
             ResearchJob.user_id == user.id,
@@ -105,7 +121,7 @@ async def research_submit(
         return templates.TemplateResponse(
             "research/new.html",
             {"request": request, "user": user,
-             "error": "You already have an active job. Please wait for it to finish.",
+             "error": "実行中のリサーチがあります。完了するまでお待ちください。",
              "usage_allowed": True, "usage_message": ""},
         )
 
@@ -215,6 +231,47 @@ async def discovery_successful(
     )
 
 
+@router.post("/discovery/ai-chat")
+async def discovery_ai_chat(
+    request: Request,
+    user: User = Depends(require_login),
+):
+    """SSE endpoint for AI keyword discovery chat."""
+    body = await request.json()
+    message = (body.get("message") or "").strip()
+    history = body.get("history") or []
+
+    if not message:
+        return StreamingResponse(
+            iter(["data: {\"error\": \"メッセージを入力してください\"}\n\n"]),
+            media_type="text/event-stream",
+        )
+
+    # Build messages for OpenAI
+    messages = []
+    for msg in history:
+        role = msg.get("role")
+        content = msg.get("content", "")
+        if role in ("user", "assistant") and content:
+            messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": message})
+
+    async def event_stream():
+        async for chunk in stream_keyword_chat(messages):
+            escaped = json.dumps(chunk, ensure_ascii=False)
+            yield f"data: {{\"chunk\": {escaped}}}\n\n"
+        yield "data: {\"done\": true}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @router.get("/{job_id}", response_class=HTMLResponse)
 async def research_detail(
     job_id: int,
@@ -254,10 +311,26 @@ async def research_status_api(
     job = await db.get(ResearchJob, job_id)
     if not job or (job.user_id != user.id and user.role != "admin"):
         return {"status": "not_found"}
+
+    progress_pct = job.progress_pct
+    progress_message = job.progress_message or ""
+
+    # Read real-time progress from file written by subprocess
+    if job.status == "running":
+        from ..config import settings
+        progress_file = Path(settings.JOBS_OUTPUT_DIR) / str(job_id) / "progress.json"
+        if progress_file.exists():
+            try:
+                data = json.loads(progress_file.read_text(encoding="utf-8"))
+                progress_pct = data.get("pct", progress_pct)
+                progress_message = data.get("message", progress_message)
+            except Exception:
+                pass
+
     return {
         "status": job.status,
-        "progress_pct": job.progress_pct,
-        "progress_message": job.progress_message or "",
+        "progress_pct": progress_pct,
+        "progress_message": progress_message,
     }
 
 

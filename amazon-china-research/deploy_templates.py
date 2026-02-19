@@ -5,7 +5,7 @@ import time
 HOST = "220.158.17.127"
 USER = "root"
 PASSWORD = "tomidokoro"
-CONTAINER = "5efe943fa337"
+CONTAINER = "194590d42e07"
 
 LOCAL_BASE = r"C:\Users\tomic\OneDrive\dev\リサーチツール\amazon-china-research"
 REMOTE_TMP = "/tmp/deploy_templates"
@@ -47,6 +47,10 @@ files = [
     ("web/services/stripe_service.py", "/app/web/services/stripe_service.py"),
     ("web/services/usage_tracker.py", "/app/web/services/usage_tracker.py"),
     ("web/services/user_service.py", "/app/web/services/user_service.py"),
+    ("web/services/ai_keyword_service.py", "/app/web/services/ai_keyword_service.py"),
+    ("web/static/css/style.css", "/app/web/static/css/style.css"),
+    ("web_requirements.txt", "/app/web_requirements.txt"),
+    ("run_web.py", "/app/run_web.py"),
     (".env", "/app/.env"),
 ]
 
@@ -72,7 +76,8 @@ mkdir_cmd = (
     f"{REMOTE_TMP}/web/templates/billing "
     f"{REMOTE_TMP}/web/templates/account "
     f"{REMOTE_TMP}/web/routes "
-    f"{REMOTE_TMP}/web/services"
+    f"{REMOTE_TMP}/web/services "
+    f"{REMOTE_TMP}/web/static/css"
 )
 stdin, stdout, stderr = ssh.exec_command(mkdir_cmd)
 stdout.channel.recv_exit_status()
@@ -88,6 +93,7 @@ container_dirs = [
     "/app/web/templates/account",
     "/app/web/routes",
     "/app/web/services",
+    "/app/web/static/css",
 ]
 for d in container_dirs:
     cmd = f"docker exec {CONTAINER} mkdir -p {d}"
@@ -133,13 +139,38 @@ for local_rel, container_path in files:
 
 print(f"\n--- Results: {success_count} OK, {error_count} errors ---")
 
-# Restart the web process inside container
-print("\nRestarting web server...")
+# Install openai package in container (skip if already installed)
+print("\nChecking openai package...")
+stdin, stdout, stderr = ssh.exec_command(
+    f"docker exec {CONTAINER} python -c \"import openai; print(openai.__version__)\""
+)
+exit_code = stdout.channel.recv_exit_status()
+if exit_code != 0:
+    print("  Installing openai...")
+    stdin, stdout, stderr = ssh.exec_command(
+        f"docker exec {CONTAINER} pip install openai>=1.30.0"
+    )
+    exit_code = stdout.channel.recv_exit_status()
+    if exit_code == 0:
+        print("  openai installed OK")
+    else:
+        err = stderr.read().decode().strip()
+        print(f"  openai install error: {err}")
+else:
+    ver = stdout.read().decode().strip()
+    print(f"  openai already installed: v{ver}")
+
+# Restart: kill the web process, Docker's restart policy will bring it back.
+# With reload=False (default in production), file copies above did NOT trigger
+# any restarts, so running research jobs were not interrupted.
+# This single restart is the only interruption point.
+print("\nRestarting web server (Docker auto-restart)...")
+print("  Note: Any running research jobs will auto-retry after restart.")
 stdin, stdout, stderr = ssh.exec_command(
     f"docker exec {CONTAINER} pkill -f 'python.*run_web' || true"
 )
 stdout.channel.recv_exit_status()
-time.sleep(3)
+time.sleep(5)
 
 # Check processes
 print("Checking processes in container...")
@@ -157,4 +188,5 @@ ssh.close()
 
 print("=" * 60)
 print("Deploy complete!")
+print("  Running jobs will auto-retry after server restart.")
 print("=" * 60)

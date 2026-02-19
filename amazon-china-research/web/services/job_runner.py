@@ -27,6 +27,76 @@ logger = logging.getLogger(__name__)
 # Spawn context for subprocess isolation (Playwright needs its own event loop)
 _mp_context = multiprocessing.get_context("spawn")
 
+
+# ---------------------------------------------------------------------------
+# Progress tracking helpers (used by subprocess to report progress)
+# ---------------------------------------------------------------------------
+
+def _write_progress(progress_file: str, pct: int, message: str) -> None:
+    """Write progress to a JSON file for the status endpoint to read."""
+    import json as _json
+    from pathlib import Path as _Path
+    try:
+        p = _Path(progress_file)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(_json.dumps({"pct": pct, "message": message}), encoding="utf-8")
+    except Exception:
+        pass  # Non-critical
+
+
+class _ProgressWriter:
+    """Wraps stdout to capture [N/6] and [AUTO] messages and write progress."""
+
+    _STEP_MAP = {
+        "[1/6]": (20, "Amazon検索中..."),
+        "[2/6]": (30, "フィルタリング中..."),
+        "[3/6]": (45, "商品詳細取得中..."),
+        "[4/6]": (60, "最終フィルタリング中..."),
+        "[5/6]": (75, "1688画像検索中..."),
+        "[6/6]": (90, "レポート生成中..."),
+    }
+
+    def __init__(self, original_stdout, progress_file: str,
+                 mode: str = "single", max_keywords: int = 1):
+        self._original = original_stdout
+        self._progress_file = progress_file
+        self._mode = mode
+        self._max_keywords = max(max_keywords, 1)
+
+    def write(self, text):
+        result = self._original.write(text)
+        self._extract_progress(text)
+        return result
+
+    def flush(self):
+        return self._original.flush()
+
+    def fileno(self):
+        return self._original.fileno()
+
+    def _extract_progress(self, text: str):
+        if self._mode == "single":
+            for marker, (pct, msg) in self._STEP_MAP.items():
+                if marker in text:
+                    _write_progress(self._progress_file, pct, msg)
+                    return
+        elif self._mode == "auto":
+            # Track per-keyword progress from [AUTO] [N] "keyword" pattern
+            if "[AUTO]" in text and "リサーチ中..." in text:
+                import re
+                m = re.search(r'\[AUTO\]\s*\[(\d+)\]', text)
+                if m:
+                    kw_num = int(m.group(1))
+                    pct = 10 + int(kw_num / self._max_keywords * 80)
+                    pct = min(pct, 90)
+                    _write_progress(
+                        self._progress_file, pct,
+                        f"リサーチ中... ({kw_num}/{self._max_keywords}キーワード)",
+                    )
+
+    def __getattr__(self, name):
+        return getattr(self._original, name)
+
 # Path to 1688 auth storage
 _AUTH_STORAGE_PATH = Path(__file__).parent.parent.parent / "config" / "auth" / "1688_storage.json"
 
@@ -107,6 +177,8 @@ def _friendly_error(raw: str) -> str:
 # Track running job executors and futures for cancellation
 _running_executors: dict[int, ProcessPoolExecutor] = {}
 _running_futures: dict[int, asyncio.Future] = {}
+# Track jobs explicitly cancelled by the user (vs server restart)
+_user_cancelled_jobs: set[int] = {}
 
 
 async def cancel_job(job_id: int) -> bool:
@@ -116,6 +188,9 @@ async def cancel_job(job_id: int) -> bool:
     Also releases the user's queue slot so the next job starts immediately.
     Returns True if successfully cancelled.
     """
+    # Mark as user-initiated cancel before cancelling future
+    _user_cancelled_jobs.add(job_id)
+
     # Cancel the asyncio future first (unblocks the worker)
     fut = _running_futures.pop(job_id, None)
     if fut and not fut.done():
@@ -164,6 +239,13 @@ def _run_in_subprocess(job_id: int, keyword: str, jobs_output_dir: str, user_id:
     project_root = Path(__file__).parent.parent.parent
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
+
+    # Set up progress tracking
+    progress_file = str(Path(jobs_output_dir) / str(job_id) / "progress.json")
+    Path(jobs_output_dir, str(job_id)).mkdir(parents=True, exist_ok=True)
+    _write_progress(progress_file, 15, "ブラウザ起動中...")
+    old_stdout = sys.stdout
+    sys.stdout = _ProgressWriter(old_stdout, progress_file, mode="single")
 
     async def _do_research():
         import time as _time
@@ -254,6 +336,8 @@ def _run_in_subprocess(job_id: int, keyword: str, jobs_output_dir: str, user_id:
             "error": str(e),
             "traceback": traceback.format_exc(),
         }
+    finally:
+        sys.stdout = old_stdout
 
 
 def _run_auto_in_subprocess(
@@ -275,6 +359,15 @@ def _run_auto_in_subprocess(
     project_root = Path(__file__).parent.parent.parent
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
+
+    # Set up progress tracking
+    progress_file = str(Path(jobs_output_dir) / str(job_id) / "progress.json")
+    Path(jobs_output_dir, str(job_id)).mkdir(parents=True, exist_ok=True)
+    _write_progress(progress_file, 15, f"オートリサーチ準備中...")
+    old_stdout = sys.stdout
+    sys.stdout = _ProgressWriter(
+        old_stdout, progress_file, mode="auto", max_keywords=max_keywords,
+    )
 
     async def _do_auto():
         import time as _time
@@ -444,6 +537,8 @@ def _run_auto_in_subprocess(
             "error": str(e),
             "traceback": traceback.format_exc(),
         }
+    finally:
+        sys.stdout = old_stdout
 
 
 async def run_research_job(job_id: int) -> None:
@@ -522,12 +617,21 @@ async def run_research_job(job_id: int) -> None:
             _running_futures[job_id] = future
             result = await asyncio.wait_for(future, timeout=timeout_seconds)
         except asyncio.CancelledError:
-            logger.info(f"Job {job_id} was cancelled by user")
-            result = {
-                "success": False,
-                "error": "ユーザーにより停止されました",
-                "traceback": "",
-            }
+            if job_id in _user_cancelled_jobs:
+                # User explicitly cancelled via cancel button
+                _user_cancelled_jobs.discard(job_id)
+                logger.info(f"Job {job_id} was cancelled by user")
+                result = {
+                    "success": False,
+                    "error": "ユーザーにより停止されました",
+                    "traceback": "",
+                }
+            else:
+                # Server restart/shutdown — don't save to DB.
+                # Job stays as "running" and _recover_stale_jobs will
+                # reset it to "pending" on next startup for auto-retry.
+                logger.info(f"Job {job_id} interrupted by server shutdown, will auto-retry on restart")
+                return
         except asyncio.TimeoutError:
             logger.error(f"Job {job_id} timed out after {settings.JOB_TIMEOUT_MINUTES} minutes")
             result = {

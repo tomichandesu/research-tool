@@ -2,6 +2,7 @@
 """Web server entry point for Amazon-1688 Research Tool."""
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -13,12 +14,16 @@ from web.config import settings
 
 
 def main():
+    # reload=True is for development only. In production (Docker),
+    # set UVICORN_RELOAD=false (default) to prevent WatchFiles from
+    # killing running research jobs when files are updated via deploy.
+    reload = os.environ.get("UVICORN_RELOAD", "false").lower() in ("1", "true", "yes")
     uvicorn.run(
         "web.app:create_app",
         factory=True,
         host=settings.HOST,
         port=settings.PORT,
-        reload=True,
+        reload=reload,
         log_level="info",
     )
 
