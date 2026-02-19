@@ -38,6 +38,10 @@ class WebConfig:
     JOB_TIMEOUT_MINUTES: int = int(os.getenv("JOB_TIMEOUT_MINUTES", "30"))
     STALE_JOB_MINUTES: int = int(os.getenv("STALE_JOB_MINUTES", "45"))
 
+    # Batch research
+    MAX_BATCH_SIZE: int = int(os.getenv("MAX_BATCH_SIZE", "10"))
+    BATCH_INTER_JOB_DELAY: int = int(os.getenv("BATCH_INTER_JOB_DELAY", "45"))
+
     # Output
     JOBS_OUTPUT_DIR: str = os.getenv(
         "JOBS_OUTPUT_DIR", str(_project_root / "output" / "jobs")

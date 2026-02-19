@@ -5,15 +5,83 @@
 <h1>リサーチ: {{ job.keyword }}</h1>
 <a href="/research/history" class="btn btn-sm btn-outline">&larr; 履歴</a>
 
+{% if batch_jobs %}
+<div class="card mt-1" id="batch-panel">
+    <h2>一括リサーチキュー</h2>
+    {% set completed_count = batch_jobs | selectattr('status', 'in', ['completed', 'failed', 'cancelled']) | list | length %}
+    {% set total_count = batch_jobs | length %}
+    <div style="margin-bottom: 0.75rem;">
+        <strong id="batch-progress-text">{{ completed_count }} / {{ total_count }} 完了</strong>
+    </div>
+    <div class="progress-bar" style="margin-bottom: 1rem;">
+        <div class="progress-fill" id="batch-progress-bar"
+             style="width: {{ (completed_count / total_count * 100) | int if total_count > 0 else 0 }}%">
+            {{ (completed_count / total_count * 100) | int if total_count > 0 else 0 }}%
+        </div>
+    </div>
+    <table class="table" id="batch-jobs-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>キーワード</th>
+                <th>ステータス</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bj in batch_jobs %}
+            <tr {% if bj.id == job.id %}style="background: #e3f2fd; font-weight: bold;"{% endif %}>
+                <td>{{ bj.batch_position }}</td>
+                <td>{{ bj.keyword }}</td>
+                <td>
+                    <span class="badge badge-{{ bj.status }}">
+                        {%- if bj.status == 'pending' -%}順番待ち
+                        {%- elif bj.status == 'running' -%}リサーチ中
+                        {%- elif bj.status == 'completed' -%}完了
+                        {%- elif bj.status == 'failed' -%}エラー
+                        {%- elif bj.status == 'cancelled' -%}キャンセル
+                        {%- else -%}{{ bj.status }}{%- endif -%}
+                    </span>
+                </td>
+                <td>
+                    {% if bj.id == job.id %}
+                    <span style="color: #1976d2;">表示中</span>
+                    {% else %}
+                    <a href="/research/{{ bj.id }}" class="btn btn-sm btn-outline">詳細</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% set has_pending = batch_jobs | selectattr('status', 'equalto', 'pending') | list | length > 0 %}
+    {% if has_pending %}
+    <div style="margin-top: 0.75rem;">
+        <form method="post" action="/research/batch/{{ job.batch_group_id }}/cancel-pending"
+              onsubmit="return confirm('待機中のリサーチをすべてキャンセルしますか？')">
+            <button class="btn btn-sm" style="background: #d32f2f; color: #fff; border: none; cursor: pointer;">
+                待機中をすべてキャンセル
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
 <div class="card mt-1">
     <dl class="dl-horizontal">
         <dt>モード</dt>
         <dd>
-            {% if job.mode == 'auto' %}
-            <span class="badge badge-admin">オート</span>
+            {% if job.batch_group_id %}
+            <span class="badge" style="background: #1565c0; color: #fff;">一括オート</span>
+            <span class="badge" style="background: #e3f2fd; color: #1565c0; margin-left: 0.25em;">#{{ job.batch_position }}</span>
+            （各最大{{ job.auto_max_keywords }}キーワード）
+            {% elif job.auto_max_keywords and job.auto_max_keywords > 10 %}
+            <span class="badge" style="background: #e65100; color: #fff;">詳細オート</span>
             （最大{{ job.auto_max_keywords }}キーワード）
             {% else %}
-            <span class="badge badge-member">シングル</span>
+            <span class="badge" style="background: #e65100; color: #fff;">詳細オート</span>
+            （最大{{ job.auto_max_keywords }}キーワード）
             {% endif %}
         </dd>
         <dt>ステータス</dt>
@@ -23,6 +91,7 @@
                 {%- elif job.status == 'running' -%}リサーチ中
                 {%- elif job.status == 'completed' -%}完了
                 {%- elif job.status == 'failed' -%}エラー
+                {%- elif job.status == 'cancelled' -%}キャンセル
                 {%- else -%}{{ job.status }}{%- endif -%}
             </span>
             {% if job.status == 'pending' %}
@@ -142,10 +211,6 @@
     <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
         <form method="post" action="/research/new" style="display: inline;">
             <input type="hidden" name="keyword" value="{{ job.keyword }}">
-            <input type="hidden" name="mode" value="{{ job.mode }}">
-            {% if job.mode == 'auto' %}
-            <input type="hidden" name="auto_max_keywords" value="{{ job.auto_max_keywords }}">
-            {% endif %}
             <button class="btn btn-primary" type="submit">「{{ job.keyword }}」で再実行</button>
         </form>
         <a href="/research/new" class="btn btn-outline">別のキーワードで検索</a>
@@ -168,8 +233,11 @@ if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
 }
 
+var isBatch = {{ 'true' if batch_jobs else 'false' }};
+var currentJobId = {{ job.id }};
+
 (function poll() {
-    var statusLabels = {pending: '順番待ち', running: 'リサーチ中', completed: '完了', failed: 'エラー'};
+    var statusLabels = {pending: '順番待ち', running: 'リサーチ中', completed: '完了', failed: 'エラー', cancelled: 'キャンセル'};
     fetch('/research/{{ job.id }}/status')
         .then(r => r.json())
         .then(data => {
@@ -186,13 +254,126 @@ if ('Notification' in window && Notification.permission === 'default') {
                         : '「{{ job.keyword }}」のリサーチでエラーが発生しました';
                     new Notification('リサーチツール', { body: msg });
                 }
-                location.reload();
+                if (isBatch) {
+                    // For batch: reload to update panel, then auto-navigate
+                    setTimeout(function() { location.reload(); }, 2000);
+                } else {
+                    location.reload();
+                }
             } else {
                 setTimeout(poll, 5000);
             }
         })
         .catch(() => setTimeout(poll, 10000));
 })();
+
+// Batch queue polling
+if (isBatch) {
+    (function pollBatch() {
+        fetch('/research/{{ job.id }}/batch-queue')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.batch) return;
+
+                // Update progress text and bar
+                var progressText = document.getElementById('batch-progress-text');
+                var progressBar = document.getElementById('batch-progress-bar');
+                if (progressText) {
+                    progressText.textContent = data.completed + ' / ' + data.total + ' 完了';
+                }
+                if (progressBar && data.total > 0) {
+                    var pct = Math.round(data.completed / data.total * 100);
+                    progressBar.style.width = pct + '%';
+                    progressBar.textContent = pct + '%';
+                }
+
+                // Update individual job statuses in table
+                var statusLabels = {pending: '順番待ち', running: 'リサーチ中', completed: '完了', failed: 'エラー', cancelled: 'キャンセル'};
+                var rows = document.querySelectorAll('#batch-jobs-table tbody tr');
+                if (data.jobs && rows.length === data.jobs.length) {
+                    for (var i = 0; i < data.jobs.length; i++) {
+                        var j = data.jobs[i];
+                        var badge = rows[i].querySelector('.badge');
+                        if (badge) {
+                            badge.textContent = statusLabels[j.status] || j.status;
+                            badge.className = 'badge badge-' + j.status;
+                        }
+                    }
+                }
+
+                // Auto-navigate to currently active job if current job is done
+                if (data.current_active_id && data.current_active_id !== currentJobId) {
+                    var currentJobDone = false;
+                    for (var k = 0; k < data.jobs.length; k++) {
+                        if (data.jobs[k].id === currentJobId &&
+                            (data.jobs[k].status === 'completed' || data.jobs[k].status === 'failed')) {
+                            currentJobDone = true;
+                            break;
+                        }
+                    }
+                    if (currentJobDone) {
+                        setTimeout(function() {
+                            window.location.href = '/research/' + data.current_active_id;
+                        }, 2000);
+                        return; // Stop polling
+                    }
+                }
+
+                setTimeout(pollBatch, 5000);
+            })
+            .catch(() => setTimeout(pollBatch, 10000));
+    })();
+}
+</script>
+{% endif %}
+
+{% if job.status in ('completed', 'failed', 'cancelled') and batch_jobs %}
+<script>
+// For completed batch jobs, check if there's a next active job to navigate to
+var isBatchDone = true;
+{% for bj in batch_jobs %}
+{% if bj.status in ('pending', 'running') %}
+isBatchDone = false;
+{% endif %}
+{% endfor %}
+
+if (!isBatchDone) {
+    // Still jobs running - poll batch queue for updates
+    (function pollBatchStatic() {
+        fetch('/research/{{ job.id }}/batch-queue')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.batch) return;
+
+                var statusLabels = {pending: '順番待ち', running: 'リサーチ中', completed: '完了', failed: 'エラー', cancelled: 'キャンセル'};
+                var progressText = document.getElementById('batch-progress-text');
+                var progressBar = document.getElementById('batch-progress-bar');
+                if (progressText) {
+                    progressText.textContent = data.completed + ' / ' + data.total + ' 完了';
+                }
+                if (progressBar && data.total > 0) {
+                    var pct = Math.round(data.completed / data.total * 100);
+                    progressBar.style.width = pct + '%';
+                    progressBar.textContent = pct + '%';
+                }
+
+                var rows = document.querySelectorAll('#batch-jobs-table tbody tr');
+                if (data.jobs && rows.length === data.jobs.length) {
+                    for (var i = 0; i < data.jobs.length; i++) {
+                        var j = data.jobs[i];
+                        var badge = rows[i].querySelector('.badge');
+                        if (badge) {
+                            badge.textContent = statusLabels[j.status] || j.status;
+                            badge.className = 'badge badge-' + j.status;
+                        }
+                    }
+                }
+
+                setTimeout(pollBatchStatic, 5000);
+            })
+            .catch(() => setTimeout(pollBatchStatic, 10000));
+    })();
+}
 </script>
 {% endif %}
 {% endblock %}

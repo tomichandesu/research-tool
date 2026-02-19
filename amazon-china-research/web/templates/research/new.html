@@ -16,43 +16,68 @@
 {% if not usage_allowed %}
 <div class="alert alert-error">{{ usage_message }}</div>
 {% else %}
-<div class="card">
-    <form method="post" action="/research/new">
-        <div class="form-group">
-            <label for="keyword">キーワード</label>
-            <div style="display: flex; gap: .5rem;">
-                <input type="text" id="keyword" name="keyword" required autofocus
-                       placeholder="例：スマホスタンド" style="flex: 1;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="saveKeyword()"
-                        title="キーワードを保存">&#9733; 保存</button>
-            </div>
-            <small>Amazon-1688のリサーチキーワードを入力してください。</small>
-        </div>
 
-        <div class="form-group">
-            <label for="mode">モード</label>
-            <select id="mode" name="mode" onchange="toggleAutoOptions()">
-                <option value="single">シングル（1キーワード）</option>
-                <option value="auto">オートリサーチ（サジェスト展開）</option>
-            </select>
-            <small>オートモードはシードキーワードからAmazonサジェストを使い、複数キーワードを自動リサーチします。</small>
-        </div>
-
-        <div id="auto-options" style="display:none;">
-            <div class="form-group">
-                <label for="auto_max_keywords">最大キーワード数</label>
-                <input type="number" id="auto_max_keywords" name="auto_max_keywords"
-                       value="10" min="2" max="100">
-                <small>リサーチするキーワードの最大数</small>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">リサーチ開始</button>
-    </form>
-    <p class="mt-1 text-muted">
-        今月のリサーチ数: {{ user.candidate_count_monthly }} / {{ user.candidate_limit_monthly }}
-    </p>
+<!-- タブ切り替え -->
+<div style="display: flex; gap: 0; margin-bottom: 0;">
+    <button type="button" id="tab-batch" onclick="switchTab('batch')"
+            style="border-radius: 8px 8px 0 0; border: 2px solid #1565c0; border-bottom: none; padding: 0.6rem 1.2rem; font-weight: bold; cursor: pointer; background: #1565c0; color: #fff;">
+        一括オートリサーチ
+    </button>
+    <button type="button" id="tab-deep" onclick="switchTab('deep')"
+            style="border-radius: 8px 8px 0 0; border: 2px solid #e65100; border-bottom: none; padding: 0.6rem 1.2rem; font-weight: bold; cursor: pointer; background: #fff; color: #e65100;">
+        詳細オートリサーチ
+    </button>
 </div>
+
+<!-- 一括オートリサーチ -->
+<div class="card" id="panel-batch" style="border-top-left-radius: 0; border-top: 2px solid #1565c0;">
+    <form method="post" action="/research/new" id="batch-form">
+        <input type="hidden" name="research_type" value="batch">
+        <div class="form-group">
+            <label for="keyword-batch">キーワード（1行に1つ、最大{{ max_batch_size }}個）</label>
+            <textarea id="keyword-batch" name="keyword" required
+                      placeholder="スマホスタンド&#10;ワイヤレス充電器&#10;タブレットケース"
+                      rows="6" style="width: 100%; resize: vertical; font-size: 1em; line-height: 1.6;"></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                <small>各キーワードにつきサジェスト最大10個を順次オートリサーチ</small>
+                <span id="batch-count" style="font-size: 0.85em; color: #666; font-weight: bold;">0 キーワード</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="batch-max-kw">サジェスト展開数（各キーワード）</label>
+            <input type="number" id="batch-max-kw" name="auto_max_keywords"
+                   value="10" min="1" max="50" style="width: 80px;">
+            <small>各キーワードからサジェストを何個までリサーチするか</small>
+        </div>
+        <button type="submit" class="btn btn-primary" id="batch-submit-btn">一括リサーチ開始</button>
+    </form>
+</div>
+
+<!-- 詳細オートリサーチ -->
+<div class="card" id="panel-deep" style="display: none; border-top-left-radius: 0; border-top: 2px solid #e65100;">
+    <form method="post" action="/research/new" id="deep-form">
+        <input type="hidden" name="research_type" value="deep">
+        <div class="form-group">
+            <label for="keyword-deep">キーワード</label>
+            <input type="text" id="keyword-deep" name="keyword" required
+                   placeholder="例：スマホスタンド" style="width: 100%; font-size: 1em;">
+            <small style="margin-top: 0.25rem; display: block;">
+                1つのキーワードからサジェストを取得し、すべてオートリサーチします
+            </small>
+        </div>
+        <div class="form-group">
+            <label for="deep-max-kw">サジェスト展開数</label>
+            <input type="number" id="deep-max-kw" name="auto_max_keywords"
+                   value="30" min="1" max="100" style="width: 80px;">
+            <small>サジェストを何個までリサーチするか</small>
+        </div>
+        <button type="submit" class="btn btn-primary">詳細リサーチ開始</button>
+    </form>
+</div>
+
+<p class="mt-1 text-muted">
+    今月のリサーチ数: {{ user.candidate_count_monthly }} / {{ user.candidate_limit_monthly }}
+</p>
 
 <div class="card mt-1">
     <h2>キーワード発見アシスタント</h2>
@@ -114,19 +139,84 @@
 {% endif %}
 
 <script>
-function toggleAutoOptions() {
-    var mode = document.getElementById('mode').value;
-    document.getElementById('auto-options').style.display = mode === 'auto' ? 'block' : 'none';
+/* --- Tab switching --- */
+var currentTab = 'batch';
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('panel-batch').style.display = tab === 'batch' ? 'block' : 'none';
+    document.getElementById('panel-deep').style.display = tab === 'deep' ? 'block' : 'none';
+
+    var tabBatch = document.getElementById('tab-batch');
+    var tabDeep = document.getElementById('tab-deep');
+
+    if (tab === 'batch') {
+        tabBatch.style.background = '#1565c0';
+        tabBatch.style.color = '#fff';
+        tabDeep.style.background = '#fff';
+        tabDeep.style.color = '#e65100';
+        document.getElementById('keyword-batch').focus();
+    } else {
+        tabDeep.style.background = '#e65100';
+        tabDeep.style.color = '#fff';
+        tabBatch.style.background = '#fff';
+        tabBatch.style.color = '#1565c0';
+        document.getElementById('keyword-deep').focus();
+    }
 }
 
+/* --- Batch keyword count --- */
+var batchTextarea = document.getElementById('keyword-batch');
+var batchCount = document.getElementById('batch-count');
+var batchSubmitBtn = document.getElementById('batch-submit-btn');
+
+function updateBatchCount() {
+    var lines = batchTextarea.value.split('\n');
+    var count = 0;
+    var seen = {};
+    for (var i = 0; i < lines.length; i++) {
+        var kw = lines[i].trim();
+        if (kw && !seen[kw]) {
+            seen[kw] = true;
+            count++;
+        }
+    }
+    batchCount.textContent = count + ' キーワード';
+    if (count > 1) {
+        batchSubmitBtn.textContent = '一括リサーチ開始（' + count + '件）';
+    } else {
+        batchSubmitBtn.textContent = '一括リサーチ開始';
+    }
+}
+
+batchTextarea.addEventListener('input', updateBatchCount);
+updateBatchCount();
+
+/* --- useKeyword: active tab aware --- */
 function useKeyword(kw) {
-    document.getElementById('keyword').value = kw;
-    document.getElementById('keyword').focus();
+    if (currentTab === 'batch') {
+        var current = batchTextarea.value.trim();
+        if (current) {
+            batchTextarea.value = current + '\n' + kw;
+        } else {
+            batchTextarea.value = kw;
+        }
+        updateBatchCount();
+        batchTextarea.focus();
+    } else {
+        document.getElementById('keyword-deep').value = kw;
+        document.getElementById('keyword-deep').focus();
+    }
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function saveKeyword() {
-    var kw = document.getElementById('keyword').value.trim();
+    var kw;
+    if (currentTab === 'batch') {
+        kw = batchTextarea.value.trim().split('\n')[0].trim();
+    } else {
+        kw = document.getElementById('keyword-deep').value.trim();
+    }
     if (!kw) { alert('キーワードを入力してください'); return; }
     var form = document.createElement('form');
     form.method = 'POST';
@@ -170,7 +260,6 @@ function aiChatAddMessage(role, html) {
 }
 
 function aiChatParseKeywords(text) {
-    // Replace [KW]...[/KW] with keyword buttons
     return text.replace(/\[KW\](.*?)\[\/KW\]/g, function(match, kw) {
         var escaped = kw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         return '<strong class="ai-chat-kw-name">' + kw + '</strong>' +
@@ -191,10 +280,8 @@ async function aiChatSend(overrideMessage) {
     input.value = '';
     document.getElementById('ai-chat-send').disabled = true;
 
-    // Show user message
     aiChatAddMessage('user', message.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
 
-    // Show loading with typing dots
     var assistantBubble = aiChatAddMessage('assistant', '<span class="ai-chat-loading"><span class="ai-chat-dot"></span><span class="ai-chat-dot"></span><span class="ai-chat-dot"></span></span>');
 
     try {
@@ -239,24 +326,21 @@ async function aiChatSend(overrideMessage) {
                     }
                     if (data.chunk) {
                         fullText += data.chunk;
-                        // Render with line breaks and keyword parsing
                         assistantBubble.innerHTML = aiChatParseKeywords(
                             fullText.replace(/</g, '&lt;').replace(/>/g, '&gt;')
                                     .replace(/\n/g, '<br>')
                         );
                         aiChatScrollBottom();
                     }
-                } catch(e) { /* ignore parse errors for partial chunks */ }
+                } catch(e) {}
             }
         }
 
-        // Final render with keyword buttons
         assistantBubble.innerHTML = aiChatParseKeywords(
             fullText.replace(/</g, '&lt;').replace(/>/g, '&gt;')
                     .replace(/\n/g, '<br>')
         );
 
-        // Update history
         aiChatHistory.push({role: 'user', content: message});
         aiChatHistory.push({role: 'assistant', content: fullText});
 
@@ -285,7 +369,6 @@ function aiChatReset() {
         '</div></div>';
 }
 
-// Enter key to send (Shift+Enter for newline)
 var aiInput = document.getElementById('ai-chat-input');
 aiInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -293,7 +376,6 @@ aiInput.addEventListener('keydown', function(e) {
         aiChatSend();
     }
 });
-// Auto-resize textarea
 aiInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 160) + 'px';

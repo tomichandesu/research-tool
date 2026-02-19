@@ -60,6 +60,9 @@ async def _migrate_add_plan_columns() -> None:
         # Research jobs table - auto mode fields
         ("research_jobs", "auto_max_keywords", "INTEGER DEFAULT 10"),
         ("research_jobs", "auto_max_duration", "INTEGER DEFAULT 60"),
+        # Research jobs table - batch fields
+        ("research_jobs", "batch_group_id", "TEXT"),
+        ("research_jobs", "batch_position", "INTEGER"),
     ]
     async with engine.begin() as conn:
         for table, col_name, col_def in migrations:

@@ -136,6 +136,10 @@ class ResearchJob(Base):
     auto_max_keywords: Mapped[int] = mapped_column(Integer, default=10)
     auto_max_duration: Mapped[int] = mapped_column(Integer, default=60)
 
+    # Batch (bulk) research
+    batch_group_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    batch_position: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     user: Mapped[User] = relationship(back_populates="jobs")
 
 

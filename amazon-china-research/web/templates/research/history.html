@@ -19,12 +19,17 @@
     <tbody>
     {% for j in jobs %}
         <tr>
-            <td>{{ j.keyword }}</td>
             <td>
-                {% if j.mode == 'auto' %}
-                <span class="badge badge-admin">オート</span>
+                {{ j.keyword }}
+                {% if j.batch_group_id %}
+                <span class="badge" style="background: #1565c0; color: #fff; font-size: 0.75em; margin-left: 0.25em;">一括 #{{ j.batch_position }}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if j.batch_group_id %}
+                <span class="badge" style="background: #1565c0; color: #fff;">一括オート</span>
                 {% else %}
-                <span class="badge badge-member">シングル</span>
+                <span class="badge" style="background: #e65100; color: #fff;">詳細オート</span>
                 {% endif %}
             </td>
             <td>
@@ -33,6 +38,7 @@
                     {%- elif j.status == 'running' -%}リサーチ中
                     {%- elif j.status == 'completed' -%}完了
                     {%- elif j.status == 'failed' -%}エラー
+                    {%- elif j.status == 'cancelled' -%}キャンセル
                     {%- else -%}{{ j.status }}{%- endif -%}
                 </span>
             </td>

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.dependencies import require_login
+from ..config import settings
 from ..database import get_db
 from ..models import ReferenceSeller, ResearchJob, SavedKeyword, User
 from ..services.ai_keyword_service import stream_keyword_chat
@@ -58,6 +60,7 @@ async def research_new(
             "saved_keywords": saved_keywords,
             "session_ok": session_ok,
             "session_msg": session_msg,
+            "max_batch_size": settings.MAX_BATCH_SIZE,
         },
     )
 
@@ -70,14 +73,49 @@ async def research_submit(
 ):
     templates = request.app.state.templates
     form = await request.form()
-    keyword = (form.get("keyword") or "").strip()
+    raw_keywords = (form.get("keyword") or "").strip()
+    research_type = (form.get("research_type") or "batch").strip()
 
-    if not keyword:
+    err_ctx = {
+        "request": request, "user": user,
+        "usage_allowed": True, "usage_message": "",
+        "session_ok": True, "session_msg": "",
+        "max_batch_size": settings.MAX_BATCH_SIZE,
+        "saved_keywords": [],
+    }
+
+    if not raw_keywords:
         return templates.TemplateResponse(
             "research/new.html",
-            {"request": request, "user": user, "error": "Keyword required",
-             "usage_allowed": True, "usage_message": "",
-             "session_ok": True, "session_msg": ""},
+            {**err_ctx, "error": "キーワードを入力してください"},
+        )
+
+    # Parse keywords based on research_type
+    if research_type == "deep":
+        # Deep mode: single keyword only
+        keywords = [raw_keywords.splitlines()[0].strip()]
+        keywords = [kw for kw in keywords if kw]
+    else:
+        # Batch mode: one per line, deduplicate, preserve order
+        seen: set[str] = set()
+        keywords = []
+        for line in raw_keywords.splitlines():
+            kw = line.strip()
+            if kw and kw not in seen:
+                seen.add(kw)
+                keywords.append(kw)
+
+    if not keywords:
+        return templates.TemplateResponse(
+            "research/new.html",
+            {**err_ctx, "error": "キーワードを入力してください"},
+        )
+
+    # Enforce limits
+    if research_type == "batch" and len(keywords) > settings.MAX_BATCH_SIZE:
+        return templates.TemplateResponse(
+            "research/new.html",
+            {**err_ctx, "error": f"一度に登録できるキーワードは最大{settings.MAX_BATCH_SIZE}個です。"},
         )
 
     # Check 1688 session before starting research
@@ -85,8 +123,7 @@ async def research_submit(
     if not session_ok:
         return templates.TemplateResponse(
             "research/new.html",
-            {"request": request, "user": user, "error": session_msg,
-             "usage_allowed": True, "usage_message": ""},
+            {**err_ctx, "error": session_msg},
         )
 
     # Check usage limit
@@ -94,8 +131,7 @@ async def research_submit(
     if not allowed:
         return templates.TemplateResponse(
             "research/new.html",
-            {"request": request, "user": user, "error": msg,
-             "usage_allowed": False, "usage_message": msg},
+            {**err_ctx, "error": msg, "usage_allowed": False, "usage_message": msg},
         )
 
     # Auto-cleanup stale jobs (running > 2 hours = definitely stuck)
@@ -115,45 +151,57 @@ async def research_submit(
 
     await db.flush()
 
-    # Check if user still has an active job after cleanup
-    existing = await db.scalar(
-        select(ResearchJob).where(
-            ResearchJob.user_id == user.id,
-            ResearchJob.status.in_(["pending", "running"]),
+    # For deep (single keyword) mode, check if user already has an active job
+    if research_type == "deep":
+        existing = await db.scalar(
+            select(ResearchJob).where(
+                ResearchJob.user_id == user.id,
+                ResearchJob.status.in_(["pending", "running"]),
+            )
         )
-    )
-    if existing:
-        return templates.TemplateResponse(
-            "research/new.html",
-            {"request": request, "user": user,
-             "error": "実行中のリサーチがあります。完了するまでお待ちください。",
-             "usage_allowed": True, "usage_message": ""},
+        if existing:
+            return templates.TemplateResponse(
+                "research/new.html",
+                {**err_ctx, "error": "実行中のリサーチがあります。完了するまでお待ちください。"},
+            )
+
+    # Create job(s)
+    is_batch = len(keywords) > 1
+    batch_group_id = str(uuid.uuid4()) if is_batch else None
+    default_max = 30 if research_type == "deep" else 10
+    auto_max_kw = min(int(form.get("auto_max_keywords") or default_max), 100)
+    created_jobs: list[ResearchJob] = []
+
+    for pos, kw in enumerate(keywords, start=1):
+        job = ResearchJob(
+            user_id=user.id,
+            keyword=kw,
+            mode="auto",
+            auto_max_keywords=auto_max_kw,
+            auto_max_duration=60,
+            batch_group_id=batch_group_id,
+            batch_position=pos if is_batch else None,
         )
+        db.add(job)
+        created_jobs.append(job)
 
-    # Create job
-    mode = (form.get("mode") or "single").strip()
-    if mode not in ("single", "auto"):
-        mode = "single"
-
-    job = ResearchJob(user_id=user.id, keyword=keyword, mode=mode)
-
-    if mode == "auto":
-        job.auto_max_keywords = min(int(form.get("auto_max_keywords") or 10), 100)
-        job.auto_max_duration = 60  # 固定60分（セーフティタイムアウト）
-
-    db.add(job)
     await db.flush()
 
-    # Increment usage
-    await increment_usage(db, user)
-    await log_action(db, user.id, "research_start",
-                     json.dumps({"keyword": keyword, "job_id": job.id}))
+    # Increment usage for each keyword
+    for job in created_jobs:
+        await increment_usage(db, user)
+        await log_action(db, user.id, "research_start",
+                         json.dumps({"keyword": job.keyword, "job_id": job.id,
+                                     "batch_group_id": batch_group_id}))
+
     await db.commit()
 
-    # Enqueue
-    await job_queue.enqueue(job.id, user.id)
+    # Enqueue all jobs
+    for job in created_jobs:
+        await job_queue.enqueue(job.id, user.id)
 
-    return RedirectResponse(f"/research/{job.id}", status_code=303)
+    # Redirect to the first job's detail page
+    return RedirectResponse(f"/research/{created_jobs[0].id}", status_code=303)
 
 
 @router.get("/history", response_class=HTMLResponse)
@@ -293,6 +341,106 @@ async def discovery_ai_chat(
     )
 
 
+@router.get("/{job_id}/batch-queue")
+async def batch_queue_status(
+    job_id: int,
+    user: User = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return batch queue status for polling."""
+    job = await db.get(ResearchJob, job_id)
+    if not job or (job.user_id != user.id and user.role != "admin"):
+        return {"error": "not_found"}
+
+    if not job.batch_group_id:
+        return {"batch": False}
+
+    result = await db.execute(
+        select(ResearchJob)
+        .where(ResearchJob.batch_group_id == job.batch_group_id)
+        .order_by(ResearchJob.batch_position)
+    )
+    batch_jobs = list(result.scalars().all())
+
+    completed_count = sum(1 for j in batch_jobs if j.status in ("completed", "failed"))
+    total = len(batch_jobs)
+
+    # Find the currently running or next pending job for auto-navigation
+    current_active_id = None
+    for j in batch_jobs:
+        if j.status in ("running", "pending"):
+            current_active_id = j.id
+            break
+
+    jobs_data = []
+    for j in batch_jobs:
+        # Read progress from file for running jobs
+        progress_pct = j.progress_pct
+        progress_message = j.progress_message or ""
+        if j.status == "running":
+            progress_file = Path(settings.JOBS_OUTPUT_DIR) / str(j.id) / "progress.json"
+            if progress_file.exists():
+                try:
+                    data = json.loads(progress_file.read_text(encoding="utf-8"))
+                    progress_pct = data.get("pct", progress_pct)
+                    progress_message = data.get("message", progress_message)
+                except Exception:
+                    pass
+
+        jobs_data.append({
+            "id": j.id,
+            "keyword": j.keyword,
+            "position": j.batch_position,
+            "status": j.status,
+            "progress_pct": progress_pct,
+            "progress_message": progress_message,
+        })
+
+    return {
+        "batch": True,
+        "batch_group_id": job.batch_group_id,
+        "total": total,
+        "completed": completed_count,
+        "current_active_id": current_active_id,
+        "jobs": jobs_data,
+    }
+
+
+@router.post("/batch/{batch_group_id}/cancel-pending")
+async def batch_cancel_pending(
+    batch_group_id: str,
+    user: User = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+):
+    """Cancel all pending jobs in a batch."""
+    result = await db.execute(
+        select(ResearchJob).where(
+            ResearchJob.batch_group_id == batch_group_id,
+            ResearchJob.status == "pending",
+        )
+    )
+    cancelled = 0
+    for job in result.scalars().all():
+        if job.user_id != user.id and user.role != "admin":
+            continue
+        job.status = "cancelled"
+        job.completed_at = datetime.now(timezone.utc)
+        job.error_message = "ユーザーによるキャンセル"
+        cancelled += 1
+
+    await db.commit()
+
+    # Find any job from this batch to redirect to
+    any_job = await db.scalar(
+        select(ResearchJob).where(
+            ResearchJob.batch_group_id == batch_group_id,
+        )
+    )
+    if any_job:
+        return RedirectResponse(f"/research/{any_job.id}", status_code=303)
+    return RedirectResponse("/research/history", status_code=303)
+
+
 @router.get("/{job_id}", response_class=HTMLResponse)
 async def research_detail(
     job_id: int,
@@ -315,10 +463,26 @@ async def research_detail(
         except json.JSONDecodeError:
             pass
 
+    # Load batch info if applicable
+    batch_jobs = []
+    if job.batch_group_id:
+        result = await db.execute(
+            select(ResearchJob)
+            .where(ResearchJob.batch_group_id == job.batch_group_id)
+            .order_by(ResearchJob.batch_position)
+        )
+        batch_jobs = list(result.scalars().all())
+
     templates = request.app.state.templates
     return templates.TemplateResponse(
         "research/detail.html",
-        {"request": request, "user": user, "job": job, "summary": summary},
+        {
+            "request": request,
+            "user": user,
+            "job": job,
+            "summary": summary,
+            "batch_jobs": batch_jobs,
+        },
     )
 
 
@@ -338,7 +502,6 @@ async def research_status_api(
 
     # Read real-time progress from file written by subprocess
     if job.status == "running":
-        from ..config import settings
         progress_file = Path(settings.JOBS_OUTPUT_DIR) / str(job_id) / "progress.json"
         if progress_file.exists():
             try:

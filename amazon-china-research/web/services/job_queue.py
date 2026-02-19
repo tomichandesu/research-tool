@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 
 from ..config import settings
 
@@ -14,6 +15,7 @@ class JobQueue:
 
     - Up to MAX_CONCURRENT_JOBS jobs run in parallel.
     - Per-user concurrency limit: 1 active job per user.
+    - Inter-job delay to avoid 1688 blocking.
     """
 
     def __init__(self):
@@ -23,6 +25,7 @@ class JobQueue:
         self._deferred: list[tuple[int, int]] = []
         self._lock = asyncio.Lock()  # protects _running_users and _deferred
         self._shutdown_event = asyncio.Event()
+        self._last_job_end: dict[int, float] = {}  # user_id -> timestamp
 
     def start_worker(self) -> None:
         """Start background worker coroutines (one per concurrent slot)."""
@@ -37,6 +40,41 @@ class JobQueue:
         """Add a job to the queue."""
         await self._queue.put((job_id, user_id))
         logger.info(f"Job {job_id} enqueued for user {user_id}")
+
+    async def _apply_inter_job_delay(self, job_id: int, user_id: int) -> None:
+        """Wait between jobs for the same user to avoid 1688 blocking."""
+        delay = settings.BATCH_INTER_JOB_DELAY
+        last_end = self._last_job_end.get(user_id)
+        if last_end is None or delay <= 0:
+            return
+
+        elapsed = time.monotonic() - last_end
+        remaining = delay - elapsed
+        if remaining <= 0:
+            return
+
+        logger.info(f"Job {job_id}: waiting {remaining:.0f}s inter-job delay")
+
+        # Write delay progress to the progress file
+        try:
+            from pathlib import Path
+            progress_file = Path(settings.JOBS_OUTPUT_DIR) / str(job_id) / "progress.json"
+            progress_file.parent.mkdir(parents=True, exist_ok=True)
+
+            import json
+            while remaining > 0:
+                msg = f"次のリサーチまで {int(remaining)}秒 待機中..."
+                progress_file.write_text(
+                    json.dumps({"pct": 0, "message": msg}, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                wait_step = min(remaining, 5.0)
+                await asyncio.sleep(wait_step)
+                remaining -= wait_step
+        except Exception:
+            # Fallback: just sleep the remaining time
+            if remaining > 0:
+                await asyncio.sleep(remaining)
 
     async def _worker(self, worker_id: int = 0) -> None:
         """Process jobs from the queue."""
@@ -64,11 +102,15 @@ class JobQueue:
                     self._running_users.add(user_id)
 
                 try:
+                    # Apply inter-job delay before starting
+                    await self._apply_inter_job_delay(job_id, user_id)
+
                     logger.info(f"Worker-{worker_id} starting job {job_id}")
                     await run_research_job(job_id)
                 except Exception:
                     logger.exception(f"Job {job_id} raised an exception")
                 finally:
+                    self._last_job_end[user_id] = time.monotonic()
                     async with self._lock:
                         self._running_users.discard(user_id)
                         self._requeue_deferred()
