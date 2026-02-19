@@ -1,0 +1,479 @@
+{
+  "version": "1.0.0",
+  "categories": [
+    {
+      "id": "interior_zakka",
+      "name": "インテリア雑貨",
+      "icon": "🏠",
+      "description": "置物・オブジェ・花瓶など。デザイン差が出やすく中国輸入向き。",
+      "keywords": [
+        {
+          "keyword": "置物 動物",
+          "difficulty": "easy",
+          "description": "動物モチーフの置物。デザインが全て異なるため価格競争になりにくい。",
+          "tags": ["デザイン差◎", "小型軽量"]
+        },
+        {
+          "keyword": "花瓶 おしゃれ",
+          "difficulty": "medium",
+          "description": "デザイン花瓶。陶器・ガラスで差別化しやすい。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "サンゴ オブジェ",
+          "difficulty": "easy",
+          "description": "珊瑚モチーフの置物。ニッチで競合少。",
+          "tags": ["ニッチ", "小型軽量"]
+        },
+        {
+          "keyword": "木彫り 置物",
+          "difficulty": "medium",
+          "description": "木彫りの動物・仏像など。手作り感で差別化。",
+          "tags": ["デザイン差◎", "ハンドメイド感"]
+        },
+        {
+          "keyword": "置物 北欧",
+          "difficulty": "medium",
+          "description": "北欧風インテリア小物。トレンド需要が安定。",
+          "tags": ["トレンド", "デザイン差◎"]
+        },
+        {
+          "keyword": "壁掛け オブジェ",
+          "difficulty": "easy",
+          "description": "壁面装飾。金属・木製で差別化ポイント多数。",
+          "tags": ["デザイン差◎", "インテリア"]
+        }
+      ]
+    },
+    {
+      "id": "garden",
+      "name": "ガーデニング・園芸",
+      "icon": "🌿",
+      "description": "屋外向けオーナメント・プランター。季節需要あり。",
+      "keywords": [
+        {
+          "keyword": "ガーデンオーナメント",
+          "difficulty": "easy",
+          "description": "庭の動物置物・妖精像など。デザイン差が出やすい。",
+          "tags": ["デザイン差◎", "季節需要"]
+        },
+        {
+          "keyword": "プランター 陶器",
+          "difficulty": "medium",
+          "description": "おしゃれ陶器鉢。形状・柄で差別化。",
+          "tags": ["デザイン差◎", "重量注意"]
+        },
+        {
+          "keyword": "ガーデンライト ソーラー",
+          "difficulty": "medium",
+          "description": "ソーラー庭園ライト。デザイン×機能で差別化。",
+          "tags": ["機能系", "季節需要"]
+        },
+        {
+          "keyword": "ガーデンピック",
+          "difficulty": "easy",
+          "description": "花壇に刺すオーナメント。低単価で回転率高。",
+          "tags": ["小型軽量", "低単価"]
+        },
+        {
+          "keyword": "鉢カバー おしゃれ",
+          "difficulty": "easy",
+          "description": "植木鉢用カバー。素材・デザインで差別化。",
+          "tags": ["デザイン差◎", "インテリア"]
+        }
+      ]
+    },
+    {
+      "id": "pet_unique",
+      "name": "ペット用品(ユニーク系)",
+      "icon": "🐾",
+      "description": "犬猫以外のペット用品。競合が少なくニッチ攻略可能。",
+      "keywords": [
+        {
+          "keyword": "インコ おもちゃ",
+          "difficulty": "easy",
+          "description": "鳥用アスレチック・知育玩具。ニッチで利益率高。",
+          "tags": ["ニッチ", "小型軽量"]
+        },
+        {
+          "keyword": "爬虫類 隠れ家",
+          "difficulty": "easy",
+          "description": "爬虫類用シェルター。デザイン差で差別化。",
+          "tags": ["ニッチ", "デザイン差◎"]
+        },
+        {
+          "keyword": "小動物 ハンモック",
+          "difficulty": "easy",
+          "description": "ハムスター・デグー用ハンモック。かわいいデザインで訴求。",
+          "tags": ["ニッチ", "小型軽量"]
+        },
+        {
+          "keyword": "猫 トンネル",
+          "difficulty": "medium",
+          "description": "猫用トンネルおもちゃ。形状バリエーション多数。",
+          "tags": ["デザイン差◎", "中型"]
+        },
+        {
+          "keyword": "犬 知育玩具",
+          "difficulty": "hard",
+          "description": "犬用パズルトイ。競合多いが回転率高。",
+          "tags": ["競合多", "回転率◎"]
+        },
+        {
+          "keyword": "水槽 隠れ家",
+          "difficulty": "easy",
+          "description": "熱帯魚用オーナメント。デザイン差で勝負。",
+          "tags": ["ニッチ", "デザイン差◎"]
+        }
+      ]
+    },
+    {
+      "id": "outdoor_camp",
+      "name": "アウトドア・キャンプ",
+      "icon": "⛺",
+      "description": "キャンプギア。トレンド市場で需要安定。",
+      "keywords": [
+        {
+          "keyword": "焚き火台 コンパクト",
+          "difficulty": "hard",
+          "description": "携帯焚き火台。競合多いが市場大きい。",
+          "tags": ["競合多", "市場大"]
+        },
+        {
+          "keyword": "キャンプ ランタン",
+          "difficulty": "medium",
+          "description": "LEDランタン。デザイン×明るさで差別化。",
+          "tags": ["機能系", "トレンド"]
+        },
+        {
+          "keyword": "カトラリーセット 携帯",
+          "difficulty": "easy",
+          "description": "アウトドア用カトラリー。収納ケース付きで差別化。",
+          "tags": ["小型軽量", "セット商品"]
+        },
+        {
+          "keyword": "メスティン",
+          "difficulty": "medium",
+          "description": "アルミ飯盒。サイズ・付属品で差別化。",
+          "tags": ["トレンド", "機能系"]
+        },
+        {
+          "keyword": "シェラカップ",
+          "difficulty": "medium",
+          "description": "ステンレスカップ。刻印・カラーで差別化。",
+          "tags": ["小型軽量", "トレンド"]
+        }
+      ]
+    },
+    {
+      "id": "diy_tools",
+      "name": "DIY・工具",
+      "icon": "🔧",
+      "description": "趣味向け工具。リピーターがつきやすいカテゴリ。",
+      "keywords": [
+        {
+          "keyword": "木工 クランプ",
+          "difficulty": "medium",
+          "description": "木工用固定具。サイズセットで差別化。",
+          "tags": ["セット商品", "リピート◎"]
+        },
+        {
+          "keyword": "彫刻刀 セット",
+          "difficulty": "easy",
+          "description": "木彫り用彫刻刀。本数・ケースで差別化。",
+          "tags": ["セット商品", "小型軽量"]
+        },
+        {
+          "keyword": "ヤスリ セット",
+          "difficulty": "easy",
+          "description": "各種ヤスリセット。形状バリエーションで差別化。",
+          "tags": ["セット商品", "消耗品"]
+        },
+        {
+          "keyword": "ピンバイス セット",
+          "difficulty": "easy",
+          "description": "模型用小型ドリル。ホビー層に需要。",
+          "tags": ["ニッチ", "セット商品"]
+        },
+        {
+          "keyword": "レザークラフト 工具",
+          "difficulty": "medium",
+          "description": "革細工用工具セット。趣味層にリピートあり。",
+          "tags": ["セット商品", "ニッチ"]
+        }
+      ]
+    },
+    {
+      "id": "car_bike",
+      "name": "カー用品・バイク",
+      "icon": "🚗",
+      "description": "車・バイクアクセサリー。型番不要のユニバーサル品が狙い目。",
+      "keywords": [
+        {
+          "keyword": "車載ホルダー",
+          "difficulty": "hard",
+          "description": "スマホ車載ホルダー。競合多いが市場巨大。",
+          "tags": ["競合多", "市場大"]
+        },
+        {
+          "keyword": "バンプラバー",
+          "difficulty": "easy",
+          "description": "車高調用ゴムパーツ。ニッチで安定需要。",
+          "tags": ["ニッチ", "消耗品"]
+        },
+        {
+          "keyword": "バイク ミラー",
+          "difficulty": "medium",
+          "description": "汎用バイクミラー。デザインで差別化可能。",
+          "tags": ["デザイン差◎", "機能系"]
+        },
+        {
+          "keyword": "車 隙間 クッション",
+          "difficulty": "easy",
+          "description": "シート隙間埋めパッド。シンプルで利益率高。",
+          "tags": ["小型軽量", "低単価"]
+        },
+        {
+          "keyword": "バイク グリップ",
+          "difficulty": "medium",
+          "description": "汎用ハンドルグリップ。カラーで差別化。",
+          "tags": ["デザイン差◎", "消耗品"]
+        }
+      ]
+    },
+    {
+      "id": "aroma_candle",
+      "name": "アロマ・キャンドル",
+      "icon": "🕯️",
+      "description": "香り系インテリア。デザイン重視で差別化しやすい。",
+      "keywords": [
+        {
+          "keyword": "アロマディフューザー 陶器",
+          "difficulty": "medium",
+          "description": "陶器製アロマポット。形状・デザインで勝負。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "お香立て",
+          "difficulty": "easy",
+          "description": "インセンスホルダー。デザインバリエーション豊富。",
+          "tags": ["デザイン差◎", "小型軽量"]
+        },
+        {
+          "keyword": "キャンドルホルダー",
+          "difficulty": "easy",
+          "description": "ガラス・金属製キャンドル台。デザイン差大。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "アロマストーン",
+          "difficulty": "easy",
+          "description": "素焼きアロマストーン。形状・デザインで差別化。",
+          "tags": ["小型軽量", "デザイン差◎"]
+        },
+        {
+          "keyword": "サシェ 香り袋",
+          "difficulty": "easy",
+          "description": "匂い袋。デザイン×香りで組み合わせ多数。",
+          "tags": ["小型軽量", "低単価"]
+        }
+      ]
+    },
+    {
+      "id": "stationery",
+      "name": "文具(ユニーク系)",
+      "icon": "✏️",
+      "description": "デスク周り文具。デザイン訴求でギフト需要も。",
+      "keywords": [
+        {
+          "keyword": "ペン立て おしゃれ",
+          "difficulty": "easy",
+          "description": "デザインペンスタンド。素材・形で差別化。",
+          "tags": ["デザイン差◎", "小型軽量"]
+        },
+        {
+          "keyword": "ブックエンド",
+          "difficulty": "easy",
+          "description": "本立て。金属・木製でデザイン差大。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "レターオープナー",
+          "difficulty": "easy",
+          "description": "ペーパーナイフ。デザイン・素材で差別化。",
+          "tags": ["ニッチ", "小型軽量"]
+        },
+        {
+          "keyword": "マスキングテープ",
+          "difficulty": "hard",
+          "description": "デコレーションテープ。柄で差別化だが競合多。",
+          "tags": ["競合多", "消耗品"]
+        },
+        {
+          "keyword": "しおり 金属",
+          "difficulty": "easy",
+          "description": "メタルブックマーク。デザイン豊富で小型軽量。",
+          "tags": ["小型軽量", "ギフト"]
+        }
+      ]
+    },
+    {
+      "id": "hobby_craft",
+      "name": "ホビー・クラフト",
+      "icon": "🎨",
+      "description": "ハンドメイド・手芸素材。リピーターが多いカテゴリ。",
+      "keywords": [
+        {
+          "keyword": "レジン モールド",
+          "difficulty": "medium",
+          "description": "UVレジン用型。形状バリエーション無限。",
+          "tags": ["消耗品", "リピート◎"]
+        },
+        {
+          "keyword": "ビーズ パーツ",
+          "difficulty": "medium",
+          "description": "アクセサリー用ビーズ素材。種類×カラーで差別化。",
+          "tags": ["小型軽量", "消耗品"]
+        },
+        {
+          "keyword": "刺繍 キット",
+          "difficulty": "easy",
+          "description": "初心者向け刺繍セット。デザイン×難易度で差別化。",
+          "tags": ["セット商品", "デザイン差◎"]
+        },
+        {
+          "keyword": "ダイヤモンドアート",
+          "difficulty": "medium",
+          "description": "貼り絵キット。デザイン勝負。",
+          "tags": ["デザイン差◎", "トレンド"]
+        },
+        {
+          "keyword": "スタンプ セット",
+          "difficulty": "easy",
+          "description": "クラフト用スタンプ。テーマ×数量で差別化。",
+          "tags": ["セット商品", "小型軽量"]
+        }
+      ]
+    },
+    {
+      "id": "aquarium",
+      "name": "アクアリウム",
+      "icon": "🐠",
+      "description": "水槽レイアウト用品。ニッチだがリピーター多。",
+      "keywords": [
+        {
+          "keyword": "水槽 オブジェ",
+          "difficulty": "easy",
+          "description": "水槽用置物・城・洞窟など。デザイン差◎。",
+          "tags": ["デザイン差◎", "ニッチ"]
+        },
+        {
+          "keyword": "水槽 流木",
+          "difficulty": "medium",
+          "description": "アクアリウム用流木。自然素材で差別化。",
+          "tags": ["自然素材", "ニッチ"]
+        },
+        {
+          "keyword": "水槽 バックスクリーン",
+          "difficulty": "easy",
+          "description": "水槽背景シート。デザイン×サイズで差別化。",
+          "tags": ["デザイン差◎", "小型軽量"]
+        },
+        {
+          "keyword": "エアストーン",
+          "difficulty": "easy",
+          "description": "水槽用エアレーション。形状で差別化。",
+          "tags": ["消耗品", "小型軽量"]
+        },
+        {
+          "keyword": "水草 ピンセット",
+          "difficulty": "easy",
+          "description": "アクアリウム用ロングピンセット。長さ・素材で差別化。",
+          "tags": ["ニッチ", "機能系"]
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "name": "インテリア照明",
+      "icon": "💡",
+      "description": "間接照明・ナイトライト。デザインで勝負できるカテゴリ。",
+      "keywords": [
+        {
+          "keyword": "テーブルランプ おしゃれ",
+          "difficulty": "medium",
+          "description": "卓上ランプ。デザイン×素材で差別化。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "ナイトライト",
+          "difficulty": "medium",
+          "description": "常夜灯。動物型・月型など形状で差別化。",
+          "tags": ["デザイン差◎", "ギフト"]
+        },
+        {
+          "keyword": "間接照明 おしゃれ",
+          "difficulty": "hard",
+          "description": "LED間接照明。競合多いがデザイン差で勝負。",
+          "tags": ["競合多", "デザイン差◎"]
+        },
+        {
+          "keyword": "ステンドグラス ランプ",
+          "difficulty": "easy",
+          "description": "ステンドグラス風照明。デザイン差◎でニッチ。",
+          "tags": ["ニッチ", "デザイン差◎"]
+        },
+        {
+          "keyword": "LEDキャンドル",
+          "difficulty": "easy",
+          "description": "炎ゆらぎLEDキャンドル。セット×デザインで差別化。",
+          "tags": ["セット商品", "インテリア"]
+        }
+      ]
+    },
+    {
+      "id": "small_furniture",
+      "name": "小型家具・収納",
+      "icon": "🗄️",
+      "description": "アクセサリー収納・トレー。ギフト需要もあり。",
+      "keywords": [
+        {
+          "keyword": "アクセサリースタンド",
+          "difficulty": "easy",
+          "description": "ピアス・ネックレス用スタンド。デザイン差◎。",
+          "tags": ["デザイン差◎", "ギフト"]
+        },
+        {
+          "keyword": "ジュエリーボックス",
+          "difficulty": "medium",
+          "description": "宝石箱。素材・段数・デザインで差別化。",
+          "tags": ["デザイン差◎", "ギフト"]
+        },
+        {
+          "keyword": "トレー 木製",
+          "difficulty": "easy",
+          "description": "小物置きトレー。素材・サイズで差別化。",
+          "tags": ["小型軽量", "インテリア"]
+        },
+        {
+          "keyword": "コスメ収納",
+          "difficulty": "medium",
+          "description": "化粧品整理ボックス。透明アクリル・回転式で差別化。",
+          "tags": ["機能系", "デザイン差◎"]
+        },
+        {
+          "keyword": "ウォールシェルフ",
+          "difficulty": "medium",
+          "description": "壁掛け棚。形状・素材で差別化。取付簡単さが訴求点。",
+          "tags": ["デザイン差◎", "インテリア"]
+        },
+        {
+          "keyword": "マガジンラック",
+          "difficulty": "easy",
+          "description": "雑誌・書類ラック。金属・木製で差別化。",
+          "tags": ["デザイン差◎", "小型"]
+        }
+      ]
+    }
+  ]
+}

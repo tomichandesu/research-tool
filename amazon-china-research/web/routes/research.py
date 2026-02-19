@@ -14,6 +14,12 @@ from ..database import get_db
 from ..models import ResearchJob, SavedKeyword, User
 from ..services.job_queue import job_queue
 from ..services.job_runner import cancel_job, check_1688_session
+from ..services.keyword_discovery import (
+    get_all_categories,
+    get_category_keywords,
+    get_random_keyword,
+    get_successful_keywords,
+)
 from ..services.usage_tracker import check_usage_limit, increment_usage, log_action
 
 router = APIRouter(prefix="/research", tags=["research"])
@@ -147,6 +153,65 @@ async def research_history(
     return templates.TemplateResponse(
         "research/history.html",
         {"request": request, "user": user, "jobs": jobs},
+    )
+
+
+# --- Keyword Discovery ---
+
+
+@router.get("/discovery/categories", response_class=HTMLResponse)
+async def discovery_categories(
+    request: Request,
+    user: User = Depends(require_login),
+):
+    categories = get_all_categories()
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "research/_discovery_categories.html",
+        {"request": request, "categories": categories},
+    )
+
+
+@router.get("/discovery/categories/{category_id}", response_class=HTMLResponse)
+async def discovery_category_keywords(
+    category_id: str,
+    request: Request,
+    user: User = Depends(require_login),
+):
+    category = get_category_keywords(category_id)
+    if not category:
+        return HTMLResponse("<p>カテゴリが見つかりません。</p>")
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "research/_discovery_category_keywords.html",
+        {"request": request, "category": category},
+    )
+
+
+@router.get("/discovery/random", response_class=HTMLResponse)
+async def discovery_random(
+    request: Request,
+    user: User = Depends(require_login),
+):
+    kw = get_random_keyword()
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "research/_discovery_random.html",
+        {"request": request, "kw": kw},
+    )
+
+
+@router.get("/discovery/successful", response_class=HTMLResponse)
+async def discovery_successful(
+    request: Request,
+    user: User = Depends(require_login),
+    db: AsyncSession = Depends(get_db),
+):
+    keywords = await get_successful_keywords(db)
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "research/_discovery_successful.html",
+        {"request": request, "keywords": keywords},
     )
 
 

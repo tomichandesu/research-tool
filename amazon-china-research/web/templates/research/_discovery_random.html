@@ -1,0 +1,19 @@
+<div class="discovery-random-card">
+    <div class="discovery-random-category">{{ kw.category_icon }} {{ kw.category_name }}</div>
+    <div class="discovery-random-keyword">{{ kw.keyword }}</div>
+    <p class="discovery-kw-desc">{{ kw.description }}</p>
+    <div style="display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap;">
+        <span class="badge badge-diff-{{ kw.difficulty }}">{{ kw.difficulty }}</span>
+        {% for tag in kw.tags %}
+        <span class="discovery-tag">{{ tag }}</span>
+        {% endfor %}
+    </div>
+    <div style="display: flex; gap: .5rem;">
+        <button class="btn btn-sm btn-primary use-keyword-btn"
+                onclick="useKeyword('{{ kw.keyword }}')">このキーワードを使う</button>
+        <button class="btn btn-sm btn-outline"
+                hx-get="/research/discovery/random"
+                hx-target="#discovery-content"
+                hx-swap="innerHTML">🎲 もう一回引く</button>
+    </div>
+</div>

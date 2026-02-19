@@ -1,0 +1,26 @@
+<div class="discovery-kw-header">
+    <button class="btn btn-sm btn-outline"
+            hx-get="/research/discovery/categories"
+            hx-target="#discovery-content"
+            hx-swap="innerHTML">← 戻る</button>
+    <h3>{{ category.icon }} {{ category.name }}</h3>
+</div>
+<p class="text-muted" style="margin-bottom: .75rem;">{{ category.description }}</p>
+<div class="discovery-kw-list">
+{% for kw in category.keywords %}
+    <div class="discovery-kw-item">
+        <div class="discovery-kw-main">
+            <span class="discovery-kw-name">{{ kw.keyword }}</span>
+            <span class="badge badge-diff-{{ kw.difficulty }}">{{ kw.difficulty }}</span>
+        </div>
+        <p class="discovery-kw-desc">{{ kw.description }}</p>
+        <div class="discovery-kw-tags">
+            {% for tag in kw.tags %}
+            <span class="discovery-tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        <button class="btn btn-sm btn-primary use-keyword-btn"
+                onclick="useKeyword('{{ kw.keyword }}')">このキーワードを使う</button>
+    </div>
+{% endfor %}
+</div>

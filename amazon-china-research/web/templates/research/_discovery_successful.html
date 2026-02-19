@@ -1,0 +1,19 @@
+{% if keywords %}
+<div class="discovery-kw-list">
+{% for kw in keywords %}
+    <div class="discovery-kw-item">
+        <div class="discovery-kw-main">
+            <span class="discovery-kw-name">{{ kw.keyword }}</span>
+            <span class="badge badge-active">{{ kw.job_count }}回成功</span>
+        </div>
+        <button class="btn btn-sm btn-primary use-keyword-btn"
+                onclick="useKeyword('{{ kw.keyword }}')">このキーワードを使う</button>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<div class="discovery-empty">
+    <p>まだ実績データがありません。</p>
+    <p class="text-muted">リサーチを実行すると、候補が見つかったキーワードがここに表示されます。</p>
+</div>
+{% endif %}

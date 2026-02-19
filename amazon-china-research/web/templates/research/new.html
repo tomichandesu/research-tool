@@ -56,6 +56,29 @@
     </p>
 </div>
 
+<div class="card mt-1">
+    <h2>キーワード発見アシスタント</h2>
+    <p class="text-muted" style="margin-bottom: .75rem;">何を調べればいいか迷ったら、ここからキーワードを選べます。</p>
+    <div class="discovery-tabs">
+        <button class="discovery-tab active" data-tab="tab-categories"
+                hx-get="/research/discovery/categories"
+                hx-target="#discovery-content"
+                hx-swap="innerHTML"
+                hx-trigger="click, load">📂 カテゴリから探す</button>
+        <button class="discovery-tab" data-tab="tab-random"
+                hx-get="/research/discovery/random"
+                hx-target="#discovery-content"
+                hx-swap="innerHTML">🎲 今日のおすすめ</button>
+        <button class="discovery-tab" data-tab="tab-successful"
+                hx-get="/research/discovery/successful"
+                hx-target="#discovery-content"
+                hx-swap="innerHTML">📊 実績KW</button>
+    </div>
+    <div id="discovery-content" class="discovery-content">
+        <div class="discovery-loading">読み込み中...</div>
+    </div>
+</div>
+
 {% if saved_keywords %}
 <div class="card mt-1">
     <h2>保存済みキーワード</h2>
@@ -96,6 +119,14 @@ function useKeyword(kw) {
     document.getElementById('keyword').value = kw;
     document.getElementById('keyword').focus();
 }
+
+// Discovery tab switching
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('discovery-tab')) {
+        document.querySelectorAll('.discovery-tab').forEach(function(t) { t.classList.remove('active'); });
+        e.target.classList.add('active');
+    }
+});
 
 function saveKeyword() {
     var kw = document.getElementById('keyword').value.trim();

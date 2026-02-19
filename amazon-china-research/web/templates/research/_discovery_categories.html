@@ -1,0 +1,12 @@
+<div class="discovery-grid">
+{% for cat in categories %}
+    <button class="discovery-cat-card"
+            hx-get="/research/discovery/categories/{{ cat.id }}"
+            hx-target="#discovery-content"
+            hx-swap="innerHTML">
+        <span class="discovery-cat-icon">{{ cat.icon }}</span>
+        <span class="discovery-cat-name">{{ cat.name }}</span>
+        <span class="discovery-cat-count">{{ cat.keyword_count }}件</span>
+    </button>
+{% endfor %}
+</div>
