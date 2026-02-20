@@ -48,6 +48,11 @@ async def lifespan(app: FastAPI):
     yield
 
     # --- Shutdown ---
+    # Clean up any active 1688 login sessions
+    from .services.alibaba_login import login_session_manager
+    await login_session_manager.cleanup_all()
+    logger.info("1688 login sessions cleaned up.")
+
     keeper_task.cancel()
     try:
         await keeper_task

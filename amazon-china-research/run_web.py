@@ -2,12 +2,20 @@
 """Web server entry point for Amazon-1688 Research Tool."""
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
 
 # Ensure project root is on sys.path
 sys.path.insert(0, str(Path(__file__).parent))
+
+# Configure Python logging so all module loggers output to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+    stream=sys.stdout,
+)
 
 import uvicorn
 from web.config import settings

@@ -97,15 +97,62 @@ class _ProgressWriter:
     def __getattr__(self, name):
         return getattr(self._original, name)
 
-# Path to 1688 auth storage
+# Path to 1688 auth storage (shared admin session for CLI)
 _AUTH_STORAGE_PATH = Path(__file__).parent.parent.parent / "config" / "auth" / "1688_storage.json"
 
 # Key cookies that must be valid for 1688 to work
-_REQUIRED_COOKIE_NAMES = {"cookie2", "csg"}
+# cookie2 is the primary session cookie; csg may not always be set after SMS login
+_REQUIRED_COOKIE_NAMES = {"cookie2"}
+
+
+def get_user_auth_path(user_id: int) -> Path:
+    """Return the path to a user's 1688 auth storage file."""
+    return Path(__file__).parent.parent.parent / "output" / "users" / str(user_id) / "1688_storage.json"
+
+
+def check_user_1688_session(user_id: int) -> tuple[bool, str]:
+    """Check if the per-user 1688 auth session is valid by inspecting cookie expiry.
+
+    Returns:
+        (is_valid, message) tuple.
+    """
+    _SESSION_EXPIRED_MSG = "1688アカウントが連携されていません。アカウント設定から連携してください。"
+
+    storage_path = get_user_auth_path(user_id)
+
+    if not storage_path.exists():
+        return False, _SESSION_EXPIRED_MSG
+
+    try:
+        data = json.loads(storage_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False, _SESSION_EXPIRED_MSG
+
+    cookies = data.get("cookies", [])
+    if not cookies:
+        return False, _SESSION_EXPIRED_MSG
+
+    now = time.time()
+
+    # Check that required cookies exist and at least one is not expired
+    for name in _REQUIRED_COOKIE_NAMES:
+        matching = [c for c in cookies if c.get("name") == name and ".1688.com" in (c.get("domain") or "")]
+        if not matching:
+            # Also check .taobao.com domain
+            matching = [c for c in cookies if c.get("name") == name and ".taobao.com" in (c.get("domain") or "")]
+        if not matching:
+            return False, _SESSION_EXPIRED_MSG
+
+        # Check if at least one is still valid
+        valid = [c for c in matching if c.get("expires", -1) == -1 or c.get("expires", 0) > now]
+        if not valid:
+            return False, _SESSION_EXPIRED_MSG
+
+    return True, ""
 
 
 def check_1688_session() -> tuple[bool, str]:
-    """Check if the 1688 auth session is valid by inspecting cookie expiry.
+    """Check if the shared admin 1688 auth session is valid by inspecting cookie expiry.
 
     Returns:
         (is_valid, message) tuple.
@@ -270,12 +317,15 @@ def _run_in_subprocess(job_id: int, keyword: str, jobs_output_dir: str, user_id:
         # Record start time BEFORE research to filter old files
         start_epoch = _time.time() - 5  # 5s buffer
 
+        # Use per-user 1688 auth storage
+        user_auth_path = project_root / "output" / "users" / str(user_id) / "1688_storage.json"
+
         browser = BrowserManager(
             headless=True,
             timeout=config.browser.timeout,
             request_delay=config.browser.request_delay,
             use_auth=True,
-            auth_storage_path=project_root / "config" / "auth" / "1688_storage.json",
+            auth_storage_path=user_auth_path,
         )
 
         try:
@@ -409,12 +459,15 @@ def _run_auto_in_subprocess(
         # Record start time BEFORE research to filter old files
         start_epoch = _time.time() - 5  # 5s buffer
 
+        # Use per-user 1688 auth storage
+        user_auth_path = project_root / "output" / "users" / str(user_id) / "1688_storage.json"
+
         browser = BrowserManager(
             headless=True,
             timeout=config.browser.timeout,
             request_delay=config.browser.request_delay,
             use_auth=True,
-            auth_storage_path=project_root / "config" / "auth" / "1688_storage.json",
+            auth_storage_path=user_auth_path,
         )
 
         try:

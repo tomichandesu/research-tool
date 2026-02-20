@@ -49,10 +49,12 @@ files = [
     ("web/services/usage_tracker.py", "/app/web/services/usage_tracker.py"),
     ("web/services/user_service.py", "/app/web/services/user_service.py"),
     ("web/services/ai_keyword_service.py", "/app/web/services/ai_keyword_service.py"),
+    ("web/services/alibaba_login.py", "/app/web/services/alibaba_login.py"),
     ("web/services/job_queue.py", "/app/web/services/job_queue.py"),
     ("web/services/seller_scraper.py", "/app/web/services/seller_scraper.py"),
     ("web/database.py", "/app/web/database.py"),
     ("web/static/css/style.css", "/app/web/static/css/style.css"),
+    ("web/static/data/amazon_categories.json", "/app/web/static/data/amazon_categories.json"),
     ("web_requirements.txt", "/app/web_requirements.txt"),
     ("run_web.py", "/app/run_web.py"),
     (".env", "/app/.env"),
@@ -81,7 +83,8 @@ mkdir_cmd = (
     f"{REMOTE_TMP}/web/templates/account "
     f"{REMOTE_TMP}/web/routes "
     f"{REMOTE_TMP}/web/services "
-    f"{REMOTE_TMP}/web/static/css"
+    f"{REMOTE_TMP}/web/static/css "
+    f"{REMOTE_TMP}/web/static/data"
 )
 stdin, stdout, stderr = ssh.exec_command(mkdir_cmd)
 stdout.channel.recv_exit_status()
@@ -98,6 +101,7 @@ container_dirs = [
     "/app/web/routes",
     "/app/web/services",
     "/app/web/static/css",
+    "/app/web/static/data",
 ]
 for d in container_dirs:
     cmd = f"docker exec {CONTAINER} mkdir -p {d}"

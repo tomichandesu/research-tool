@@ -42,6 +42,10 @@ class WebConfig:
     MAX_BATCH_SIZE: int = int(os.getenv("MAX_BATCH_SIZE", "10"))
     BATCH_INTER_JOB_DELAY: int = int(os.getenv("BATCH_INTER_JOB_DELAY", "45"))
 
+    # 1688 login sessions
+    MAX_CONCURRENT_LOGINS: int = int(os.getenv("MAX_CONCURRENT_LOGINS", "3"))
+    LOGIN_TIMEOUT_SECONDS: int = int(os.getenv("LOGIN_TIMEOUT_SECONDS", "300"))
+
     # Output
     JOBS_OUTPUT_DIR: str = os.getenv(
         "JOBS_OUTPUT_DIR", str(_project_root / "output" / "jobs")
@@ -57,7 +61,7 @@ class WebConfig:
 
     # OpenAI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4.1")
 
     # Stripe
     STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")

@@ -6,7 +6,7 @@
 
 {% if session_ok is defined and not session_ok %}
 <div class="alert alert-error" style="background: #fff3cd; border-left: 4px solid #ffc107; color: #856404;">
-    現在、1688リサーチ機能がメンテナンス中です。AIキーワードアシスタントは通常通りご利用いただけます。
+    1688アカウントが連携されていません。<a href="/account/settings" style="color: #856404; font-weight: bold;">アカウント設定</a>から連携してください。AIキーワードアシスタントは通常通りご利用いただけます。
 </div>
 {% endif %}
 {% if error %}
@@ -83,13 +83,56 @@
     <h2>キーワード発見アシスタント</h2>
     <p class="text-muted" style="margin-bottom: .75rem;">AIがあなたの思いつかないキーワードを提案します。何でも聞いてみてください。</p>
 
+    <style>
+    .ai-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .5rem 0; }
+    @media (max-width: 600px) { .ai-cat-grid { grid-template-columns: 1fr; } }
+    .ai-cat-btn {
+        display: flex; align-items: center; gap: .5rem;
+        padding: .6rem .8rem; border: 2px solid #e0e0e0; border-radius: 8px;
+        background: #fff; cursor: pointer; font-size: .95em; font-weight: 500;
+        transition: all .15s; text-align: left; color: #333;
+    }
+    .ai-cat-btn:hover { border-color: #1565c0; background: #e3f2fd; color: #1565c0; }
+    .ai-cat-btn .ai-cat-emoji { font-size: 1.3em; flex-shrink: 0; }
+    .ai-cat-breadcrumb {
+        display: flex; flex-wrap: wrap; align-items: center; gap: .25rem;
+        margin-bottom: .5rem; font-size: .85em; color: #666;
+    }
+    .ai-cat-breadcrumb span { cursor: pointer; color: #1565c0; text-decoration: underline; }
+    .ai-cat-breadcrumb span:last-child { color: #333; font-weight: bold; text-decoration: none; cursor: default; }
+    .ai-cat-back-btn {
+        display: inline-flex; align-items: center; gap: .3rem;
+        padding: .3rem .6rem; border: 1px solid #ccc; border-radius: 6px;
+        background: #f5f5f5; cursor: pointer; font-size: .85em; color: #555;
+        margin-bottom: .5rem;
+    }
+    .ai-cat-back-btn:hover { background: #e0e0e0; }
+    .ai-cat-start-btn {
+        display: block; width: 100%; padding: .7rem; margin-top: .5rem;
+        border: 2px solid #1565c0; border-radius: 8px; background: #1565c0;
+        color: #fff; font-size: 1em; font-weight: bold; cursor: pointer;
+        transition: all .15s;
+    }
+    .ai-cat-start-btn:hover { background: #0d47a1; }
+    </style>
     <div class="ai-chat-container" id="ai-chat-messages">
         <div class="ai-chat-message ai-chat-assistant">
             <div class="ai-chat-avatar ai-avatar-ai">AI</div>
-            <div class="ai-chat-bubble">
-                どんなジャンルに興味がある？<br>
-                たとえばインテリア系、ペット系、ガーデニング系…ざっくりでOK！<br>
-                完全におまかせもできるよ！
+            <div class="ai-chat-bubble" id="ai-init-categories">
+                まずはどのジャンルで攻めたいか、カテゴリを選んでみて！
+                <div class="ai-cat-grid">
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('DIY・工具・ガーデン')"><span class="ai-cat-emoji">🔧</span> DIY・工具・ガーデン</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('おもちゃ')"><span class="ai-cat-emoji">🧸</span> おもちゃ</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('スポーツ＆アウトドア')"><span class="ai-cat-emoji">⛺</span> スポーツ＆アウトドア</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('ペット用品')"><span class="ai-cat-emoji">🐾</span> ペット用品</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('ベビー＆マタニティ')"><span class="ai-cat-emoji">👶</span> ベビー＆マタニティ</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('ホーム＆キッチン')"><span class="ai-cat-emoji">🏠</span> ホーム＆キッチン</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('ホビー')"><span class="ai-cat-emoji">🎨</span> ホビー</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('文房具・オフィス用品')"><span class="ai-cat-emoji">✏️</span> 文房具・オフィス用品</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('産業・研究開発用品')"><span class="ai-cat-emoji">🔬</span> 産業・研究開発用品</button>
+                    <button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory('車＆バイク')"><span class="ai-cat-emoji">🚗</span> 車＆バイク</button>
+                </div>
+                <small style="color: #888;">カテゴリを選んでもいいし、自分で入力してもOKだよ！</small>
             </div>
         </div>
     </div>
@@ -233,6 +276,24 @@ function saveKeyword() {
 /* --- AI Chat --- */
 var aiChatHistory = [];
 var aiChatBusy = false;
+var _categoryTree = null;    // Amazonカテゴリツリーデータ
+var _categoryPath = [];      // 現在のナビゲーションパス [{name, children}]
+
+var _catEmojis = {
+    'DIY・工具・ガーデン': '🔧', 'おもちゃ': '🧸',
+    'スポーツ＆アウトドア': '⛺', 'ペット用品': '🐾',
+    'ベビー＆マタニティ': '👶', 'ホーム＆キッチン': '🏠',
+    'ホビー': '🎨', '文房具・オフィス用品': '✏️',
+    '産業・研究開発用品': '🔬', '車＆バイク': '🚗'
+};
+
+/* カテゴリツリーJSONをロード */
+(function loadCategoryTree() {
+    fetch('/static/data/amazon_categories.json')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) { if (data) _categoryTree = data; })
+        .catch(function() {});
+})();
 
 function aiChatScrollBottom() {
     var c = document.getElementById('ai-chat-messages');
@@ -353,19 +414,163 @@ async function aiChatSend(overrideMessage) {
     input.focus();
 }
 
+/* --- カテゴリナビゲーション --- */
+
+function _buildBreadcrumb() {
+    if (_categoryPath.length === 0) return '';
+    var html = '<div class="ai-cat-breadcrumb">';
+    html += '<span onclick="aiCatNavigateTo(-1)">トップ</span>';
+    for (var i = 0; i < _categoryPath.length; i++) {
+        html += ' &gt; ';
+        if (i < _categoryPath.length - 1) {
+            html += '<span onclick="aiCatNavigateTo(' + i + ')">' + _categoryPath[i].name + '</span>';
+        } else {
+            html += '<span>' + _categoryPath[i].name + '</span>';
+        }
+    }
+    html += '</div>';
+    return html;
+}
+
+function _buildSubcategoryButtons(children) {
+    var html = '<div class="ai-cat-grid">';
+    for (var i = 0; i < children.length; i++) {
+        var ch = children[i];
+        var escaped = ch.name.replace(/'/g, "\\'");
+        html += '<button type="button" class="ai-cat-btn" onclick="aiCatDrillDown(\'' + escaped + '\')">';
+        var hasKids = ch.children && ch.children.length > 0;
+        html += '<span style="font-size:.85em;color:#888;">' + (hasKids ? '📂' : '📄') + '</span> ' + ch.name;
+        if (hasKids) html += ' <span style="font-size:.75em;color:#aaa;">(' + ch.children.length + ')</span>';
+        html += '</button>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function _renderCategoryNav() {
+    var initEl = document.getElementById('ai-init-categories');
+    if (!initEl) return;
+
+    var currentChildren;
+    if (_categoryPath.length === 0) {
+        // トップレベル: メインカテゴリボタン
+        initEl.innerHTML = _buildMainCatGrid();
+        return;
+    }
+
+    var lastNode = _categoryPath[_categoryPath.length - 1];
+    currentChildren = lastNode.children || [];
+
+    var html = _buildBreadcrumb();
+    html += '<button type="button" class="ai-cat-back-btn" onclick="aiCatGoBack()">← 戻る</button>';
+
+    if (currentChildren.length > 0) {
+        html += '<div style="margin-bottom:.5rem;color:#555;">「<strong>' + lastNode.name + '</strong>」のサブカテゴリを選んでね：</div>';
+        html += _buildSubcategoryButtons(currentChildren);
+        html += '<button type="button" class="ai-cat-start-btn" onclick="aiCatStartChat()">「' + lastNode.name + '」でキーワード提案を開始</button>';
+    } else {
+        html += '<div style="margin-bottom:.5rem;">✅ <strong>' + lastNode.name + '</strong> を選択</div>';
+        html += '<button type="button" class="ai-cat-start-btn" onclick="aiCatStartChat()">このカテゴリでキーワード提案を開始</button>';
+    }
+
+    initEl.innerHTML = html;
+}
+
+function _findCategoryNode(name, tree) {
+    for (var i = 0; i < tree.length; i++) {
+        if (tree[i].name === name) return tree[i];
+    }
+    return null;
+}
+
+function aiChatSelectCategory(category) {
+    // メインカテゴリ選択: ツリーデータがあればドリルダウン
+    if (_categoryTree) {
+        var node = _findCategoryNode(category, _categoryTree);
+        if (node && node.children && node.children.length > 0) {
+            _categoryPath = [{name: node.name, children: node.children}];
+            _renderCategoryNav();
+            return;
+        }
+    }
+    // ツリーデータがない場合はAIに直接送信（フォールバック）
+    _categoryPath = [{name: category, children: []}];
+    aiCatStartChat();
+}
+
+function aiCatDrillDown(name) {
+    if (_categoryPath.length === 0) return;
+    var lastNode = _categoryPath[_categoryPath.length - 1];
+    var child = _findCategoryNode(name, lastNode.children || []);
+    if (child) {
+        _categoryPath.push({name: child.name, children: child.children || []});
+        _renderCategoryNav();
+    }
+}
+
+function aiCatGoBack() {
+    if (_categoryPath.length > 1) {
+        _categoryPath.pop();
+        _renderCategoryNav();
+    } else {
+        _categoryPath = [];
+        _renderCategoryNav();
+    }
+}
+
+function aiCatNavigateTo(index) {
+    if (index < 0) {
+        _categoryPath = [];
+    } else {
+        _categoryPath = _categoryPath.slice(0, index + 1);
+    }
+    _renderCategoryNav();
+}
+
+function aiCatStartChat() {
+    if (_categoryPath.length === 0) return;
+    var path = _categoryPath.map(function(p) { return p.name; }).join(' > ');
+    var initEl = document.getElementById('ai-init-categories');
+    if (initEl) {
+        initEl.innerHTML = _buildBreadcrumb() + '<div>✅ <strong>' + path + '</strong> でキーワード提案を開始</div>';
+    }
+    var msg = '「' + path + '」のカテゴリでキーワードを提案してください。';
+    aiChatSend(msg);
+}
+
 function aiChatOmakase() {
+    var initEl = document.getElementById('ai-init-categories');
+    if (initEl) {
+        initEl.innerHTML = 'まずはどのジャンルで攻めたいか、カテゴリを選んでみて！<br><br>✅ <strong>おまかせ</strong> を選択';
+    }
     aiChatSend('何でもいいので、意外性のあるニッチなキーワードをおまかせで提案してください。ジャンルは完全にあなたにお任せします。');
+}
+
+function _buildMainCatGrid() {
+    var cats = [
+        ['DIY・工具・ガーデン','🔧'], ['おもちゃ','🧸'],
+        ['スポーツ＆アウトドア','⛺'], ['ペット用品','🐾'],
+        ['ベビー＆マタニティ','👶'], ['ホーム＆キッチン','🏠'],
+        ['ホビー','🎨'], ['文房具・オフィス用品','✏️'],
+        ['産業・研究開発用品','🔬'], ['車＆バイク','🚗']
+    ];
+    var html = 'まずはどのジャンルで攻めたいか、カテゴリを選んでみて！<div class="ai-cat-grid">';
+    for (var i = 0; i < cats.length; i++) {
+        var escaped = cats[i][0].replace(/'/g, "\\'");
+        html += '<button type="button" class="ai-cat-btn" onclick="aiChatSelectCategory(\'' + escaped + '\')"><span class="ai-cat-emoji">' + cats[i][1] + '</span> ' + cats[i][0] + '</button>';
+    }
+    html += '</div><small style="color: #888;">カテゴリを選んでもいいし、自分で入力してもOKだよ！</small>';
+    return html;
 }
 
 function aiChatReset() {
     aiChatHistory = [];
+    _categoryPath = [];
     var container = document.getElementById('ai-chat-messages');
     container.innerHTML = '<div class="ai-chat-message ai-chat-assistant">' +
         '<div class="ai-chat-avatar ai-avatar-ai">AI</div>' +
-        '<div class="ai-chat-bubble">' +
-        'どんなジャンルに興味がある？<br>' +
-        'たとえばインテリア系、ペット系、ガーデニング系…ざっくりでOK！<br>' +
-        '完全におまかせもできるよ！' +
+        '<div class="ai-chat-bubble" id="ai-init-categories">' +
+        _buildMainCatGrid() +
         '</div></div>';
 }
 

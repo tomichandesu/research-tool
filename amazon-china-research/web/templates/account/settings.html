@@ -28,4 +28,318 @@
         <button type="submit" class="btn btn-primary">プロフィールを更新</button>
     </form>
 </div>
+
+<!-- 1688 Account Linking Card -->
+<div class="card" style="margin-top: 1.5rem;">
+    <h2>1688アカウント連携</h2>
+
+    {% if alibaba_session_valid %}
+    <!-- Connected state -->
+    <div id="alibaba-status-banner" style="background: #d4edda; border-left: 4px solid #28a745; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; color: #155724;">
+        <strong>接続済み</strong> — 1688アカウントが連携されています。リサーチが利用可能です。
+    </div>
+    <button type="button" class="btn btn-outline" onclick="disconnect1688()" id="disconnect-btn">
+        連携を解除
+    </button>
+    {% else %}
+    <!-- Disconnected state -->
+    <div id="alibaba-status-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; color: #856404;">
+        <strong>未接続</strong> — 1688アカウントを連携すると、リサーチ機能が利用できます。
+    </div>
+
+    <!-- Step 0: Start button -->
+    <div id="sms-step-start">
+        <button type="button" class="btn btn-primary" onclick="startSmsLogin()" id="start-login-btn">
+            1688アカウントを連携する（SMS認証）
+        </button>
+    </div>
+
+    <!-- Step 1: Phone number input -->
+    <div id="sms-step-phone" style="display: none; margin-top: 1rem;">
+        <div style="background: #e8f4fd; border-left: 4px solid #1565c0; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; color: #0d47a1;">
+            <strong>ステップ1</strong> — 1688に登録している電話番号を入力してください
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: flex-end; max-width: 400px;">
+            <div style="flex: 1;">
+                <label for="sms-phone" style="display: block; margin-bottom: 0.25rem; font-size: 0.9em;">電話番号</label>
+                <input type="tel" id="sms-phone" placeholder="例: 13812345678"
+                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1em;">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitPhone()" id="submit-phone-btn">
+                認証コードを送信
+            </button>
+        </div>
+        <p style="margin-top: 0.5rem; font-size: 0.85em; color: #666;">
+            中国の携帯番号（国番号不要、数字のみ）を入力してください。
+        </p>
+        <button type="button" class="btn btn-outline" onclick="cancelSmsLogin()" style="margin-top: 0.75rem;">
+            キャンセル
+        </button>
+    </div>
+
+    <!-- Step 2: SMS code input -->
+    <div id="sms-step-code" style="display: none; margin-top: 1rem;">
+        <div style="background: #e8f4fd; border-left: 4px solid #1565c0; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; color: #0d47a1;">
+            <strong>ステップ2</strong> — SMSで届いた認証コードを入力してください
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: flex-end; max-width: 400px;">
+            <div style="flex: 1;">
+                <label for="sms-code" style="display: block; margin-bottom: 0.25rem; font-size: 0.9em;">認証コード</label>
+                <input type="text" id="sms-code" placeholder="6桁のコード"
+                       maxlength="10" autocomplete="one-time-code"
+                       style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1.2em; letter-spacing: 0.3em; text-align: center;">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitCode()" id="submit-code-btn">
+                ログイン
+            </button>
+        </div>
+        <p id="sms-code-message" style="margin-top: 0.5rem; font-size: 0.85em; color: #666;">
+            SMSが届くまで少々お待ちください。
+        </p>
+        <button type="button" class="btn btn-outline" onclick="cancelSmsLogin()" style="margin-top: 0.75rem;">
+            キャンセル
+        </button>
+    </div>
+
+    <!-- Step 3: Waiting for login result -->
+    <div id="sms-step-waiting" style="display: none; margin-top: 1rem;">
+        <div style="background: #e8f4fd; border-left: 4px solid #1565c0; padding: 0.75rem 1rem; border-radius: 4px; color: #0d47a1;">
+            <strong>ログイン確認中...</strong> しばらくお待ちください。
+        </div>
+    </div>
+
+    <!-- Success message -->
+    <div id="sms-step-success" style="display: none; margin-top: 1rem;">
+        <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 0.75rem 1rem; border-radius: 4px; color: #155724;">
+            <strong>連携完了！</strong> 1688アカウントが正常に連携されました。ページをリロードします...
+        </div>
+    </div>
+
+    <!-- Error message -->
+    <div id="sms-step-error" style="display: none; margin-top: 1rem;">
+        <div id="sms-error-message" style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 0.75rem 1rem; border-radius: 4px; color: #721c24;">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="resetSmsLogin()" style="margin-top: 0.75rem;">
+            もう一度やり直す
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+var smsPollingTimer = null;
+
+function showStep(step) {
+    var steps = ['start', 'phone', 'code', 'waiting', 'success', 'error'];
+    for (var i = 0; i < steps.length; i++) {
+        var el = document.getElementById('sms-step-' + steps[i]);
+        if (el) el.style.display = steps[i] === step ? 'block' : 'none';
+    }
+}
+
+async function startSmsLogin() {
+    var btn = document.getElementById('start-login-btn');
+    btn.disabled = true;
+    btn.textContent = '起動中...';
+
+    try {
+        var resp = await fetch('/account/1688/login/start', { method: 'POST' });
+        var data = await resp.json();
+
+        if (data.status === 'error') {
+            alert(data.message || 'エラーが発生しました');
+            btn.disabled = false;
+            btn.textContent = '1688アカウントを連携する（SMS認証）';
+            return;
+        }
+
+        // Start polling for status changes
+        smsPollingTimer = setInterval(pollSmsStatus, 2000);
+
+        // Show phone input
+        showStep('phone');
+        document.getElementById('sms-phone').focus();
+
+    } catch (e) {
+        alert('通信エラーが発生しました。もう一度お試しください。');
+        btn.disabled = false;
+        btn.textContent = '1688アカウントを連携する（SMS認証）';
+    }
+}
+
+async function submitPhone() {
+    var phone = document.getElementById('sms-phone').value.trim();
+    if (!phone) {
+        alert('電話番号を入力してください。');
+        return;
+    }
+
+    var btn = document.getElementById('submit-phone-btn');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+
+    try {
+        var resp = await fetch('/account/1688/login/phone', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ phone: phone })
+        });
+        var data = await resp.json();
+
+        if (data.status === 'error') {
+            alert(data.message);
+            btn.disabled = false;
+            btn.textContent = '認証コードを送信';
+            return;
+        }
+
+        // Move to code input step — poll will also transition when status changes
+        showStep('code');
+        document.getElementById('sms-code').focus();
+
+    } catch (e) {
+        alert('通信エラーが発生しました。');
+        btn.disabled = false;
+        btn.textContent = '認証コードを送信';
+    }
+}
+
+async function submitCode() {
+    var code = document.getElementById('sms-code').value.trim();
+    if (!code) {
+        alert('認証コードを入力してください。');
+        return;
+    }
+
+    var btn = document.getElementById('submit-code-btn');
+    btn.disabled = true;
+    btn.textContent = '確認中...';
+
+    try {
+        var resp = await fetch('/account/1688/login/code', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ code: code })
+        });
+        var data = await resp.json();
+
+        if (data.status === 'error') {
+            alert(data.message);
+            btn.disabled = false;
+            btn.textContent = 'ログイン';
+            return;
+        }
+
+        // Show waiting state — poll will detect login
+        showStep('waiting');
+
+    } catch (e) {
+        alert('通信エラーが発生しました。');
+        btn.disabled = false;
+        btn.textContent = 'ログイン';
+    }
+}
+
+async function pollSmsStatus() {
+    try {
+        var resp = await fetch('/account/1688/login/status');
+        var data = await resp.json();
+
+        if (data.status === 'logged_in') {
+            clearInterval(smsPollingTimer);
+            smsPollingTimer = null;
+            showStep('success');
+            setTimeout(function() { location.reload(); }, 2000);
+            return;
+        }
+
+        if (data.status === 'failed') {
+            clearInterval(smsPollingTimer);
+            smsPollingTimer = null;
+            var errMsg = data.error || 'ログインに失敗しました。もう一度お試しください。';
+            document.getElementById('sms-error-message').innerHTML = '<strong>エラー</strong> — ' + errMsg;
+            showStep('error');
+            return;
+        }
+
+        if (data.status === 'none') {
+            // Session was cleaned up
+            clearInterval(smsPollingTimer);
+            smsPollingTimer = null;
+            resetSmsLogin();
+            return;
+        }
+
+        // Update UI based on current status
+        if (data.status === 'waiting_code') {
+            var codeStep = document.getElementById('sms-step-code');
+            if (codeStep.style.display === 'none') {
+                showStep('code');
+                document.getElementById('sms-code').focus();
+            }
+        }
+
+    } catch (e) {
+        // Ignore transient errors
+    }
+}
+
+async function cancelSmsLogin() {
+    if (smsPollingTimer) {
+        clearInterval(smsPollingTimer);
+        smsPollingTimer = null;
+    }
+    try {
+        await fetch('/account/1688/login/cancel', { method: 'POST' });
+    } catch (e) {}
+    resetSmsLogin();
+}
+
+function resetSmsLogin() {
+    if (smsPollingTimer) {
+        clearInterval(smsPollingTimer);
+        smsPollingTimer = null;
+    }
+    showStep('start');
+    var btn = document.getElementById('start-login-btn');
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = '1688アカウントを連携する（SMS認証）';
+    }
+    // Reset inputs
+    var phoneInput = document.getElementById('sms-phone');
+    if (phoneInput) phoneInput.value = '';
+    var codeInput = document.getElementById('sms-code');
+    if (codeInput) codeInput.value = '';
+}
+
+async function disconnect1688() {
+    if (!confirm('1688アカウントの連携を解除しますか？\nリサーチ機能が使えなくなります。')) {
+        return;
+    }
+    try {
+        var resp = await fetch('/account/1688/disconnect', { method: 'POST' });
+        var data = await resp.json();
+        if (data.disconnected) {
+            location.reload();
+        }
+    } catch (e) {
+        alert('通信エラーが発生しました。');
+    }
+}
+
+// Enter key submits current step
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var phoneStep = document.getElementById('sms-step-phone');
+    var codeStep = document.getElementById('sms-step-code');
+    if (phoneStep && phoneStep.style.display !== 'none') {
+        e.preventDefault();
+        submitPhone();
+    } else if (codeStep && codeStep.style.display !== 'none') {
+        e.preventDefault();
+        submitCode();
+    }
+});
+</script>
 {% endblock %}

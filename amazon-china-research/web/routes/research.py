@@ -18,7 +18,7 @@ from ..database import get_db
 from ..models import ReferenceSeller, ResearchJob, SavedKeyword, User
 from ..services.ai_keyword_service import stream_keyword_chat
 from ..services.job_queue import job_queue
-from ..services.job_runner import cancel_job, check_1688_session
+from ..services.job_runner import cancel_job, check_user_1688_session
 from ..services.keyword_discovery import (
     get_all_categories,
     get_category_keywords,
@@ -38,8 +38,8 @@ async def research_new(
 ):
     allowed, msg = await check_usage_limit(db, user)
 
-    # Check 1688 session status for display
-    session_ok, session_msg = check_1688_session()
+    # Check per-user 1688 session status
+    session_ok, session_msg = check_user_1688_session(user.id)
 
     # Load saved keywords
     result = await db.execute(
@@ -118,8 +118,8 @@ async def research_submit(
             {**err_ctx, "error": f"一度に登録できるキーワードは最大{settings.MAX_BATCH_SIZE}個です。"},
         )
 
-    # Check 1688 session before starting research
-    session_ok, session_msg = check_1688_session()
+    # Check per-user 1688 session before starting research
+    session_ok, session_msg = check_user_1688_session(user.id)
     if not session_ok:
         return templates.TemplateResponse(
             "research/new.html",
