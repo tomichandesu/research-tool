@@ -599,48 +599,27 @@ async function expandKeyword(kw, btn) {
             return;
         }
 
-        var reader = response.body.getReader();
-        var decoder = new TextDecoder();
-        var fullText = '';
+        var data = await response.json();
+        var suggestions = data.suggestions || [];
 
-        while (true) {
-            var result = await reader.read();
-            if (result.done) break;
-
-            var text = decoder.decode(result.value, {stream: true});
-            var lines = text.split('\n');
-
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                if (!line.startsWith('data: ')) continue;
-                try {
-                    var data = JSON.parse(line.substring(6));
-                    if (data.done) break;
-                    if (data.chunk) {
-                        fullText += data.chunk;
-                    }
-                } catch(e) {}
-            }
-        }
-
-        // Parse [KW]...[/KW] from the expansion result
-        var kwMatches = [];
-        fullText.replace(/\[KW\](.*?)\[\/KW\]/g, function(m, k) {
-            kwMatches.push(k.trim());
-        });
-
-        if (kwMatches.length === 0) {
-            resultDiv.innerHTML = '<small style="color:#666;">バリエーションを取得できませんでした</small>';
+        if (suggestions.length === 0) {
+            resultDiv.innerHTML = '<small style="color:#666;">サジェストが見つかりませんでした</small>';
         } else {
             var html = '';
-            for (var j = 0; j < kwMatches.length; j++) {
-                var ekw = kwMatches[j];
+            for (var j = 0; j < suggestions.length; j++) {
+                var ekw = suggestions[j];
                 var eEscaped = ekw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                var wordCount = ekw.trim().split(/\s+/).length;
+                var canExpand = wordCount < 3;
                 html += '<div class="kw-expand-item">' +
                         '<span class="ai-chat-kw-name">' + ekw + '</span>' +
                         ' <button class="btn btn-sm btn-primary ai-chat-keyword-btn" ' +
-                        'onclick="useKeyword(\'' + eEscaped + '\')">使う</button>' +
-                        '</div>';
+                        'onclick="useKeyword(\'' + eEscaped + '\')">使う</button>';
+                if (canExpand) {
+                    html += ' <button class="btn btn-sm ai-chat-expand-btn" ' +
+                            'onclick="expandKeyword(\'' + eEscaped + '\', this)">拡張する</button>';
+                }
+                html += '</div>';
             }
             resultDiv.innerHTML = html;
         }

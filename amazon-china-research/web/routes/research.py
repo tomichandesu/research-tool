@@ -2,12 +2,16 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import quote
+
+import aiohttp
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +20,7 @@ from ..auth.dependencies import require_login
 from ..config import settings
 from ..database import get_db
 from ..models import ReferenceSeller, ResearchJob, SavedKeyword, User
-from ..services.ai_keyword_service import stream_keyword_chat, stream_keyword_expansion
+from ..services.ai_keyword_service import stream_keyword_chat
 from ..services.job_queue import job_queue
 from ..services.job_runner import cancel_job, check_user_1688_session
 from ..services.keyword_discovery import (
@@ -341,35 +345,49 @@ async def discovery_ai_chat(
     )
 
 
+_logger = logging.getLogger(__name__)
+
+AMAZON_SUGGEST_URL = (
+    "https://completion.amazon.co.jp/api/2017/suggestions"
+    "?mid=A1VC38T7YXB528&alias=aps&prefix={query}"
+)
+
+
+async def _fetch_amazon_suggestions(keyword: str) -> list[str]:
+    """Fetch autocomplete suggestions from Amazon.co.jp."""
+    url = AMAZON_SUGGEST_URL.format(query=quote(keyword + " "))
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url, timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                if resp.status != 200:
+                    return []
+                data = await resp.json(content_type=None)
+    except Exception:
+        _logger.exception("Amazon suggest API error for keyword=%s", keyword)
+        return []
+    return [
+        item["value"]
+        for item in data.get("suggestions", [])
+        if item.get("value", "").strip() and item["value"].strip() != keyword
+    ]
+
+
 @router.post("/discovery/keyword-expand")
 async def discovery_keyword_expand(
     request: Request,
     user: User = Depends(require_login),
 ):
-    """SSE endpoint for keyword expansion."""
+    """Return Amazon autocomplete suggestions for a keyword."""
     body = await request.json()
     keyword = (body.get("keyword") or "").strip()
 
     if not keyword:
-        return StreamingResponse(
-            iter(['data: {"error": "キーワードを指定してください"}\n\n']),
-            media_type="text/event-stream",
-        )
+        return JSONResponse({"suggestions": [], "error": "キーワードを指定してください"})
 
-    async def event_stream():
-        async for chunk in stream_keyword_expansion(keyword):
-            escaped = json.dumps(chunk, ensure_ascii=False)
-            yield f"data: {{\"chunk\": {escaped}}}\n\n"
-        yield 'data: {"done": true}\n\n'
-
-    return StreamingResponse(
-        event_stream(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",
-        },
-    )
+    suggestions = await _fetch_amazon_suggestions(keyword)
+    return JSONResponse({"suggestions": suggestions})
 
 
 @router.get("/{job_id}/batch-queue")
