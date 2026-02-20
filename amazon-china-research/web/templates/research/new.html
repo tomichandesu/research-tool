@@ -323,10 +323,15 @@ function aiChatAddMessage(role, html) {
 function aiChatParseKeywords(text) {
     return text.replace(/\[KW\](.*?)\[\/KW\]/g, function(match, kw) {
         var escaped = kw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        return '<strong class="ai-chat-kw-name">' + kw + '</strong>' +
+        return '<span class="ai-chat-kw-row">' +
+               '<strong class="ai-chat-kw-name">' + kw + '</strong>' +
                ' <button class="btn btn-sm btn-primary ai-chat-keyword-btn" ' +
                'onclick="useKeyword(\'' + escaped + '\')"' +
-               '>このキーワードを使う</button>';
+               '>このキーワードを使う</button>' +
+               ' <button class="btn btn-sm ai-chat-expand-btn" ' +
+               'onclick="expandKeyword(\'' + escaped + '\', this)"' +
+               '>拡張する</button>' +
+               '</span>';
     });
 }
 
@@ -561,6 +566,93 @@ function _buildMainCatGrid() {
     }
     html += '</div><small style="color: #888;">カテゴリを選んでもいいし、自分で入力してもOKだよ！</small>';
     return html;
+}
+
+async function expandKeyword(kw, btn) {
+    // Toggle: if already expanded, close it
+    var existing = btn.parentElement.querySelector('.kw-expand-result');
+    if (existing) {
+        existing.remove();
+        btn.textContent = '拡張する';
+        return;
+    }
+
+    btn.textContent = '読み込み中...';
+    btn.disabled = true;
+
+    var resultDiv = document.createElement('div');
+    resultDiv.className = 'kw-expand-result';
+    resultDiv.innerHTML = '<span class="ai-chat-loading"><span class="ai-chat-dot"></span><span class="ai-chat-dot"></span><span class="ai-chat-dot"></span></span>';
+    btn.parentElement.appendChild(resultDiv);
+
+    try {
+        var response = await fetch('/research/discovery/keyword-expand', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ keyword: kw })
+        });
+
+        if (!response.ok) {
+            resultDiv.innerHTML = '<small style="color:#991b1b;">エラーが発生しました</small>';
+            btn.textContent = '拡張する';
+            btn.disabled = false;
+            return;
+        }
+
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+        var fullText = '';
+
+        while (true) {
+            var result = await reader.read();
+            if (result.done) break;
+
+            var text = decoder.decode(result.value, {stream: true});
+            var lines = text.split('\n');
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line.startsWith('data: ')) continue;
+                try {
+                    var data = JSON.parse(line.substring(6));
+                    if (data.done) break;
+                    if (data.chunk) {
+                        fullText += data.chunk;
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // Parse [KW]...[/KW] from the expansion result
+        var kwMatches = [];
+        fullText.replace(/\[KW\](.*?)\[\/KW\]/g, function(m, k) {
+            kwMatches.push(k.trim());
+        });
+
+        if (kwMatches.length === 0) {
+            resultDiv.innerHTML = '<small style="color:#666;">バリエーションを取得できませんでした</small>';
+        } else {
+            var html = '';
+            for (var j = 0; j < kwMatches.length; j++) {
+                var ekw = kwMatches[j];
+                var eEscaped = ekw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                html += '<div class="kw-expand-item">' +
+                        '<span class="ai-chat-kw-name">' + ekw + '</span>' +
+                        ' <button class="btn btn-sm btn-primary ai-chat-keyword-btn" ' +
+                        'onclick="useKeyword(\'' + eEscaped + '\')">使う</button>' +
+                        '</div>';
+            }
+            resultDiv.innerHTML = html;
+        }
+
+        btn.textContent = '閉じる';
+        btn.disabled = false;
+
+    } catch(e) {
+        resultDiv.innerHTML = '<small style="color:#991b1b;">通信エラーが発生しました</small>';
+        btn.textContent = '拡張する';
+        btn.disabled = false;
+    }
 }
 
 function aiChatReset() {

@@ -287,5 +287,54 @@ h2 { font-size: 1.2rem; margin-bottom: .75rem; }
     .ai-chat-bubble { max-width: 88%; font-size: .85rem; }
 }
 
+/* Keyword Expansion */
+.ai-chat-kw-row {
+    display: inline;
+}
+
+.ai-chat-expand-btn {
+    background: #fff;
+    border: 1.5px solid #e65100;
+    color: #e65100;
+    font-weight: 600;
+    margin-left: .25rem;
+    vertical-align: middle;
+}
+
+.ai-chat-expand-btn:hover {
+    background: #fff3e0;
+}
+
+.ai-chat-expand-btn:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.kw-expand-result {
+    display: block;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: .5rem .75rem;
+    margin-top: .4rem;
+    margin-bottom: .4rem;
+}
+
+.kw-expand-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .25rem 0;
+}
+
+.kw-expand-item:not(:last-child) {
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.kw-expand-item .ai-chat-kw-name {
+    flex: 1;
+    min-width: 0;
+}
+
 /* Footer */
 .footer { border-top: 1px solid var(--gray-200); padding: 1rem 0; margin-top: 2rem; color: var(--gray-500); font-size: .8rem; text-align: center; }

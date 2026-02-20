@@ -665,3 +665,69 @@ async def stream_keyword_chat(
     except Exception:
         logger.exception("OpenAI API error")
         yield "\n\nエラーが発生しました。しばらく待ってからもう一度お試しください。"
+
+
+# --- Keyword Expansion ---
+
+EXPAND_SYSTEM_PROMPT = """\
+あなたはAmazon Japanのキーワードリサーチの専門家だ。
+ユーザーが1つのキーワードを渡すので、それを10個のバリエーションに拡張しろ。
+
+【拡張ルール】
+- キーワードの核となる単語（最初の1〜2語）は維持する
+- 残りの単語を、Amazonで顧客が実際に検索しそうな類義語・関連語・同カテゴリの別表現に置換する
+- 各バリエーションは実際にAmazonの検索窓に打ち込まれそうな自然な日本語であること
+- キーワードは1語〜2語を基本とする（元が2語なら2語、元が1語なら1〜2語）
+- 10個すべて異なるバリエーションにすること（重複禁止）
+- 元のキーワードそのものは含めないこと
+
+【出力形式】
+各キーワードを以下の形式で1行ずつ出力しろ。説明や番号は不要。
+[KW]キーワード名[/KW]
+"""
+
+
+async def stream_keyword_expansion(keyword: str) -> AsyncIterator[str]:
+    """Stream keyword expansion results from OpenAI.
+
+    Takes a single keyword and expands it into 10 variations
+    by replacing non-core words with synonyms/related terms.
+
+    Args:
+        keyword: The keyword to expand (e.g. "水槽 オブジェ")
+
+    Yields:
+        Text chunks from the model response.
+    """
+    client = _get_client()
+
+    messages = [
+        {"role": "system", "content": EXPAND_SYSTEM_PROMPT},
+        {"role": "user", "content": f"以下のキーワードを10個のバリエーションに拡張してください：\n{keyword}"},
+    ]
+
+    try:
+        model = settings.OPENAI_MODEL
+        is_reasoning = model.startswith("o")
+
+        create_kwargs = {
+            "model": model,
+            "messages": messages,
+            "stream": True,
+        }
+        if is_reasoning:
+            create_kwargs["max_completion_tokens"] = 512
+        else:
+            create_kwargs["temperature"] = 0.8
+            create_kwargs["max_tokens"] = 512
+
+        stream = await client.chat.completions.create(**create_kwargs)
+
+        async for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                yield delta.content
+
+    except Exception:
+        logger.exception("OpenAI API error during keyword expansion")
+        yield "\n\nエラーが発生しました。しばらく待ってからもう一度お試しください。"

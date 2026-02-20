@@ -16,7 +16,7 @@ from ..auth.dependencies import require_login
 from ..config import settings
 from ..database import get_db
 from ..models import ReferenceSeller, ResearchJob, SavedKeyword, User
-from ..services.ai_keyword_service import stream_keyword_chat
+from ..services.ai_keyword_service import stream_keyword_chat, stream_keyword_expansion
 from ..services.job_queue import job_queue
 from ..services.job_runner import cancel_job, check_user_1688_session
 from ..services.keyword_discovery import (
@@ -330,6 +330,37 @@ async def discovery_ai_chat(
             escaped = json.dumps(chunk, ensure_ascii=False)
             yield f"data: {{\"chunk\": {escaped}}}\n\n"
         yield "data: {\"done\": true}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/discovery/keyword-expand")
+async def discovery_keyword_expand(
+    request: Request,
+    user: User = Depends(require_login),
+):
+    """SSE endpoint for keyword expansion."""
+    body = await request.json()
+    keyword = (body.get("keyword") or "").strip()
+
+    if not keyword:
+        return StreamingResponse(
+            iter(['data: {"error": "キーワードを指定してください"}\n\n']),
+            media_type="text/event-stream",
+        )
+
+    async def event_stream():
+        async for chunk in stream_keyword_expansion(keyword):
+            escaped = json.dumps(chunk, ensure_ascii=False)
+            yield f"data: {{\"chunk\": {escaped}}}\n\n"
+        yield 'data: {"done": true}\n\n'
 
     return StreamingResponse(
         event_stream(),
