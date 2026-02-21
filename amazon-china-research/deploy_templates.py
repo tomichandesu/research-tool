@@ -173,23 +173,25 @@ for pkg_name, pkg_import, pkg_spec in [
         ver = stdout.read().decode().strip()
         print(f"  {pkg_name} already installed: v{ver}")
 
-# Restart: kill the web process, Docker's restart policy will bring it back.
-# With reload=False (default in production), file copies above did NOT trigger
-# any restarts, so running research jobs were not interrupted.
-# This single restart is the only interruption point.
-print("\nRestarting web server (Docker auto-restart)...")
+# Restart the container entirely.
+# pkill/ps are not available inside the minimal container image,
+# so use `docker restart` from the host instead.
+print("\nRestarting container (docker restart)...")
 print("  Note: Any running research jobs will auto-retry after restart.")
-stdin, stdout, stderr = ssh.exec_command(
-    f"docker exec {CONTAINER} pkill -f 'python.*run_web' || true"
-)
-stdout.channel.recv_exit_status()
-time.sleep(5)
+stdin, stdout, stderr = ssh.exec_command(f"docker restart {CONTAINER}")
+exit_code = stdout.channel.recv_exit_status()
+if exit_code == 0:
+    print("  Container restarted successfully.")
+else:
+    err = stderr.read().decode().strip()
+    print(f"  WARNING: docker restart failed (exit {exit_code}): {err}")
+time.sleep(8)
 
-# Check processes
-print("Checking processes in container...")
-stdin, stdout, stderr = ssh.exec_command(f"docker exec {CONTAINER} ps aux")
-ps_output = stdout.read().decode()
-print(ps_output)
+# Verify container is running
+print("Verifying container status...")
+stdin, stdout, stderr = ssh.exec_command(f"docker logs {CONTAINER} --tail 3")
+log_tail = stdout.read().decode().strip()
+print(f"  Last log lines:\n  {log_tail}")
 
 # Clean up temp
 print("Cleaning up temp files...")

@@ -97,7 +97,8 @@ body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2
 .candidate-link{font-size:11px;color:#1565C0;text-decoration:none;word-break:break-all;display:block;margin-top:4px}
 .candidate-link:hover{text-decoration:underline}
 .candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center}
+.no-candidates{color:#999;font-size:13px;padding:20px;text-align:center;background:#f9f9f9;border-radius:8px;border:1px dashed #ddd}
+.product-card.no-cand{background:#fafafa;border-left:3px solid #ddd}
 </style>
 </head>
 <body>
@@ -117,8 +118,9 @@ body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2
 const DATA = __DATA_PLACEHOLDER__;
 
 function init() {
+  var withCandidates = DATA.products.filter(function(p) { return p.candidates && p.candidates.length > 0; }).length;
   document.getElementById('statsLine').textContent =
-    'キーワード: ' + DATA.keyword + ' | 商品数: ' + DATA.products.length + '件 | 生成: ' + DATA.generated_at;
+    'キーワード: ' + DATA.keyword + ' | フィルター通過: ' + DATA.products.length + '件 | 候補あり: ' + withCandidates + '件 | 生成: ' + DATA.generated_at;
   const container = document.getElementById('products');
   DATA.products.forEach(function(product, pi) {
     container.appendChild(buildCard(product, pi));
@@ -127,7 +129,8 @@ function init() {
 
 function buildCard(product, pi) {
   const card = document.createElement('div');
-  card.className = 'product-card';
+  var hasCandidates = product.candidates && product.candidates.length > 0;
+  card.className = 'product-card' + (hasCandidates ? '' : ' no-cand');
 
   const am = product.amazon;
   const dims = am.dimensions ? am.dimensions[0]+'x'+am.dimensions[1]+'x'+am.dimensions[2]+'cm' : '-';
@@ -154,28 +157,36 @@ function buildCard(product, pi) {
   html += '<a class="amazon-link" href="' + escHtml(am.product_url || ('https://www.amazon.co.jp/dp/' + am.asin)) + '" target="_blank">Amazon で見る &rarr;</a>';
   html += '</div></div>';
 
-  html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
-  html += '<div class="candidates">';
+  if (product.candidates && product.candidates.length > 0) {
+    html += '<div class="candidates-label">1688 候補 (' + product.candidates.length + '件)</div>';
+    html += '<div class="candidates">';
 
-  product.candidates.forEach(function(cand) {
-    var profitPct = cand.profit.profit_rate_percentage;
-    var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
-    html += '<div class="candidate">';
-    html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
-    var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
-    var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
-    var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
-    var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
-    html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
-    html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
-    html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
-    html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
-    if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
-    html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+    product.candidates.forEach(function(cand) {
+      var profitPct = cand.profit.profit_rate_percentage;
+      var profitClass = profitPct >= 25 ? 'good' : profitPct >= 15 ? 'mid' : 'low';
+      html += '<div class="candidate">';
+      html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
+      var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+      var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
+      var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
+      var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
+      html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+      html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
+      html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
+      html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
+      if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + escHtml(cand.alibaba.shop_name) + '</div>';
+      html += '<a class="candidate-link" href="' + escHtml(cand.alibaba.product_url) + '" target="_blank">1688で見る &rarr;</a>';
+      html += '</div>';
+    });
+
     html += '</div>';
-  });
-
-  html += '</div>';
+  } else {
+    html += '<div class="no-candidates">1688候補なし';
+    if (product.no_candidates_reason) {
+      html += ' &mdash; ' + escHtml(product.no_candidates_reason);
+    }
+    html += '</div>';
+  }
   card.innerHTML = html;
   return card;
 }

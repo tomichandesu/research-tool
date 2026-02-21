@@ -90,7 +90,7 @@ class SessionReportGenerator:
 
         summary_headers = [
             "No.", "キーワード", "スコア", "検索数",
-            "通過数", "候補商品数", "通過率(%)",
+            "通過数", "候補あり", "通過率(%)",
         ]
         header_font = Font(bold=True, size=11, color="FFFFFF")
         header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
@@ -132,7 +132,7 @@ class SessionReportGenerator:
         ws2 = wb.create_sheet(title="全商品詳細")
 
         detail_headers = [
-            "No.", "重複", "キーワード", "KWスコア",
+            "No.", "重複", "候補状態", "キーワード", "KWスコア",
             "ASIN", "商品タイトル", "Amazon価格(円)", "BSR",
             "レビュー数", "評価", "FBA", "バリエ数",
             "月間販売数", "月間売上(円)", "セラー名",
@@ -151,11 +151,15 @@ class SessionReportGenerator:
         row_idx = 2
         seen_asins: set[str] = set()
         dup_fill = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
+        no_cand_fill = PatternFill(start_color="FFF3E0", end_color="FFF3E0", fill_type="solid")
         for kw_data in sorted_data:
             kw = kw_data["keyword"]
             kw_score = kw_data.get("score", 0)
 
-            for prod_data in kw_data.get("products", []):
+            # all_filtered があればそれを使い、なければ products にフォールバック
+            display_products = kw_data.get("all_filtered") or kw_data.get("products", [])
+
+            for prod_data in display_products:
                 am = prod_data.get("amazon", {})
                 asin = am.get("asin", "")
                 # セッション内重複はスキップ（過去被りは記載する）
@@ -165,13 +169,22 @@ class SessionReportGenerator:
                 if asin:
                     seen_asins.add(asin)
                 candidates = prod_data.get("candidates", [])
+                has_candidates = len(candidates) > 0
                 best = candidates[0] if candidates else {}
                 profit_data = best.get("profit", {})
                 alibaba_data = best.get("alibaba", {})
 
+                # 候補状態
+                if has_candidates:
+                    candidate_status = "候補あり"
+                else:
+                    reason = prod_data.get("no_candidates_reason", "")
+                    candidate_status = f"候補なし（{reason}）" if reason else "候補なし"
+
                 row = [
                     row_idx - 1,
                     "重複" if is_dup else "",
+                    candidate_status,
                     kw,
                     kw_score,
                     am.get("asin", ""),
@@ -185,20 +198,23 @@ class SessionReportGenerator:
                     prod_data.get("estimated_monthly_sales", 0),
                     prod_data.get("estimated_monthly_revenue", 0),
                     am.get("seller_name", ""),
-                    (alibaba_data.get("title", "") or "")[:60],
-                    alibaba_data.get("price_cny", 0),
-                    alibaba_data.get("min_order", ""),
-                    round(best.get("combined_score", 0) * 100, 1) if best else 0,
-                    profit_data.get("profit", 0),
-                    profit_data.get("profit_rate_percentage", 0),
-                    profit_data.get("total_cost", 0),
+                    (alibaba_data.get("title", "") or "")[:60] if has_candidates else "",
+                    alibaba_data.get("price_cny", 0) if has_candidates else "",
+                    alibaba_data.get("min_order", "") if has_candidates else "",
+                    round(best.get("combined_score", 0) * 100, 1) if best else "",
+                    profit_data.get("profit", 0) if has_candidates else "",
+                    profit_data.get("profit_rate_percentage", 0) if has_candidates else "",
+                    profit_data.get("total_cost", 0) if has_candidates else "",
                     am.get("product_url", "") or f"https://www.amazon.co.jp/dp/{am.get('asin', '')}",
-                    alibaba_data.get("product_url", ""),
+                    alibaba_data.get("product_url", "") if has_candidates else "",
                 ]
                 for col_idx, val in enumerate(row, 1):
                     cell = ws2.cell(row=row_idx, column=col_idx, value=val)
                     if is_dup:
                         cell.fill = dup_fill
+                        cell.font = Font(color="999999")
+                    elif not has_candidates:
+                        cell.fill = no_cand_fill
                         cell.font = Font(color="999999")
                 row_idx += 1
 
@@ -358,6 +374,8 @@ function buildKwSection(kwData, ki) {
   var section = document.createElement('div');
   section.className = 'kw-section';
 
+  var displayProducts = kwData.all_filtered || kwData.products;
+  var withCandidates = displayProducts.filter(function(p) { return p.candidates && p.candidates.length > 0; }).length;
   var badge = scoreBadge(kwData.score);
   var headerHtml =
     '<div class="kw-header" onclick="toggleSection(this)">' +
@@ -366,11 +384,12 @@ function buildKwSection(kwData, ki) {
       '<span class="kw-name">' + esc(kwData.keyword) + '</span>' +
       '<span class="kw-meta">Score: ' + kwData.score +
         ' | ' + kwData.pass_count + '/' + kwData.total_searched +
-        ' | ' + kwData.products.length + ' items</span>' +
+        ' | &#36890;&#36942;: ' + displayProducts.length +
+        ' | &#20505;&#35036;&#12354;&#12426;: ' + withCandidates + '</span>' +
     '</div>';
 
   var bodyHtml = '<div class="kw-body">';
-  kwData.products.forEach(function(prod, pi) {
+  displayProducts.forEach(function(prod, pi) {
     bodyHtml += buildProductCard(prod, pi);
   });
   bodyHtml += '</div>';
@@ -385,7 +404,9 @@ function buildProductCard(prod, pi) {
   var weight = am.weight_kg ? am.weight_kg+'kg' : '-';
 
   var isDup = prod.is_duplicate;
-  var html = '<div class="product-card"' + (isDup ? ' style="opacity:0.6;border-left:4px solid #e53935"' : '') + '>';
+  var noCand = !prod.candidates || prod.candidates.length === 0;
+  var cardStyle = isDup ? ' style="opacity:0.6;border-left:4px solid #e53935"' : noCand ? ' style="background:#fafafa;border-left:3px solid #ddd"' : '';
+  var html = '<div class="product-card"' + cardStyle + '>';
   html += '<span class="product-num">#' + (pi+1) + '</span>';
   if (isDup) html += '<span style="background:#e53935;color:#fff;font-size:12px;font-weight:bold;padding:2px 10px;border-radius:12px;margin-left:8px">&#37325;&#35079;</span>';
   html += '<div class="amazon-section">';
@@ -429,6 +450,12 @@ function buildProductCard(prod, pi) {
       if (cand.alibaba.shop_name) html += '<div class="candidate-shop">' + esc(cand.alibaba.shop_name) + '</div>';
       html += '</div>';
     });
+    html += '</div>';
+  } else {
+    html += '<div style="color:#999;font-size:13px;padding:16px;text-align:center;background:#f9f9f9;border-radius:8px;border:1px dashed #ddd">1688&#20505;&#35036;&#12394;&#12375;';
+    if (prod.no_candidates_reason) {
+      html += ' &mdash; ' + esc(prod.no_candidates_reason);
+    }
     html += '</div>';
   }
 

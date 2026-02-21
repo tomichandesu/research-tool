@@ -224,6 +224,7 @@ class KeywordResearchOutcome:
     total_searched: int = 0
     pass_count: int = 0
     products_with_candidates: list[dict] = field(default_factory=list)
+    all_filtered_products: list[dict] = field(default_factory=list)
     filter_reasons: dict = field(default_factory=dict)
 
     @property

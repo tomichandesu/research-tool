@@ -374,14 +374,7 @@ def _run_in_subprocess(job_id: int, keyword: str, jobs_output_dir: str, user_id:
         return _categorize_filter_reasons(outcome.filter_reasons)
 
     try:
-        # 15-minute timeout for single-keyword research
-        return asyncio.run(asyncio.wait_for(_do_research(), timeout=900))
-    except asyncio.TimeoutError:
-        return {
-            "success": False,
-            "error": "リサーチがタイムアウトしました（15分超過）。キーワードを変えてお試しください。",
-            "traceback": "",
-        }
+        return asyncio.run(_do_research())
     except Exception as e:
         return {
             "success": False,
@@ -577,15 +570,7 @@ def _run_auto_in_subprocess(
         }
 
     try:
-        # Timeout = max_duration + 5 min buffer (for startup/report generation)
-        timeout_sec = (max_duration + 5) * 60
-        return asyncio.run(asyncio.wait_for(_do_auto(), timeout=timeout_sec))
-    except asyncio.TimeoutError:
-        return {
-            "success": False,
-            "error": f"自動リサーチがタイムアウトしました（{max_duration + 5}分超過）。キーワードを変えてお試しください。",
-            "traceback": "",
-        }
+        return asyncio.run(_do_auto())
     except Exception as e:
         return {
             "success": False,
@@ -638,7 +623,6 @@ async def run_research_job(job_id: int) -> None:
 
     try:
         loop = asyncio.get_event_loop()
-        timeout_seconds = settings.JOB_TIMEOUT_MINUTES * 60
 
         # Create a fresh executor per job so the worker process always
         # imports the latest code from disk (no stale module cache).
@@ -670,7 +654,7 @@ async def run_research_job(job_id: int) -> None:
                 )
 
             _running_futures[job_id] = future
-            result = await asyncio.wait_for(future, timeout=timeout_seconds)
+            result = await future
         except asyncio.CancelledError:
             if job_id in _user_cancelled_jobs:
                 # User explicitly cancelled via cancel button
@@ -687,13 +671,6 @@ async def run_research_job(job_id: int) -> None:
                 # reset it to "pending" on next startup for auto-retry.
                 logger.info(f"Job {job_id} interrupted by server shutdown, will auto-retry on restart")
                 return
-        except asyncio.TimeoutError:
-            logger.error(f"Job {job_id} timed out after {settings.JOB_TIMEOUT_MINUTES} minutes")
-            result = {
-                "success": False,
-                "error": f"リサーチがタイムアウトしました（{settings.JOB_TIMEOUT_MINUTES}分超過）。キーワードを変えてお試しください。",
-                "traceback": "",
-            }
         finally:
             _running_executors.pop(job_id, None)
             _running_futures.pop(job_id, None)

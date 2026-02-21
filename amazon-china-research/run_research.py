@@ -767,6 +767,7 @@ async def run_keyword_research(
     smart_matcher = SmartMatcher()
 
     products_with_candidates: list[dict] = []
+    all_filtered_products: list[dict] = []
 
     # 診断モード用カウンター
     alibaba_diag = {
@@ -789,6 +790,13 @@ async def run_keyword_research(
                 alibaba_diag["japan_skipped"] += 1
                 print(f"{tag}   → [除外] {product.asin}: 日本製のため1688検索スキップ"
                       f" | {product.title[:40]}")
+                all_filtered_products.append({
+                    "amazon": product.to_dict(),
+                    "estimated_monthly_sales": filter_result.estimated_monthly_sales,
+                    "estimated_monthly_revenue": filter_result.estimated_monthly_revenue,
+                    "candidates": [],
+                    "no_candidates_reason": "日本製のため1688検索スキップ",
+                })
                 continue
 
             ci_label = ""
@@ -809,6 +817,13 @@ async def run_keyword_research(
                 print(f"{tag}     1688商品が見つかりません")
                 if diagnose:
                     print(f"{tag}     [診断] 画像URL: {product.image_url[:80]}")
+                all_filtered_products.append({
+                    "amazon": product.to_dict(),
+                    "estimated_monthly_sales": filter_result.estimated_monthly_sales,
+                    "estimated_monthly_revenue": filter_result.estimated_monthly_revenue,
+                    "candidates": [],
+                    "no_candidates_reason": "1688画像検索で結果なし",
+                })
                 continue
 
             if diagnose:
@@ -928,18 +943,27 @@ async def run_keyword_research(
                 )
                 candidates = candidates[:max_candidates]
 
-                products_with_candidates.append({
+                entry = {
                     "amazon": product.to_dict(),
                     "estimated_monthly_sales": filter_result.estimated_monthly_sales,
                     "estimated_monthly_revenue": filter_result.estimated_monthly_revenue,
                     "candidates": candidates,
-                })
+                }
+                products_with_candidates.append(entry)
+                all_filtered_products.append(entry)
 
                 alibaba_diag["has_candidates"] += 1
                 print(f"{tag}     {len(candidates)}件の候補")
             else:
                 alibaba_diag["no_valid"] += 1
                 print(f"{tag}     有効な候補なし")
+                all_filtered_products.append({
+                    "amazon": product.to_dict(),
+                    "estimated_monthly_sales": filter_result.estimated_monthly_sales,
+                    "estimated_monthly_revenue": filter_result.estimated_monthly_revenue,
+                    "candidates": [],
+                    "no_candidates_reason": "1688で有効な候補なし",
+                })
 
     finally:
         await alibaba_search.close()
@@ -961,11 +985,11 @@ async def run_keyword_research(
 
     results: list[ResearchResult] = []
 
-    if products_with_candidates:
-        # HTMLビューアー（目視確認用）
+    if all_filtered_products:
+        # HTMLビューアー（目視確認用：フィルター通過全商品を表示）
         from src.output.html_report import HtmlCandidateReport
         report = HtmlCandidateReport()
-        html_path = report.generate(keyword, products_with_candidates)
+        html_path = report.generate(keyword, all_filtered_products)
         print(f"{tag}   HTML: {html_path}")
 
         # Excel自動生成（各商品の利益率ベスト候補を採用）
@@ -1001,7 +1025,7 @@ async def run_keyword_research(
             excel_path = exporter.export(results, keyword)
             print(f"{tag}   Excel: {excel_path}")
     else:
-        print(f"{tag}   候補のある商品がありません")
+        print(f"{tag}   フィルター通過商品がありません")
 
     # サマリー
     print(f"\n{tag} リサーチ完了")
@@ -1009,7 +1033,7 @@ async def run_keyword_research(
     print(f"{tag}   フィルタ通過: {len(filtered)}件")
     print(f"{tag}   1688候補あり: {len(products_with_candidates)}件")
     print(f"{tag}   Excel出力: {len(results)}件")
-    if products_with_candidates:
+    if all_filtered_products:
         print(f"\n{tag}   HTMLビューアーで画像を目視確認できます")
 
     return KeywordResearchOutcome(
@@ -1018,6 +1042,7 @@ async def run_keyword_research(
         total_searched=len(search_results),
         pass_count=len(filtered),
         products_with_candidates=products_with_candidates,
+        all_filtered_products=all_filtered_products,
         filter_reasons=diag,
     )
 

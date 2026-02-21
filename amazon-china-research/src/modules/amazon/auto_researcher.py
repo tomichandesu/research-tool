@@ -572,11 +572,33 @@ class AutoResearcher:
                 print(f"[AUTO]   → 候補なし (スコア: {score})")
                 self._consecutive_zero_hits += 1
 
+            # all_filtered: フィルター通過全商品（候補なし含む）にもASIN重複チェック適用
+            all_filtered_for_report = []
+            if hasattr(outcome, 'all_filtered_products') and outcome.all_filtered_products:
+                for p in outcome.all_filtered_products:
+                    asin = p.get("amazon", {}).get("asin", "")
+                    if not asin:
+                        all_filtered_for_report.append(p)
+                        continue
+                    # 候補ありの商品は report_products で既に処理済み
+                    has_cands = p.get("candidates") and len(p["candidates"]) > 0
+                    if has_cands:
+                        # report_products に含まれているものだけ追加
+                        if any(rp.get("amazon", {}).get("asin") == asin for rp in report_products):
+                            matching = next(rp for rp in report_products if rp.get("amazon", {}).get("asin") == asin)
+                            all_filtered_for_report.append(matching)
+                    else:
+                        # 候補なし商品: セッション内重複のみスキップ
+                        if asin in self._seen_asins or asin in self._known_asins:
+                            continue
+                        all_filtered_for_report.append(p)
+
             # Always record session data so total_searched is accurate
             # even when no candidates pass filters
             self._session_data.append({
                 "keyword": keyword,
                 "products": report_products,
+                "all_filtered": all_filtered_for_report,
                 "score": score,
                 "total_searched": outcome.total_searched,
                 "pass_count": outcome.pass_count,
