@@ -12,9 +12,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies
+# Install Python dependencies (non-PyTorch)
 COPY requirements.txt web_requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt -r web_requirements.txt
+
+# PyTorch CPU-only（キャッシュ効率のため別レイヤー）
+RUN pip install --no-cache-dir \
+    torch torchvision \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# DINOv2モデルをビルド時にダウンロード（~86MB）
+RUN python -c "import torch; torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True)"
 
 # Install Playwright + Chromium
 RUN pip install playwright && playwright install chromium

@@ -58,6 +58,14 @@ class SmartMatcher:
         self._bf = cv2.BFMatcher(cv2.NORM_HAMMING)
         self._session: Optional[aiohttp.ClientSession] = None
 
+        # DINOv2 利用可能チェック
+        self._dino_available = False
+        try:
+            from .dino import is_available
+            self._dino_available = is_available()
+        except ImportError:
+            pass
+
     async def _get_session(self) -> aiohttp.ClientSession:
         """HTTPセッションを取得（遅延初期化）"""
         if self._session is None or self._session.closed:
@@ -77,6 +85,41 @@ class SmartMatcher:
         """セッションを閉じる"""
         if self._session and not self._session.closed:
             await self._session.close()
+
+    async def prepare_image_dino(self, url: str) -> Optional[np.ndarray]:
+        """DINOv2特徴ベクトルを準備（384次元）
+
+        Args:
+            url: 画像URL
+
+        Returns:
+            384次元L2正規化numpy配列、またはNone
+        """
+        if not self._dino_available:
+            return None
+        img_bytes = await self._download_image(url)
+        if img_bytes is None:
+            return None
+        try:
+            from .dino import extract_features
+            return extract_features(img_bytes)
+        except Exception as e:
+            logger.warning(f"DINOv2特徴量抽出エラー: {e}")
+            return None
+
+    @staticmethod
+    def dino_similarity(feat1: np.ndarray, feat2: np.ndarray) -> float:
+        """DINOv2コサイン類似度
+
+        Args:
+            feat1: DINOv2特徴ベクトル1
+            feat2: DINOv2特徴ベクトル2
+
+        Returns:
+            コサイン類似度 (0.0-1.0)
+        """
+        from .dino import cosine_similarity
+        return cosine_similarity(feat1, feat2)
 
     async def _download_image(self, url: str) -> Optional[bytes]:
         """画像をダウンロードしてバイト列を返す"""

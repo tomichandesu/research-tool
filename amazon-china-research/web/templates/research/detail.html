@@ -124,14 +124,27 @@
 <div class="card mt-1">
     <h2>リサーチ結果</h2>
 
+    {% if summary.alibaba_search_error %}
+    <div style="background: #fff3cd; border-left: 6px solid #e65100; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+        <strong style="color: #e65100; font-size: 1.1em;">1688 画像検索エラー</strong>
+        <p style="margin: 0.5rem 0 0 0; color: #6d4c00;">
+            {{ summary.alibaba_search_error }}
+        </p>
+    </div>
+    {% endif %}
+
     {% if summary.candidates_count == 0 %}
     {% set reasons = summary.filter_reasons if summary.filter_reasons else [] %}
     <div style="background: {% if summary.total_searched > 0 %}#e3f2fd{% else %}#fff3cd{% endif %}; border-left: 4px solid {% if summary.total_searched > 0 %}#42a5f5{% else %}#ffc107{% endif %}; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
         <strong style="color: {% if summary.total_searched > 0 %}#1565c0{% else %}#856404{% endif %}; font-size: 1.1em;">
-            {% if summary.total_searched > 0 %}リサーチ完了 - 候補なし{% else %}リサーチ結果なし{% endif %}
+            {% if summary.alibaba_search_error %}1688検索エラーにより候補を取得できませんでした
+            {% elif summary.total_searched > 0 %}リサーチ完了 - 候補なし{% else %}リサーチ結果なし{% endif %}
         </strong>
         <p style="margin: 0.5rem 0 0 0;">
-            {% if summary.total_searched > 0 %}
+            {% if summary.alibaba_search_error %}
+            1688画像検索でエラーが発生したため、候補商品を取得できませんでした。
+            キーワード自体に問題はありません。時間をおいて再度お試しください。
+            {% elif summary.total_searched > 0 %}
             {{ summary.total_searched }}件の商品を調査しましたが、フィルタ条件に合う候補は見つかりませんでした。
             {% else %}
             このキーワードでは候補商品が見つかりませんでした。

@@ -52,6 +52,15 @@ files = [
     ("web/services/alibaba_login.py", "/app/web/services/alibaba_login.py"),
     ("web/services/job_queue.py", "/app/web/services/job_queue.py"),
     ("web/services/seller_scraper.py", "/app/web/services/seller_scraper.py"),
+    ("src/modules/matcher/dino.py", "/app/src/modules/matcher/dino.py"),
+    ("src/modules/matcher/smart.py", "/app/src/modules/matcher/smart.py"),
+    ("src/modules/alibaba/image_search.py", "/app/src/modules/alibaba/image_search.py"),
+    ("src/modules/amazon/auto_researcher.py", "/app/src/modules/amazon/auto_researcher.py"),
+    ("src/models/result.py", "/app/src/models/result.py"),
+    ("src/output/html_report.py", "/app/src/output/html_report.py"),
+    ("src/output/session_report.py", "/app/src/output/session_report.py"),
+    ("src/config.py", "/app/src/config.py"),
+    ("run_research.py", "/app/run_research.py"),
     ("web/database.py", "/app/web/database.py"),
     ("web/static/css/style.css", "/app/web/static/css/style.css"),
     ("web/static/data/amazon_categories.json", "/app/web/static/data/amazon_categories.json"),
@@ -84,7 +93,12 @@ mkdir_cmd = (
     f"{REMOTE_TMP}/web/routes "
     f"{REMOTE_TMP}/web/services "
     f"{REMOTE_TMP}/web/static/css "
-    f"{REMOTE_TMP}/web/static/data"
+    f"{REMOTE_TMP}/web/static/data "
+    f"{REMOTE_TMP}/src/modules/matcher "
+    f"{REMOTE_TMP}/src/modules/alibaba "
+    f"{REMOTE_TMP}/src/modules/amazon "
+    f"{REMOTE_TMP}/src/models "
+    f"{REMOTE_TMP}/src/output"
 )
 stdin, stdout, stderr = ssh.exec_command(mkdir_cmd)
 stdout.channel.recv_exit_status()
@@ -102,6 +116,11 @@ container_dirs = [
     "/app/web/services",
     "/app/web/static/css",
     "/app/web/static/data",
+    "/app/src/modules/matcher",
+    "/app/src/modules/alibaba",
+    "/app/src/modules/amazon",
+    "/app/src/models",
+    "/app/src/output",
 ]
 for d in container_dirs:
     cmd = f"docker exec {CONTAINER} mkdir -p {d}"
@@ -152,6 +171,8 @@ for pkg_name, pkg_import, pkg_spec in [
     ("openai", "openai", "openai>=1.30.0"),
     ("httpx", "httpx", "httpx>=0.27.0"),
     ("beautifulsoup4", "bs4", "beautifulsoup4>=4.12.0"),
+    ("torch", "torch", "torch"),
+    ("torchvision", "torchvision", "torchvision"),
 ]:
     print(f"\nChecking {pkg_name} package...")
     stdin, stdout, stderr = ssh.exec_command(

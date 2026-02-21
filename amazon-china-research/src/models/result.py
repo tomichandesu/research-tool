@@ -226,6 +226,7 @@ class KeywordResearchOutcome:
     products_with_candidates: list[dict] = field(default_factory=list)
     all_filtered_products: list[dict] = field(default_factory=list)
     filter_reasons: dict = field(default_factory=dict)
+    alibaba_search_error: str = ""
 
     @property
     def score(self) -> float:

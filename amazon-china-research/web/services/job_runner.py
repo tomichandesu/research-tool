@@ -364,6 +364,7 @@ def _run_in_subprocess(job_id: int, keyword: str, jobs_output_dir: str, user_id:
                 "candidates_count": len(outcome.products_with_candidates),
                 "score": outcome.score,
                 "filter_reasons": _do_categorize(outcome),
+                "alibaba_search_error": getattr(outcome, "alibaba_search_error", ""),
             },
         }
 
@@ -566,6 +567,10 @@ def _run_auto_in_subprocess(
                     / max(len(researcher._session_data), 1), 1
                 ),
                 "filter_reasons": categorized_reasons,
+                "alibaba_search_error": next(
+                    (d.get("alibaba_search_error", "") for d in researcher._session_data
+                     if d.get("alibaba_search_error")), ""
+                ),
             },
         }
 

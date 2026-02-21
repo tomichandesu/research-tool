@@ -138,13 +138,10 @@ class AlibabaImageSearcher:
 
         手順:
         1. 画像をダウンロードしてファイルアップロード
-        2. 「搜索图片」ボタン（div.search-btn）をクリック
-        3. リクエストリスナーでimageIdを取得
-        4. pages-fast.1688.comに直接アクセス（sellofferリダイレクトを回避）
-        5. 検索結果をパース
-
-        重要: 搜索图片クリック後、pages-fast→selloffer/にリダイレクトされる
-        問題があるため、imageIdを取得してpages-fastに直接アクセスする。
+        2. 「搜索图片」ボタンをクリック
+        3. 自然遷移で検索結果ページに到達するのを待つ
+        4. 検索結果をパース
+        5. 結果が0件の場合、imageIdがあればpages-fast直接アクセスをフォールバック
         """
         try:
             # 1. 画像をダウンロード
@@ -189,10 +186,13 @@ class AlibabaImageSearcher:
             logger.debug("画像アップロード完了")
             await asyncio.sleep(3)  # ポップアップ表示を待機
 
-            # 4. 「搜索图片」ボタン（div.search-btn）をクリック
+            # 4. 「搜索图片」ボタンをクリック
             search_btn = await page.query_selector('div.search-btn')
             if not search_btn:
                 search_btn = await page.query_selector('.search-btn')
+            if not search_btn:
+                # テキストで搜索图片ボタンを探す
+                search_btn = await page.query_selector('text=搜索图片')
             if search_btn:
                 await search_btn.click()
                 logger.debug("搜索图片ボタンクリック完了")
@@ -201,61 +201,120 @@ class AlibabaImageSearcher:
                 page.remove_listener('request', _capture_image_id)
                 return []
 
-            # 5. imageIdが取得されるまで待機
-            for i in range(10):
+            # 5. 自然遷移で検索結果が表示されるのを待つ（ルートブロックなし）
+            products = []
+            for i in range(30):
                 await asyncio.sleep(1)
-                if captured_image_id:
+                products = await self._parse_search_results_flexible(page, max_results)
+                if products:
+                    logger.debug(f"自然遷移で結果取得: {len(products)}件 ({i+1}秒)")
                     break
 
             page.remove_listener('request', _capture_image_id)
 
-            if not captured_image_id:
-                logger.warning("imageIdの取得に失敗しました")
-                return []
-
-            # 6. sellofferリダイレクトをブロックしてpages-fastに直接アクセス
-            async def _block_redirect(route):
-                url = route.request.url
-                if 'selloffer' in url or 'login.taobao' in url:
-                    logger.debug(f"リダイレクトブロック: {url[:80]}")
-                    await route.abort()
-                else:
-                    await route.continue_()
-
-            await page.route("**/*", _block_redirect)
-
-            pages_fast_url = self.PAGES_FAST_URL.format(image_id=captured_image_id)
-            logger.debug(f"pages-fast直接アクセス: {pages_fast_url[:80]}")
-            await page.goto(pages_fast_url, wait_until="domcontentloaded", timeout=30000)
-
-            # 7. searchOfferWrapperが読み込まれるまで待機
-            for i in range(20):
-                await asyncio.sleep(1)
-                card_count = await page.evaluate(
-                    "() => document.querySelectorAll('[class*=\"searchOfferWrapper\"]').length"
+            # 6. 結果が0件の場合、pages-fast直接アクセスをフォールバック
+            if not products and captured_image_id:
+                logger.debug(
+                    f"自然遷移で結果なし。pages-fastフォールバック"
+                    f" (imageId={captured_image_id})"
                 )
-                if card_count > 0:
-                    logger.debug(f"検索結果ロード完了: {card_count}件 ({i+1}秒)")
-                    # 追加の読み込み待機
-                    await asyncio.sleep(2)
-                    break
-
-            # routeを解除
-            try:
-                await page.unroute("**/*")
-            except Exception:
-                pass
-
-            # 8. 検索結果をパース
-            products = await self._parse_search_results(page, max_results)
-            if not products:
-                await asyncio.sleep(5)
-                products = await self._parse_search_results(page, max_results)
+                pages_fast_url = self.PAGES_FAST_URL.format(
+                    image_id=captured_image_id
+                )
+                try:
+                    await page.goto(
+                        pages_fast_url,
+                        wait_until="domcontentloaded",
+                        timeout=30000,
+                    )
+                    for i in range(20):
+                        await asyncio.sleep(1)
+                        products = await self._parse_search_results_flexible(
+                            page, max_results
+                        )
+                        if products:
+                            logger.debug(
+                                f"pages-fastフォールバックで結果取得:"
+                                f" {len(products)}件"
+                            )
+                            break
+                except Exception as e:
+                    logger.debug(f"pages-fastフォールバック失敗: {e}")
 
             return products
 
         finally:
             self._cleanup_temp_files()
+
+    async def _parse_search_results_flexible(
+        self,
+        page: Page,
+        max_results: int,
+    ) -> list[AlibabaProduct]:
+        """複数のセレクタパターンで検索結果をパースする"""
+        # パターン1: pages-fast (既存)
+        items = await page.query_selector_all(
+            'div[class*="searchOfferWrapper"]'
+        )
+        if items:
+            logger.debug(f"searchOfferWrapperで取得: {len(items)}件")
+            return await self._parse_items(items, page, max_results)
+
+        # パターン2: selloffer/offer-list系
+        items = await page.query_selector_all(
+            'div[class*="offer-list"] div[class*="offer-item"]'
+        )
+        if items:
+            logger.debug(f"offer-itemで取得: {len(items)}件")
+            return await self._parse_items(items, page, max_results)
+
+        # パターン3: カード系
+        items = await page.query_selector_all('[class*="offerCard"]')
+        if items:
+            logger.debug(f"offerCardで取得: {len(items)}件")
+            return await self._parse_items(items, page, max_results)
+
+        # パターン4: data-renderkey属性
+        items = await page.query_selector_all('[data-renderkey]')
+        if items:
+            logger.debug(f"data-renderkeyで取得: {len(items)}件")
+            return await self._parse_items(items, page, max_results)
+
+        # パターン5: detail.1688.comリンクを含む要素の親
+        links = await page.query_selector_all(
+            'a[href*="detail.1688.com"]'
+        )
+        if links:
+            logger.debug(f"detail.1688.comリンクで取得: {len(links)}件")
+            # リンクの親要素を取得して商品カードとして扱う
+            items = []
+            for link in links[:max_results]:
+                parent = await link.evaluate_handle(
+                    'el => el.closest("div[class]") || el.parentElement'
+                )
+                if parent:
+                    items.append(parent)
+            if items:
+                return await self._parse_items(items, page, max_results)
+
+        return []
+
+    async def _parse_items(
+        self,
+        items,
+        page: Page,
+        max_results: int,
+    ) -> list[AlibabaProduct]:
+        """アイテムリストから商品データをパースする"""
+        products = []
+        for i, item in enumerate(items[:max_results]):
+            try:
+                product = await self._parse_product_item(item, page)
+                if product:
+                    products.append(product)
+            except Exception as e:
+                logger.debug(f"商品パース失敗 ({i}): {e}")
+        return products
 
     async def _parse_search_results(
         self,

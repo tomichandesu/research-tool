@@ -39,6 +39,10 @@ class MatcherConfig:
     min_price_cny: float = 0.5             # 1688最低価格（元）
     max_profit_rate: float = 50.0          # これ以上の利益率は別商品とみなす（%）
     max_candidates: int = 5                # HTML候補表示数
+    # DINOv2
+    use_dino: bool = True                    # DINOv2使用有無
+    dino_garbage_threshold: float = 0.25     # これ未満は別商品
+    dino_model_name: str = "dinov2_vits14"   # モデル名
 
 
 @dataclass
@@ -226,6 +230,9 @@ class Config:
                 min_price_cny=m.get("min_price_cny", 0.5),
                 max_profit_rate=m.get("max_profit_rate", 50.0),
                 max_candidates=m.get("max_candidates", 5),
+                use_dino=m.get("use_dino", True),
+                dino_garbage_threshold=m.get("dino_garbage_threshold", 0.25),
+                dino_model_name=m.get("dino_model_name", "dinov2_vits14"),
             )
 
         # Profit

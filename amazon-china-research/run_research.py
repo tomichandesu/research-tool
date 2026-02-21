@@ -731,6 +731,8 @@ async def run_keyword_research(
     max_profit_rate = config.matcher.max_profit_rate
     max_candidates = config.matcher.max_candidates
     orb_garbage_threshold = config.matcher.orb_garbage_threshold
+    use_dino = config.matcher.use_dino and smart_matcher._dino_available
+    dino_garbage_threshold = config.matcher.dino_garbage_threshold
 
     # 1688候補フィルタ用: 禁止キーワード + 除外ブランド + 中国語ブランド名
     # （著作権・商標品を1688候補から除外）
@@ -772,8 +774,8 @@ async def run_keyword_research(
     # 診断モード用カウンター
     alibaba_diag = {
         "no_results": 0, "no_valid": 0, "has_candidates": 0,
-        "ng_brand": 0, "orb_rejected": 0, "title_rejected": 0,
-        "japan_skipped": 0,
+        "ng_brand": 0, "orb_rejected": 0, "dino_rejected": 0,
+        "title_rejected": 0, "japan_skipped": 0,
     }
 
     # 中国輸入スコアで並べ替え（中国輸入品を先にリサーチ）
@@ -804,11 +806,19 @@ async def run_keyword_research(
                 ci_label = " [中国輸入◎]"
             print(f"{tag}   → {product.asin}: {product.title[:30]}...{ci_label}")
 
-            # Amazon画像をORB用・ヒストグラム用に準備（商品ごとに1回だけ）
-            amazon_gray = await smart_matcher.prepare_image(product.image_url)
+            # Amazon画像を準備（商品ごとに1回だけ）
+            # DINOv2優先、失敗時はORBにフォールバック
+            amazon_dino = None
+            amazon_gray = None
+            if use_dino:
+                amazon_dino = await smart_matcher.prepare_image_dino(product.image_url)
+                if amazon_dino is None and diagnose:
+                    print(f"{tag}     [診断] DINOv2特徴量抽出失敗、ORBフォールバック")
+            if amazon_dino is None:
+                amazon_gray = await smart_matcher.prepare_image(product.image_url)
+                if amazon_gray is None and diagnose:
+                    print(f"{tag}     [診断] Amazon画像DL失敗、画像フィルタなしで続行")
             amazon_color = await smart_matcher.prepare_image_color(product.image_url)
-            if amazon_gray is None and diagnose:
-                print(f"{tag}     [診断] Amazon画像DL失敗、ORBフィルタなしで続行")
 
             # 画像検索
             alibaba_products = await alibaba_search.search_by_image(product.image_url)
@@ -851,30 +861,57 @@ async def run_keyword_research(
                               f"{(ap.title or '')[:30]}")
                     continue
 
-                # ORB + ヒストグラムによるゴミ除去フィルタ
+                # 画像類似度計算 + ゴミ除去フィルタ
                 hist_sim = 0.0
                 orb_sim = 0.0
-                if amazon_gray is not None and ap.image_url:
+                dino_sim = 0.0
+                used_dino = False
+
+                # ヒストグラム比較（DINOv2/ORB共通）
+                if amazon_color is not None and ap.image_url:
+                    ali_color = await smart_matcher.prepare_image_color(ap.image_url)
+                    if ali_color is not None:
+                        hist_sim = smart_matcher.histogram_similarity(amazon_color, ali_color)
+
+                if amazon_dino is not None and ap.image_url:
+                    # === DINOv2パス（primary） ===
+                    ali_dino = await smart_matcher.prepare_image_dino(ap.image_url)
+                    if ali_dino is not None:
+                        dino_sim = smart_matcher.dino_similarity(amazon_dino, ali_dino)
+                        used_dino = True
+
+                        # ゴミ判定
+                        is_garbage = False
+                        if dino_sim < dino_garbage_threshold:
+                            is_garbage = True
+                        elif dino_sim < 0.35 and hist_sim < 0.3:
+                            is_garbage = True
+
+                        if is_garbage:
+                            alibaba_diag["dino_rejected"] += 1
+                            if diagnose:
+                                print(f"{tag}       {j+1}. [SKIP] DINO={dino_sim:.3f}"
+                                      f" hist={hist_sim:.2f}"
+                                      f"（別商品）: "
+                                      f"{(ap.title or '')[:25]}")
+                            continue
+                        elif diagnose:
+                            print(f"{tag}       {j+1}. [MATCH] DINO={dino_sim:.3f}"
+                                  f" hist={hist_sim:.2f}")
+
+                elif amazon_gray is not None and ap.image_url:
+                    # === ORBパス（fallback） ===
                     ali_gray = await smart_matcher.prepare_image(ap.image_url)
                     if ali_gray is not None:
                         orb_sim = smart_matcher.similarity(amazon_gray, ali_gray)
 
-                    # ヒストグラム比較（色の類似性）
-                    if amazon_color is not None and ap.image_url:
-                        ali_color = await smart_matcher.prepare_image_color(ap.image_url)
-                        if ali_color is not None:
-                            hist_sim = smart_matcher.histogram_similarity(amazon_color, ali_color)
-
-                    # ゴミ除去: ORBとヒストグラムの複合判定
-                    # ORB = 形の一致度、hist = 色の一致度
-                    # ORB=0（形が全く違う）の場合は色だけ似ていても別商品
                     is_garbage = False
                     if orb_sim == 0.0:
-                        is_garbage = True  # 形が全く一致しない → 別商品
+                        is_garbage = True
                     elif orb_sim < orb_garbage_threshold and hist_sim < 0.4:
-                        is_garbage = True  # 形も色もほぼ一致しない → 別商品
+                        is_garbage = True
                     elif orb_sim < 0.03 and hist_sim < 0.6:
-                        is_garbage = True  # 形がほぼ一致しない＋色も微妙 → 別商品
+                        is_garbage = True
 
                     if is_garbage:
                         alibaba_diag["orb_rejected"] += 1
@@ -919,12 +956,20 @@ async def run_keyword_research(
                               f"{(ap.title or '')[:30]}")
                     continue
 
-                # 複合スコア: ORB(50%) + ヒストグラム(30%) + タイトル関連度(20%)
-                combined = round(
-                    orb_sim * 0.5 + hist_sim * 0.3 + title_rel * 0.2, 4
-                )
+                # 複合スコア
+                if used_dino:
+                    # DINOv2: DINO(60%) + ヒストグラム(20%) + タイトル関連度(20%)
+                    combined = round(
+                        dino_sim * 0.6 + hist_sim * 0.2 + title_rel * 0.2, 4
+                    )
+                else:
+                    # ORB: ORB(50%) + ヒストグラム(30%) + タイトル関連度(20%)
+                    combined = round(
+                        orb_sim * 0.5 + hist_sim * 0.3 + title_rel * 0.2, 4
+                    )
                 candidates.append({
                     "alibaba": ap.to_dict(),
+                    "dino_similarity": round(dino_sim, 4),
                     "orb_similarity": round(orb_sim, 4),
                     "hist_similarity": round(hist_sim, 4),
                     "title_relevance": round(title_rel, 4),
@@ -974,11 +1019,28 @@ async def run_keyword_research(
         print(f"{tag}   日本製スキップ: {alibaba_diag['japan_skipped']}件")
         print(f"{tag}   1688検索結果なし: {alibaba_diag['no_results']}件")
         print(f"{tag}   NGブランド除外: {alibaba_diag['ng_brand']}件")
+        print(f"{tag}   DINOv2ゴミ除去: {alibaba_diag['dino_rejected']}件")
         print(f"{tag}   ORBゴミ除去: {alibaba_diag['orb_rejected']}件")
         print(f"{tag}   タイトル無関連: {alibaba_diag['title_rejected']}件")
         print(f"{tag}   有効な候補なし: {alibaba_diag['no_valid']}件")
         print(f"{tag}   → 候補あり: {alibaba_diag['has_candidates']}件")
         print()
+
+    # 1688画像検索の全件失敗検出
+    alibaba_search_error = ""
+    searched_on_1688 = len(scored_filtered) - alibaba_diag["japan_skipped"]
+    if searched_on_1688 > 0 and alibaba_diag["no_results"] == searched_on_1688:
+        alibaba_search_error = (
+            f"1688画像検索がすべて失敗しました（{searched_on_1688}件中{searched_on_1688}件が結果0）。"
+            f"1688のサイト仕様変更やアクセス制限の可能性があります。管理者にお問い合わせください。"
+        )
+        print(f"\n{tag} [警告] {alibaba_search_error}")
+    elif searched_on_1688 > 3 and alibaba_diag["no_results"] >= searched_on_1688 * 0.8:
+        alibaba_search_error = (
+            f"1688画像検索の大半が失敗しました（{searched_on_1688}件中{alibaba_diag['no_results']}件が結果0）。"
+            f"1688のアクセスが不安定な可能性があります。"
+        )
+        print(f"\n{tag} [警告] {alibaba_search_error}")
 
     # 6. HTMLビューアー + Excel自動生成
     print(f"{tag} [6/6] レポート生成中...")
@@ -989,7 +1051,8 @@ async def run_keyword_research(
         # HTMLビューアー（目視確認用：フィルター通過全商品を表示）
         from src.output.html_report import HtmlCandidateReport
         report = HtmlCandidateReport()
-        html_path = report.generate(keyword, all_filtered_products)
+        html_path = report.generate(keyword, all_filtered_products,
+                                     error_message=alibaba_search_error)
         print(f"{tag}   HTML: {html_path}")
 
         # Excel自動生成（各商品の利益率ベスト候補を採用）
@@ -1044,6 +1107,7 @@ async def run_keyword_research(
         products_with_candidates=products_with_candidates,
         all_filtered_products=all_filtered_products,
         filter_reasons=diag,
+        alibaba_search_error=alibaba_search_error,
     )
 
 

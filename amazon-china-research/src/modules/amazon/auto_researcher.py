@@ -603,6 +603,7 @@ class AutoResearcher:
                 "total_searched": outcome.total_searched,
                 "pass_count": outcome.pass_count,
                 "filter_reasons": outcome.filter_reasons if hasattr(outcome, 'filter_reasons') else {},
+                "alibaba_search_error": getattr(outcome, "alibaba_search_error", ""),
             })
 
             # スコアに基づいてキュー内の兄弟KWの優先度を更新

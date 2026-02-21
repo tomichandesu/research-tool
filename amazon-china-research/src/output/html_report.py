@@ -21,6 +21,7 @@ class HtmlCandidateReport:
         keyword: str,
         products_data: list[dict],
         output_dir: str = "output",
+        error_message: str = "",
     ) -> str:
         """HTMLビューアーを生成
 
@@ -28,6 +29,7 @@ class HtmlCandidateReport:
             keyword: 検索キーワード
             products_data: 商品候補データのリスト
             output_dir: 出力ディレクトリ
+            error_message: 1688検索エラーメッセージ（空なら非表示）
 
         Returns:
             生成したHTMLファイルのパス
@@ -36,6 +38,7 @@ class HtmlCandidateReport:
             "keyword": keyword,
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "products": products_data,
+            "error_message": error_message,
         }
 
         json_data = json.dumps(data, ensure_ascii=True)
@@ -99,6 +102,9 @@ body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2
 .candidate-shop{font-size:10px;color:#999;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .no-candidates{color:#999;font-size:13px;padding:20px;text-align:center;background:#f9f9f9;border-radius:8px;border:1px dashed #ddd}
 .product-card.no-cand{background:#fafafa;border-left:3px solid #ddd}
+.error-banner{background:#fff3cd;border:2px solid #ffc107;border-left:6px solid #e65100;border-radius:8px;padding:16px 20px;margin-bottom:24px;display:none}
+.error-banner .error-title{font-size:16px;font-weight:bold;color:#e65100;margin-bottom:6px}
+.error-banner .error-msg{font-size:14px;color:#6d4c00;line-height:1.6}
 </style>
 </head>
 <body>
@@ -112,6 +118,11 @@ body{font-family:'Segoe UI','Meiryo','Hiragino Sans',sans-serif;background:#f0f2
   </div>
 </div>
 
+<div class="error-banner" id="errorBanner">
+  <div class="error-title">1688 画像検索エラー</div>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
 <div id="products"></div>
 
 <script>
@@ -121,6 +132,11 @@ function init() {
   var withCandidates = DATA.products.filter(function(p) { return p.candidates && p.candidates.length > 0; }).length;
   document.getElementById('statsLine').textContent =
     'キーワード: ' + DATA.keyword + ' | フィルター通過: ' + DATA.products.length + '件 | 候補あり: ' + withCandidates + '件 | 生成: ' + DATA.generated_at;
+  if (DATA.error_message) {
+    var banner = document.getElementById('errorBanner');
+    document.getElementById('errorMsg').textContent = DATA.error_message;
+    banner.style.display = 'block';
+  }
   const container = document.getElementById('products');
   DATA.products.forEach(function(product, pi) {
     container.appendChild(buildCard(product, pi));
@@ -167,10 +183,12 @@ function buildCard(product, pi) {
       html += '<div class="candidate">';
       html += '<img class="candidate-img" src="' + escHtml(cand.alibaba.image_url) + '" onerror="this.outerHTML=\'<div class=candidate-img-error>画像読込失敗</div>\'">';
       var score = cand.combined_score != null ? (cand.combined_score * 100).toFixed(1) + '%' : '-';
+      var dinoPct = cand.dino_similarity != null ? (cand.dino_similarity * 100).toFixed(1) : null;
       var orbPct = cand.orb_similarity != null ? (cand.orb_similarity * 100).toFixed(1) : '-';
       var histPct = cand.hist_similarity != null ? (cand.hist_similarity * 100).toFixed(1) : '-';
-      var scoreColor = cand.combined_score >= 0.3 ? '#2E7D32' : cand.combined_score >= 0.15 ? '#F57F17' : '#c62828';
-      html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (ORB:' + orbPct + ' 色:' + histPct + ')</div>';
+      var matchLabel = dinoPct != null && dinoPct > 0 ? 'DINO:' + dinoPct : 'ORB:' + orbPct;
+      var scoreColor = cand.combined_score >= 0.5 ? '#2E7D32' : cand.combined_score >= 0.3 ? '#F57F17' : '#c62828';
+      html += '<div class="candidate-detail" style="font-weight:bold;color:' + scoreColor + '">類似度: ' + score + ' (' + matchLabel + ' 色:' + histPct + ')</div>';
       html += '<div class="candidate-price">' + cand.alibaba.price_cny + '元 (&yen;' + num(Math.round(cand.alibaba.price_cny * 23)) + ')</div>';
       html += '<div class="candidate-profit ' + profitClass + '">利益: &yen;' + num(cand.profit.profit) + ' (' + profitPct + '%)</div>';
       html += '<div class="candidate-detail">総コスト: &yen;' + num(cand.profit.total_cost) + '</div>';
