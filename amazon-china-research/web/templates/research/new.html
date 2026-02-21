@@ -321,16 +321,39 @@ function aiChatAddMessage(role, html) {
 }
 
 function aiChatParseKeywords(text) {
-    return text.replace(/\[KW\](.*?)\[\/KW\]/g, function(match, kw) {
+    // Handle [KW:NG], [KW:WARN], and [KW] tags
+    return text.replace(/\[KW(?::(NG|WARN))?\](.*?)\[\/KW\]/g, function(match, tag, kw) {
         var escaped = kw.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        return '<span class="ai-chat-kw-row">' +
-               '<strong class="ai-chat-kw-name">' + kw + '</strong>' +
-               ' <button class="btn btn-sm btn-primary ai-chat-keyword-btn" ' +
-               'onclick="useKeyword(\'' + escaped + '\')"' +
-               '>このキーワードを使う</button>' +
-               ' <button class="btn btn-sm ai-chat-expand-btn" ' +
-               'onclick="expandKeyword(\'' + escaped + '\', this)"' +
-               '>拡張する</button>' +
+        var nameClass = 'ai-chat-kw-name';
+        var rowClass = 'ai-chat-kw-row';
+        var label = '';
+        if (tag === 'NG') {
+            nameClass += ' kw-ng';
+            rowClass += ' kw-ng-row';
+            label = ' <span style="color:#0d6efd;font-size:.75rem;font-weight:600">⛔ リサーチ禁止</span>';
+        } else if (tag === 'WARN') {
+            nameClass += ' kw-warn';
+            rowClass += ' kw-warn-row';
+            label = ' <span style="color:#dc3545;font-size:.75rem;font-weight:600">⚠ 類似品多い</span>';
+        }
+        var buttons = '';
+        if (!tag) {
+            // Normal keywords get action buttons
+            buttons = ' <button class="btn btn-sm btn-primary ai-chat-keyword-btn" ' +
+                      'onclick="useKeyword(\'' + escaped + '\')"' +
+                      '>このキーワードを使う</button>' +
+                      ' <button class="btn btn-sm ai-chat-expand-btn" ' +
+                      'onclick="expandKeyword(\'' + escaped + '\', this)"' +
+                      '>拡張する</button>';
+        } else {
+            // NG/WARN keywords only get expand button (no "use" button)
+            buttons = ' <button class="btn btn-sm ai-chat-expand-btn" ' +
+                      'onclick="expandKeyword(\'' + escaped + '\', this)"' +
+                      '>拡張する</button>';
+        }
+        return '<span class="' + rowClass + '">' +
+               '<strong class="' + nameClass + '">' + kw + '</strong>' +
+               label + buttons +
                '</span>';
     });
 }

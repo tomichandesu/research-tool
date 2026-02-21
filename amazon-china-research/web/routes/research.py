@@ -1,6 +1,7 @@
 """Research job routes."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -352,26 +353,42 @@ AMAZON_SUGGEST_URL = (
     "?mid=A1VC38T7YXB528&alias=aps&prefix={query}"
 )
 
+# All prefixes for exhaustive Amazon suggest extraction
+_SUGGEST_PREFIXES = (
+    list("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん")
+    + list("abcdefghijklmnopqrstuvwxyz")
+    + list("0123456789")
+)
+
+
+async def _query_amazon_suggest(session: aiohttp.ClientSession, keyword_prefix: str) -> list[str]:
+    """Single Amazon suggest query."""
+    url = AMAZON_SUGGEST_URL.format(query=quote(keyword_prefix))
+    try:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            if resp.status != 200:
+                return []
+            data = await resp.json(content_type=None)
+    except Exception:
+        return []
+    return [item["value"] for item in data.get("suggestions", []) if item.get("value", "").strip()]
+
 
 async def _fetch_amazon_suggestions(keyword: str) -> list[str]:
-    """Fetch autocomplete suggestions from Amazon.co.jp."""
-    url = AMAZON_SUGGEST_URL.format(query=quote(keyword + " "))
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=10)
-            ) as resp:
-                if resp.status != 200:
-                    return []
-                data = await resp.json(content_type=None)
-    except Exception:
-        _logger.exception("Amazon suggest API error for keyword=%s", keyword)
-        return []
-    return [
-        item["value"]
-        for item in data.get("suggestions", [])
-        if item.get("value", "").strip() and item["value"].strip() != keyword
-    ]
+    """Fetch ALL autocomplete suggestions by querying all prefixes."""
+    all_suggestions: set[str] = set()
+    async with aiohttp.ClientSession() as session:
+        # Build all queries: "keyword " + each prefix
+        queries = [keyword + " "] + [keyword + " " + p for p in _SUGGEST_PREFIXES]
+        # Run all concurrently (83 queries, Amazon suggest is fast)
+        tasks = [_query_amazon_suggest(session, q) for q in queries]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for result in results:
+            if isinstance(result, list):
+                all_suggestions.update(result)
+    # Remove the keyword itself and sort
+    all_suggestions.discard(keyword)
+    return sorted(all_suggestions)
 
 
 @router.post("/discovery/keyword-expand")

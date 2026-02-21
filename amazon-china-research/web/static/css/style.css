@@ -257,6 +257,22 @@ h2 { font-size: 1.2rem; margin-bottom: .75rem; }
     font-size: .92rem;
 }
 
+.ai-chat-kw-name.kw-warn {
+    color: #dc3545;
+}
+
+.ai-chat-kw-name.kw-ng {
+    color: #0d6efd;
+}
+
+.ai-chat-kw-row.kw-warn-row {
+    opacity: 0.7;
+}
+
+.ai-chat-kw-row.kw-ng-row {
+    opacity: 0.7;
+}
+
 /* Typing dots */
 .ai-chat-loading {
     display: inline-flex;
